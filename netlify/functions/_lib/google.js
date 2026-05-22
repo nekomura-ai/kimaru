@@ -1,0 +1,102 @@
+const { required, googleRedirectUri } = require("./config");
+const { encrypt, decrypt } = require("./crypto");
+const { sb, eq } = require("./supabase");
+
+const scope = ["openid", "email", "profile", "https://www.googleapis.com/auth/calendar"].join(" ");
+
+function googleAuthUrl(state = "") {
+  const params = new URLSearchParams({
+    client_id: required("GOOGLE_CLIENT_ID"),
+    redirect_uri: googleRedirectUri(),
+    response_type: "code",
+    access_type: "offline",
+    prompt: "consent",
+    scope,
+    state,
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+}
+
+async function tokenRequest(params) {
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: required("GOOGLE_CLIENT_ID"), client_secret: required("GOOGLE_CLIENT_SECRET"), redirect_uri: googleRedirectUri(), ...params }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error_description || data.error || "Google token request failed");
+  return data;
+}
+
+async function exchangeCode(code) {
+  return tokenRequest({ code, grant_type: "authorization_code" });
+}
+
+async function userInfo(accessToken) {
+  const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", { headers: { Authorization: `Bearer ${accessToken}` } });
+  const data = await response.json();
+  if (!response.ok) throw new Error("Failed to load Google profile");
+  return data;
+}
+
+async function saveGoogleConnection(owner, tokens) {
+  const expiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000).toISOString();
+  const payload = { owner_id: owner.id, access_token: encrypt(tokens.access_token), expires_at: expiresAt, calendar_id: "primary" };
+  if (tokens.refresh_token) payload.refresh_token = encrypt(tokens.refresh_token);
+  const existing = await sb(`google_connections?owner_id=${eq(owner.id)}&limit=1`);
+  if (existing[0]) {
+    const rows = await sb(`google_connections?owner_id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify(payload) });
+    return rows[0];
+  }
+  const rows = await sb("google_connections", { method: "POST", body: JSON.stringify(payload) });
+  return rows[0];
+}
+
+async function connectionForOwner(ownerId) {
+  const rows = await sb(`google_connections?owner_id=${eq(ownerId)}&limit=1`);
+  return rows[0] || null;
+}
+
+async function accessTokenForOwner(ownerId) {
+  const connection = await connectionForOwner(ownerId);
+  if (!connection) return null;
+  if (new Date(connection.expires_at).getTime() > Date.now() + 60000) return decrypt(connection.access_token);
+  const tokens = await tokenRequest({ refresh_token: decrypt(connection.refresh_token), grant_type: "refresh_token" });
+  await saveGoogleConnection({ id: ownerId }, tokens);
+  return tokens.access_token;
+}
+
+async function freebusy(ownerId, timeMin, timeMax) {
+  const accessToken = await accessTokenForOwner(ownerId);
+  if (!accessToken) return [];
+  const response = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ timeMin, timeMax, items: [{ id: "primary" }] }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error?.message || "Google freebusy failed");
+  return data.calendars?.primary?.busy || [];
+}
+
+async function createCalendarEvent(ownerId, booking) {
+  const accessToken = await accessTokenForOwner(ownerId);
+  if (!accessToken) return null;
+  const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      summary: `Kimaru: ${booking.visitor_name || "Meeting"}`,
+      description: `${booking.topic || ""}\n\nFilter: ${booking.filter_request || "none"}`,
+      start: { dateTime: booking.start_at },
+      end: { dateTime: booking.end_at },
+      attendees: booking.visitor_email ? [{ email: booking.visitor_email, displayName: booking.visitor_name }] : [],
+      reminders: { useDefault: false, overrides: [{ method: "email", minutes: 15 }, { method: "popup", minutes: 15 }] },
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error?.message || "Google event create failed");
+  return data;
+}
+
+module.exports = { googleAuthUrl, exchangeCode, userInfo, saveGoogleConnection, freebusy, createCalendarEvent };
