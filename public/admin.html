@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kimaru - Admin</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="admin">
+  <header class="site-header">
+    <a class="brand" href="/">Kimaru</a>
+    <nav>
+      <a href="/booking.html">Booking page</a>
+      <a id="login-link" href="/api/google-auth-start">Google login</a>
+      <button id="logout-button" class="link-button" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="shell admin-grid">
+    <section class="panel">
+      <p class="eyebrow">Account</p>
+      <h1>Owner dashboard</h1>
+      <p id="owner-status" class="message">Checking login...</p>
+      <div id="owner-card" class="soft-box"></div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Invite code</p>
+      <h2>Unlock Pro</h2>
+      <form id="invite-form" class="inline-form">
+        <input name="code" placeholder="Invite code" value="JF7YAIN40EQL" />
+        <button class="primary" type="submit">Apply</button>
+      </form>
+      <p id="invite-message" class="message"></p>
+    </section>
+
+    <section class="panel wide">
+      <p class="eyebrow">Bookings</p>
+      <h2>Recent meetings</h2>
+      <div id="booking-list" class="list"></div>
+    </section>
+
+    <section class="panel wide">
+      <p class="eyebrow">Appointment log</p>
+      <h2>Keep relationship context</h2>
+      <form id="log-form" class="form-grid">
+        <label>Visitor email<input name="visitor_email" type="email" required /></label>
+        <label>Topic keywords<input name="keywords" placeholder="soccer, travel, food" /></label>
+        <label>Notes<textarea name="notes" rows="4" required></textarea></label>
+        <label>Next proposal<textarea name="next_action" rows="3"></textarea></label>
+        <button class="primary" type="submit">Save log</button>
+      </form>
+      <p id="log-message" class="message"></p>
+      <div id="log-list" class="list"></div>
+    </section>
+  </main>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
