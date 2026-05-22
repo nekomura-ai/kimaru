@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kimaru - Free signup</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="signup">
+  <header class="site-header">
+    <a class="brand" href="/">Kimaru</a>
+    <nav>
+      <a href="/booking.html">Book</a>
+      <a href="/admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main class="shell narrow">
+    <section class="panel">
+      <p class="eyebrow">Free account</p>
+      <h1>Start using Kimaru</h1>
+      <p class="lead">Create a free account to receive bookings, share a simple profile, and send 15-minute reminders.</p>
+
+      <form id="signup-form" class="form-grid">
+        <label>Name<input name="name" autocomplete="name" required /></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+        <label>Purpose<textarea name="purpose" rows="4" placeholder="Example: sales meetings, introductions, customer support"></textarea></label>
+        <button class="primary" type="submit">Create free account</button>
+      </form>
+      <p id="signup-message" class="message" role="status"></p>
+    </section>
+  </main>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
