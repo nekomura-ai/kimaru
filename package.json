@@ -1,0 +1,9 @@
+{
+  "name": "kimaru-production-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  }
+}
