@@ -1,36 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kimaru - Free signup</title>
+  <title>Kimaru</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body data-page="signup">
   <header class="site-header">
-    <a class="brand" href="/">Kimaru</a>
+    <a class="brand" href="/" data-i18n="common.brand">Kimaru</a>
     <nav>
-      <a href="/booking.html">Book</a>
-      <a href="/admin.html">Admin</a>
+      <a href="/booking.html" data-i18n="common.book"></a>
+      <a href="/admin.html" data-i18n="common.admin"></a>
     </nav>
   </header>
 
   <main class="shell narrow">
     <section class="panel">
-      <p class="eyebrow">Free account</p>
-      <h1>Start using Kimaru</h1>
-      <p class="lead">Create a free account to receive bookings, share a simple profile, and send 15-minute reminders.</p>
+      <p class="eyebrow" data-i18n="signup.eyebrow"></p>
+      <h1 data-i18n="signup.heading"></h1>
+      <p class="lead" data-i18n="signup.lead"></p>
 
       <form id="signup-form" class="form-grid">
-        <label>Name<input name="name" autocomplete="name" required /></label>
-        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
-        <label>Purpose<textarea name="purpose" rows="4" placeholder="Example: sales meetings, introductions, customer support"></textarea></label>
-        <button class="primary" type="submit">Create free account</button>
+        <label><span data-i18n="signup.name"></span><input name="name" autocomplete="name" required /></label>
+        <label><span data-i18n="signup.email"></span><input name="email" type="email" autocomplete="email" required /></label>
+        <label><span data-i18n="signup.purpose"></span><textarea name="purpose" rows="4" data-i18n-placeholder="signup.purposePlaceholder"></textarea></label>
+        <label><span data-i18n="signup.catKey"></span><input name="invite_code" data-i18n-placeholder="signup.catKeyPlaceholder" /></label>
+        <label><span data-i18n="signup.language"></span><select name="language" data-language-select></select></label>
+        <button class="primary" type="submit" data-i18n="signup.submit"></button>
       </form>
       <p id="signup-message" class="message" role="status"></p>
     </section>
   </main>
 
+  <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
