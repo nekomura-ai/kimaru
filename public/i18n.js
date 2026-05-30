@@ -1,7 +1,7 @@
 (function () {
   const STORAGE_KEY = "kimaru.language";
-  const fallbackLanguage = "en";
   const defaultLanguage = "ja";
+  const fallbackLanguage = "en";
 
   const supportedLanguages = [
     { code: "ja", label: "日本語" },
@@ -97,14 +97,14 @@
 
   function pickLanguage() {
     const stored = normalizeLanguage(localStorage.getItem(STORAGE_KEY));
-    return stored || getBrowserLanguage() || normalizeLanguage(fallbackLanguage) || normalizeLanguage(defaultLanguage) || defaultLanguage;
+    return stored || normalizeLanguage(defaultLanguage) || getBrowserLanguage() || normalizeLanguage(fallbackLanguage) || defaultLanguage;
   }
 
   function t(key) {
     const activeMessages = messages[activeLanguage] || {};
-    const fallbackMessages = messages[fallbackLanguage] || {};
     const defaultMessages = messages[defaultLanguage] || {};
-    return activeMessages[key] || fallbackMessages[key] || defaultMessages[key] || key;
+    const fallbackMessages = messages[fallbackLanguage] || {};
+    return activeMessages[key] || defaultMessages[key] || fallbackMessages[key] || key;
   }
 
   function populateLanguageSelects(root = document) {
@@ -133,7 +133,7 @@
   }
 
   function setLanguage(code) {
-    activeLanguage = normalizeLanguage(code) || fallbackLanguage;
+    activeLanguage = normalizeLanguage(code) || defaultLanguage;
     localStorage.setItem(STORAGE_KEY, activeLanguage);
     populateLanguageSelects();
     applyTranslations();
