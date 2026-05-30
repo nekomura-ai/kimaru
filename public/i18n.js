@@ -122,7 +122,8 @@
 
   function applyTranslations(root = document) {
     document.documentElement.lang = activeLanguage;
-    document.title = t("signup.pageTitle");
+    const titleKey = document.body.dataset.i18nTitle;
+    if (titleKey) document.title = t(titleKey);
     root.querySelectorAll("[data-i18n]").forEach((element) => {
       element.textContent = t(element.dataset.i18n);
     });
