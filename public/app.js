@@ -1,6 +1,10 @@
 const $ = (selector) => document.querySelector(selector);
 const page = document.body.dataset.page;
 
+function t(key) {
+  return window.KimaruI18n?.t(key) || key;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(`/api/${path}`, {
     credentials: "include",
@@ -24,7 +28,8 @@ function setMessage(selector, text, kind = "") {
 }
 
 function formatSlot(iso) {
-  return new Intl.DateTimeFormat("en", {
+  const locale = window.KimaruI18n?.getLanguage() || "en";
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     weekday: "short",
@@ -37,11 +42,13 @@ async function initSignup() {
   const form = $("#signup-form");
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    setMessage("#signup-message", "Creating account...");
+    setMessage("#signup-message", t("signup.creating"));
     try {
       await api("signup", { method: "POST", body: JSON.stringify(formData(form)) });
+      const selectedLanguage = form.elements.language?.value;
       form.reset();
-      setMessage("#signup-message", "Done. Your free account request was saved.", "success");
+      if (form.elements.language && selectedLanguage) form.elements.language.value = selectedLanguage;
+      setMessage("#signup-message", t("signup.done"), "success");
     } catch (error) {
       setMessage("#signup-message", error.message, "error");
     }
@@ -167,6 +174,8 @@ async function initAdmin() {
     }
   });
 }
+
+window.KimaruI18n?.init();
 
 if (page === "signup") initSignup();
 if (page === "booking") initBooking();
