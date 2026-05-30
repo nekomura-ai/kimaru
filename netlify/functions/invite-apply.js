@@ -2,7 +2,10 @@ const { json, readJson } = require("./_lib/response");
 const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 
-const proCodes = new Set(["JF7YAIN40EQL"]);
+const proCodes = new Set([
+  "JF7YAIN40EQL",
+  "NEKO20240222",
+]);
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
