@@ -67,8 +67,13 @@ create table if not exists free_signups (
   name text not null,
   email text not null,
   purpose text not null default '',
+  invite_code text not null default '',
+  language text not null default 'ja',
   created_at timestamptz not null default now()
 );
+
+alter table free_signups add column if not exists invite_code text not null default '';
+alter table free_signups add column if not exists language text not null default 'ja';
 
 create table if not exists payment_events (
   id uuid primary key default gen_random_uuid(),
