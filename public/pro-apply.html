@@ -52,17 +52,33 @@
       message.textContent = text;
       message.className = `message ${kind}`.trim();
     };
+    const value = (data, key) => String(data.get(key) || '').trim();
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       setMessage('申し込み内容を送信しています...');
+      const data = new FormData(form);
+      const purpose = [
+        '[Pro版申し込み]',
+        `利用目的: ${value(data, 'use_case') || '未入力'}`,
+        `会社名・屋号: ${value(data, 'company') || '未入力'}`,
+        `電話番号: ${value(data, 'phone') || '未入力'}`,
+        `希望プラン: ${value(data, 'plan') || 'Pro版'}`,
+        `相談内容: ${value(data, 'message') || '未入力'}`,
+      ].join('\n');
       try {
-        const response = await fetch('/api/pro-apply', {
+        const response = await fetch('/api/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+          body: JSON.stringify({
+            name: value(data, 'name'),
+            email: value(data, 'email'),
+            purpose,
+            invite_code: value(data, 'invite_code'),
+            language: value(data, 'language') || 'ja',
+          }),
         });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || '送信に失敗しました。');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || '送信に失敗しました。');
         form.reset();
         setMessage('申し込みを受け付けました。確認後、Pro版の利用開始方法を案内します。', 'success');
       } catch (error) {
