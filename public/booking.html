@@ -17,13 +17,13 @@
 
   <main class="shell two-column">
     <section class="panel profile-card">
-      <p class="eyebrow">会う前の準備</p>
-      <h1>初対面でも、話しやすい時間に。</h1>
-      <p class="lead">キマルは、予定を決めるだけでなく、事前アンケートで話したいことや今の目標を共有できます。短い準備が、出会いを少しあたたかくします。</p>
+      <p class="eyebrow">予約ページ</p>
+      <h1>都合のよい日時を選択してください</h1>
+      <p class="lead">候補日時から空いている時間を選び、必要事項を入力すると予約が完了します。事前に相談内容を共有しておくことで、当日のやりとりをスムーズに始められます。</p>
       <ul class="feature-list">
-        <li>Googleカレンダーの予定を避けた空き時間表示</li>
-        <li>Google Meetリンクの自動発行を優先実装</li>
-        <li>予約完了メールと事前アンケートの土台</li>
+        <li>受付可能な曜日と時間帯に沿って候補を表示します</li>
+        <li>予約内容は管理画面で確認できます</li>
+        <li>オンライン、対面、電話などの開催方法に対応します</li>
       </ul>
     </section>
 
@@ -38,8 +38,8 @@
         <input type="hidden" name="end" />
         <label>お名前<input name="visitor_name" autocomplete="name" required /></label>
         <label>メールアドレス<input name="visitor_email" type="email" autocomplete="email" required /></label>
-        <label>今回お話したい内容<textarea name="topic" rows="4" required></textarea></label>
-        <label>今、実現したい夢や目標は何ですか？<textarea name="goal" rows="3"></textarea></label>
+        <label>今回相談したい内容<textarea name="topic" rows="4" required></textarea></label>
+        <label>事前に共有しておきたいこと<textarea name="goal" rows="3"></textarea></label>
         <button class="primary" type="submit">予約を確定する</button>
       </form>
       <p id="booking-message" class="message" role="status"></p>
