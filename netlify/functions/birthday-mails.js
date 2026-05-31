@@ -57,6 +57,15 @@ function isAuthorized(event) {
   return authorization === `Bearer ${secret}` || querySecret === secret;
 }
 
+async function getProOwnerIds() {
+  try {
+    const rows = await sb("owners?select=id,plan&plan=eq.pro&limit=10000");
+    return new Set((rows || []).map((owner) => owner.id).filter(Boolean));
+  } catch (_) {
+    return new Set();
+  }
+}
+
 async function alreadyDelivered(bookingId, deliveryDate) {
   try {
     const rows = await sb(`birthday_message_deliveries?booking_id=${eq(bookingId)}&delivery_date=${eq(deliveryDate)}&limit=1`);
@@ -101,9 +110,13 @@ exports.handler = async (event) => {
   const dryRun = event.queryStringParameters?.dry_run === "1" || event.queryStringParameters?.dry_run === "true";
 
   try {
-    const bookings = await sb("bookings?select=*&status=eq.confirmed&order=created_at.desc&limit=1000");
+    const [bookings, proOwnerIds] = await Promise.all([
+      sb("bookings?select=*&status=eq.confirmed&order=created_at.desc&limit=1000"),
+      getProOwnerIds(),
+    ]);
     const due = [];
     for (const booking of bookings || []) {
+      if (!proOwnerIds.has(booking.owner_id || booking.user_id)) continue;
       const { birthDate, optIn, profile } = getBirthdayData(booking);
       if (!optIn || monthDay(birthDate) !== todayMonthDay) continue;
       const message = buildMessage(booking, profile);
@@ -140,7 +153,7 @@ exports.handler = async (event) => {
       }
     }
 
-    return json(200, { ok: true, date: today, due_count: due.length, results });
+    return json(200, { ok: true, date: today, pro_owner_count: proOwnerIds.size, due_count: due.length, results });
   } catch (error) {
     return json(500, { error: error.message });
   }
