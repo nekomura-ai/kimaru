@@ -30,8 +30,15 @@
 
     <section class="panel wide">
       <p class="eyebrow">プロフィールシート</p>
-      <h2>こちら側の強みを入力する</h2>
+      <h2>こちら側のプロフィールを反映する</h2>
+      <p id="owner-profile-source" class="message">ログイン中のプロフィールを確認しています...</p>
       <form id="profile-sheet-form" class="form-grid">
+        <label>表示名
+          <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
+        </label>
+        <label>連絡先メール
+          <input name="profile_email" type="email" placeholder="you@example.com" />
+        </label>
         <label>自分の強み・得意なこと
           <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
         </label>
@@ -78,7 +85,7 @@
   <script>
     const profileKey = 'kimaru_ai_assist_profile';
     let aiAssistRecords = [];
-
+    let currentOwner = null;
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHtml(value) {
@@ -97,18 +104,47 @@
       return data;
     }
 
+    function profileFromOwner(owner) {
+      if (!owner) return {};
+      return {
+        profile_name: owner.name || owner.display_name || owner.email || '',
+        profile_email: owner.email || '',
+        profile_strengths: owner.profile_strengths || owner.bio || owner.description || '',
+        profile_style: owner.profile_style || 'logical',
+        profile_offer: owner.profile_offer || '',
+        profile_goal: owner.profile_goal || ''
+      };
+    }
+
+    function applyProfile(form, profile, overwrite = false) {
+      Object.entries(profile || {}).forEach(([key, value]) => {
+        if (!form.elements[key] || value == null) return;
+        if (overwrite || !form.elements[key].value) form.elements[key].value = value;
+      });
+    }
+
     function saveProfile(form) {
       const profile = Object.fromEntries(new FormData(form).entries());
       localStorage.setItem(profileKey, JSON.stringify(profile));
       return profile;
     }
 
-    function loadProfile(form) {
-      const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
-      Object.entries(profile).forEach(([key, value]) => {
-        if (form.elements[key]) form.elements[key].value = value;
-      });
-      return profile;
+    function loadProfile(form, owner) {
+      const stored = JSON.parse(localStorage.getItem(profileKey) || '{}');
+      applyProfile(form, profileFromOwner(owner), false);
+      applyProfile(form, stored, true);
+      return { ...profileFromOwner(owner), ...stored };
+    }
+
+    function updateOwnerProfileSource(owner) {
+      const el = $('#owner-profile-source');
+      if (!el) return;
+      if (!owner) {
+        el.textContent = 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。';
+        return;
+      }
+      const name = owner.name || owner.display_name || owner.email || 'ログイン中のユーザー';
+      el.textContent = `${name} のプロフィールを反映しています。未入力の項目はここで編集できます。`;
     }
 
     function joinValues(values) {
@@ -126,17 +162,7 @@
         source: '予約',
         name,
         email,
-        text: joinValues([
-          name,
-          email,
-          booking.title,
-          booking.description,
-          booking.topic,
-          booking.goal,
-          booking.filter_request,
-          booking.birthday_analysis_note,
-          answerText
-        ])
+        text: joinValues([name, email, booking.title, booking.description, booking.topic, booking.goal, booking.filter_request, booking.birthday_analysis_note, answerText])
       };
     }
 
@@ -147,14 +173,7 @@
         source: '相手メモ',
         name,
         email,
-        text: joinValues([
-          name,
-          email,
-          log.keywords,
-          log.notes,
-          log.next_action,
-          log.birthday_analysis_note
-        ])
+        text: joinValues([name, email, log.keywords, log.notes, log.next_action, log.birthday_analysis_note])
       };
     }
 
@@ -201,6 +220,7 @@
       const avoid = [];
       const next = [];
       const optimum = [];
+      const speaker = profile.profile_name ? `${profile.profile_name}さん` : 'こちら';
 
       if (score(text, '聞き上手') >= 4) opening.push('相手は聞き役に回りやすいので、こちらが話しすぎず相談形式で始めるのが合います。');
       if (score(text, '話し上手') >= 4) opening.push('相手の言葉を拾って要約し、主導権を奪わずに会話を進めると自然です。');
@@ -220,12 +240,12 @@
 
       if (score(text, '積極性') >= 4 || score(text, '決断力') >= 4) next.push('面談中に次回日程、提案書送付、紹介依頼のどれかを明確に決める。');
       if (score(text, '紹介しやすさ') >= 4) next.push('紹介してほしい人、こちらが紹介できる人を1人ずつ具体化する。');
-      if (profile.profile_offer) next.push(`提供価値「${profile.profile_offer}」を、相手の課題に合わせて一文に絞って伝える。`);
+      if (profile.profile_offer) next.push(`${speaker}が提供できる価値「${profile.profile_offer}」を、相手の課題に合わせて一文に絞って伝える。`);
       if (profile.profile_goal) next.push(`今回のゴールは「${profile.profile_goal}」。会話の最後に自然に確認する。`);
       if (!next.length) next.push('会話の最後に「次に一番役立てそうなこと」を確認し、24時間以内にフォローする。');
 
       optimum.push('相手の現在地を確認してから、こちらの強みを一方的な提案ではなく「相手の次の一歩を軽くする手段」として置く。');
-      if (profile.profile_strengths) optimum.push(`こちらの強みは「${profile.profile_strengths}」。相手の言葉に接続してから出すと押し売り感が出にくいです。`);
+      if (profile.profile_strengths) optimum.push(`${speaker}の強みは「${profile.profile_strengths}」。相手の言葉に接続してから出すと押し売り感が出にくいです。`);
 
       return { opening, topics: topics.length ? topics : ['相手が今困っていること、最近動かしたいこと、誰に会いたいか。'], avoid, next, optimum };
     }
@@ -286,9 +306,13 @@
 
     async function loadRecords() {
       const status = $('#ai-assist-status');
+      const profileForm = $('#profile-sheet-form');
       try {
         const me = await api('me');
-        if (!me.owner) {
+        currentOwner = me.owner || null;
+        loadProfile(profileForm, currentOwner);
+        updateOwnerProfileSource(currentOwner);
+        if (!currentOwner) {
           status.textContent = 'AIアシストを使うには、先にログインしてください。';
           return;
         }
@@ -312,13 +336,14 @@
           if (!matched) $('#ai-assist-form input[name="target_keyword"]').value = decoded;
         }
       } catch (error) {
+        updateOwnerProfileSource(null);
         status.textContent = error.message || 'データを読み込めませんでした。';
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       const profileForm = $('#profile-sheet-form');
-      loadProfile(profileForm);
+      loadProfile(profileForm, null);
 
       profileForm.addEventListener('submit', (event) => {
         event.preventDefault();
