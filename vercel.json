@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
@@ -8,10 +7,5 @@
     { "source": "/booking", "destination": "/booking.html" },
     { "source": "/signup", "destination": "/signup.html" },
     { "source": "/admin", "destination": "/admin.html" }
-  ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs22.x"
-    }
-  }
+  ]
 }
