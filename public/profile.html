@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キマル - プロフィールシート</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">キマル</a>
+    <nav>
+      <a href="/booking.html">予約ページ</a>
+      <a href="/admin.html">相手管理</a>
+      <a href="/profile.html">プロフィール</a>
+      <a href="/ai-assist.html">AIアシスト</a>
+      <a href="/pro.html">Pro版</a>
+      <a href="/pro-apply.html">Pro申し込み</a>
+      <a href="/signup.html">無料登録</a>
+    </nav>
+  </header>
+
+  <main class="shell admin-grid">
+    <section class="panel wide">
+      <p class="eyebrow">Profile Sheet</p>
+      <h1>プロフィールシート</h1>
+      <p class="lead">AIアシストが、あなたらしい提案を作るための基本情報です。</p>
+      <p class="muted">ここで保存した内容は、AIアシストのプロフィールシートに自動反映されます。相手に何を届けられる人なのかを整理しておくと、関係構築の提案が具体的になります。</p>
+      <p id="profile-status" class="message">ログイン中のプロフィールを確認しています...</p>
+    </section>
+
+    <section class="panel wide">
+      <p class="eyebrow">あなたの情報</p>
+      <h2>プロフィールを整える</h2>
+      <form id="profile-form" class="form-grid">
+        <label>表示名
+          <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
+        </label>
+        <label>連絡先メール
+          <input name="profile_email" type="email" placeholder="you@example.com" />
+        </label>
+        <label>肩書き・活動内容
+          <input name="profile_title" placeholder="例：事業プロデューサー / 営業支援 / コミュニティ運営" />
+        </label>
+        <label>自分の強み・得意なこと
+          <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
+        </label>
+        <label>話し方・提案スタイル
+          <select name="profile_style">
+            <option value="logical">論理型</option>
+            <option value="empathy">共感型</option>
+            <option value="energy">熱量型</option>
+            <option value="listener">聞き役型</option>
+            <option value="partner">伴走型</option>
+          </select>
+        </label>
+        <label>相手に提供できる価値
+          <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理"></textarea>
+        </label>
+        <label>話すときに大切にしていること
+          <textarea name="profile_values" rows="3" placeholder="例：相手の可能性を広げる、押し売りしない、次の一歩を明確にする"></textarea>
+        </label>
+        <label>今回キメたいこと・次につなげたいこと
+          <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
+        </label>
+        <button class="primary" type="submit">プロフィールを保存</button>
+      </form>
+      <p id="profile-message" class="message"></p>
+    </section>
+
+    <section class="panel wide">
+      <p class="eyebrow">Preview</p>
+      <h2>AIアシストに渡すプロフィール</h2>
+      <div id="profile-preview" class="soft-box">
+        <p class="muted">プロフィールを保存するとプレビューが表示されます。</p>
+      </div>
+      <p><a class="button primary" href="/ai-assist.html">AIアシストで使う</a></p>
+    </section>
+  </main>
+
+  <script>
+    const profileKey = 'kimaru_ai_assist_profile';
+    const $ = (selector) => document.querySelector(selector);
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    async function api(path) {
+      const response = await fetch(`/api/${path}`, { credentials: 'include' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || '読み込みに失敗しました。');
+      return data;
+    }
+
+    function profileFromOwner(owner) {
+      if (!owner) return {};
+      return {
+        profile_name: owner.name || owner.display_name || owner.email || '',
+        profile_email: owner.email || '',
+        profile_title: owner.profile_title || '',
+        profile_strengths: owner.profile_strengths || owner.bio || owner.description || '',
+        profile_style: owner.profile_style || 'logical',
+        profile_offer: owner.profile_offer || '',
+        profile_values: owner.profile_values || '',
+        profile_goal: owner.profile_goal || ''
+      };
+    }
+
+    function applyProfile(form, profile, overwrite = false) {
+      Object.entries(profile || {}).forEach(([key, value]) => {
+        if (!form.elements[key] || value == null) return;
+        if (overwrite || !form.elements[key].value) form.elements[key].value = value;
+      });
+    }
+
+    function readProfile(form) {
+      return Object.fromEntries(new FormData(form).entries());
+    }
+
+    function saveProfile(form) {
+      const profile = readProfile(form);
+      localStorage.setItem(profileKey, JSON.stringify(profile));
+      return profile;
+    }
+
+    function loadStoredProfile() {
+      return JSON.parse(localStorage.getItem(profileKey) || '{}');
+    }
+
+    function renderPreview(profile) {
+      const styleLabel = {
+        logical: '論理型',
+        empathy: '共感型',
+        energy: '熱量型',
+        listener: '聞き役型',
+        partner: '伴走型'
+      }[profile.profile_style] || '未設定';
+      $('#profile-preview').innerHTML = `
+        <div class="assist-summary">
+          <p class="eyebrow">${escapeHtml(styleLabel)}</p>
+          <h3>${escapeHtml(profile.profile_name || '未設定')}</h3>
+          <p class="muted">${escapeHtml(profile.profile_email || '')}</p>
+        </div>
+        <section class="assist-block"><h3>肩書き・活動内容</h3><p>${escapeHtml(profile.profile_title || '未設定')}</p></section>
+        <section class="assist-block"><h3>強み</h3><p>${escapeHtml(profile.profile_strengths || '未設定')}</p></section>
+        <section class="assist-block"><h3>提供できる価値</h3><p>${escapeHtml(profile.profile_offer || '未設定')}</p></section>
+        <section class="assist-block"><h3>大切にしていること</h3><p>${escapeHtml(profile.profile_values || '未設定')}</p></section>
+        <section class="assist-block"><h3>次につなげたいこと</h3><p>${escapeHtml(profile.profile_goal || '未設定')}</p></section>`;
+    }
+
+    async function initProfile() {
+      const form = $('#profile-form');
+      const stored = loadStoredProfile();
+      applyProfile(form, stored, true);
+      renderPreview(readProfile(form));
+
+      try {
+        const data = await api('me');
+        if (data.owner) {
+          applyProfile(form, profileFromOwner(data.owner), false);
+          applyProfile(form, stored, true);
+          $('#profile-status').textContent = `${data.owner.name || data.owner.email} のプロフィールを反映しています。`;
+        } else {
+          $('#profile-status').textContent = 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。';
+        }
+        renderPreview(readProfile(form));
+      } catch (error) {
+        $('#profile-status').textContent = 'プロフィール情報を読み込めませんでした。手入力で保存できます。';
+      }
+
+      form.addEventListener('input', () => renderPreview(readProfile(form)));
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const profile = saveProfile(form);
+        renderPreview(profile);
+        $('#profile-message').textContent = 'プロフィールシートを保存しました。AIアシストに反映されます。';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initProfile);
+  </script>
+</body>
+</html>
