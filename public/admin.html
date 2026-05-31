@@ -80,6 +80,22 @@
           </select>
         </label>
         <label id="location-value-field" class="hidden">開催場所・電話案内・URL<input name="location_value" placeholder="住所、電話案内、またはURL" /></label>
+
+        <div class="availability-box">
+          <p class="eyebrow">受付時間</p>
+          <h3>曜日ごとの日程調整範囲</h3>
+          <p class="muted">休みの日はチェックを外してください。受付時間の中から予約枠を自動生成します。</p>
+          <div class="availability-grid">
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_1" checked />月曜日 <input type="time" name="availability_start_1" value="10:00" /> <span>から</span> <input type="time" name="availability_end_1" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_2" checked />火曜日 <input type="time" name="availability_start_2" value="10:00" /> <span>から</span> <input type="time" name="availability_end_2" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_3" checked />水曜日 <input type="time" name="availability_start_3" value="10:00" /> <span>から</span> <input type="time" name="availability_end_3" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_4" checked />木曜日 <input type="time" name="availability_start_4" value="10:00" /> <span>から</span> <input type="time" name="availability_end_4" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_5" checked />金曜日 <input type="time" name="availability_start_5" value="10:00" /> <span>から</span> <input type="time" name="availability_end_5" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_6" />土曜日 <input type="time" name="availability_start_6" value="10:00" /> <span>から</span> <input type="time" name="availability_end_6" value="18:00" /></label>
+            <label class="availability-row"><input type="checkbox" name="availability_enabled_0" />日曜日 <input type="time" name="availability_start_0" value="10:00" /> <span>から</span> <input type="time" name="availability_end_0" value="18:00" /></label>
+          </div>
+        </div>
+
         <div class="questionnaire-box">
           <p class="eyebrow">事前アンケート</p>
           <p class="muted" id="question-limit-message">無料版は最大2問、有料版は最大5問まで設定できます。</p>
