@@ -6,6 +6,7 @@
     { "source": "/", "destination": "/index.html" },
     { "source": "/booking", "destination": "/booking.html" },
     { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/pro", "destination": "/pro.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/cat-key-admin", "destination": "/cat-key-admin.html" },
     { "source": "/api/birthday-mails", "destination": "/api/book?job=birthday-mails" }
