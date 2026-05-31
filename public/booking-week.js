@@ -1,0 +1,221 @@
+const $ = (selector) => document.querySelector(selector);
+
+async function api(path, options = {}) {
+  const response = await fetch(`/api/${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
+function formData(form) {
+  return Object.fromEntries(new FormData(form).entries());
+}
+
+function setMessage(selector, text, kind = "") {
+  const el = $(selector);
+  if (!el) return;
+  el.textContent = text;
+  el.className = `message ${kind}`.trim();
+}
+
+function pad2(value) {
+  return String(value).padStart(2, "0");
+}
+
+function dateKey(date) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function timeText(date) {
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function minutesOfDay(date) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function dayHeading(date) {
+  return new Intl.DateTimeFormat("ja-JP", { month: "numeric", day: "numeric", weekday: "short" })
+    .format(date)
+    .replace("曜日", "");
+}
+
+function weekTitle(days) {
+  const first = days[0];
+  const last = days[days.length - 1];
+  return `${first.getFullYear()}年${first.getMonth() + 1}月${first.getDate()}日 - ${last.getMonth() + 1}月${last.getDate()}日`;
+}
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function buildWeekDays(slots) {
+  const firstSlot = slots[0]?.startDate || new Date();
+  const firstDay = startOfDay(firstSlot);
+  return Array.from({ length: 7 }, (_, index) => new Date(firstDay.getFullYear(), firstDay.getMonth(), firstDay.getDate() + index));
+}
+
+function buildTimeRows(slots) {
+  const minMinute = slots.length ? Math.min(...slots.map((slot) => minutesOfDay(slot.startDate))) : 10 * 60;
+  const maxMinute = slots.length ? Math.max(...slots.map((slot) => minutesOfDay(slot.endDate))) : 18 * 60;
+  const start = Math.max(0, Math.floor(minMinute / 30) * 30);
+  const end = Math.min(24 * 60, Math.max(start + 180, Math.ceil(maxMinute / 30) * 30));
+  const rows = [];
+  for (let minute = start; minute < end; minute += 30) rows.push(minute);
+  return rows;
+}
+
+function slotKey(slot) {
+  return `${dateKey(slot.startDate)}-${timeText(slot.startDate)}`;
+}
+
+function selectSlot(slot, button, form) {
+  form.classList.remove("hidden");
+  form.elements.start.value = slot.start;
+  form.elements.end.value = slot.end;
+  document.querySelectorAll(".week-slot").forEach((item) => item.classList.remove("selected"));
+  button.classList.add("selected");
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderWeeklyAvailability(container, rawSlots, form) {
+  const slots = [...rawSlots]
+    .map((slot) => ({ ...slot, startDate: new Date(slot.start), endDate: new Date(slot.end) }))
+    .filter((slot) => !Number.isNaN(slot.startDate.getTime()) && !Number.isNaN(slot.endDate.getTime()))
+    .sort((a, b) => a.startDate - b.startDate);
+
+  if (!slots.length) {
+    container.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
+    return;
+  }
+
+  const days = buildWeekDays(slots);
+  const rows = buildTimeRows(slots);
+  const byStart = new Map(slots.map((slot) => [slotKey(slot), slot]));
+  const duration = Math.round((slots[0].endDate - slots[0].startDate) / 60000);
+
+  container.innerHTML = `
+    <div class="week-schedule-card">
+      <div class="week-schedule-head">
+        <div>
+          <p class="eyebrow">1週間の空き枠</p>
+          <h3>${weekTitle(days)}</h3>
+        </div>
+        <div class="week-schedule-meta">
+          <span>30分刻み</span>
+          <strong>所要時間 ${duration}分</strong>
+        </div>
+      </div>
+      <p class="muted">Googleカレンダーの予定と重なる時間は表示されません。空いている枠だけを選択できます。</p>
+      <div class="week-table-wrap">
+        <table class="week-table">
+          <thead>
+            <tr>
+              <th>時間</th>
+              ${days.map((day) => `<th>${dayHeading(day)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((minute) => `
+              <tr>
+                <th>${pad2(Math.floor(minute / 60))}:${pad2(minute % 60)}</th>
+                ${days.map((day) => {
+                  const key = `${dateKey(day)}-${pad2(Math.floor(minute / 60))}:${pad2(minute % 60)}`;
+                  const slot = byStart.get(key);
+                  return `<td data-slot-key="${key}">${slot ? "" : '<span class="week-busy">-</span>'}</td>`;
+                }).join("")}
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll("td[data-slot-key]").forEach((cell) => {
+    const slot = byStart.get(cell.dataset.slotKey);
+    if (!slot) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "week-slot";
+    button.innerHTML = `<span>${timeText(slot.startDate)}</span><small>予約する</small>`;
+    button.addEventListener("click", () => selectSlot(slot, button, form));
+    cell.replaceChildren(button);
+  });
+}
+
+function getBirthdayStatus(dateString) {
+  if (!dateString) return "";
+  const [, month, day] = dateString.split("-").map(Number);
+  if (!month || !day) return "";
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const target = new Date(currentYear, month - 1, day);
+  const startOfToday = new Date(currentYear, today.getMonth(), today.getDate());
+  if (target < startOfToday) target.setFullYear(currentYear + 1);
+  const days = Math.ceil((target - startOfToday) / 86400000);
+  if (days === 0) return "今日が誕生日です。お祝いメッセージを送るタイミングです。";
+  return `次の誕生日まであと${days}日です。`;
+}
+
+function buildRelationshipProfile(dateString, name = "") {
+  if (!dateString) return null;
+  const [year, month, day] = dateString.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const displayName = name ? `${name}さん` : "お相手";
+  return {
+    method: "生年月日インサイト（簡易）",
+    type: "会話のきっかけを作るための簡易メモ",
+    approach: "目標、最近の関心、これから挑戦したいことを丁寧に聞くと会話が進みやすいです。",
+    avoid: "断定せず、関係構築の仮説として扱ってください。",
+    birthday_status: getBirthdayStatus(dateString),
+    birthday_message: `${displayName}、お誕生日おめでとうございます。新しい一年が、挑戦したいことに一歩近づく時間になりますように。`,
+    note: "生年月日から作る簡易メモです。断定ではなく、会話のきっかけとして使ってください。",
+  };
+}
+
+function buildBookingPayload(form) {
+  const data = formData(form);
+  const profile = buildRelationshipProfile(data.birth_date, data.visitor_name);
+  data.filter_request = profile ? JSON.stringify({
+    kind: "relationship_context",
+    version: 4,
+    birth_date: data.birth_date_private === "yes" ? "非公開" : data.birth_date,
+    birth_date_private: data.birth_date_private === "yes",
+    birthday_message_opt_in: Boolean(data.birth_date),
+    profile,
+  }) : "none";
+  delete data.birth_date;
+  return data;
+}
+
+async function initBooking() {
+  const grid = $("#slot-grid");
+  const form = $("#booking-form");
+  if (!grid || !form) return;
+  try {
+    const data = await api("availability?owner=demo");
+    renderWeeklyAvailability(grid, data.slots || [], form);
+  } catch (error) {
+    setMessage("#booking-message", error.message, "error");
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setMessage("#booking-message", "予約を保存しています...");
+    try {
+      await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });
+      form.reset();
+      form.classList.add("hidden");
+      setMessage("#booking-message", "予約が完了しました。確認メールとカレンダー予定を準備します。", "success");
+    } catch (error) {
+      setMessage("#booking-message", error.message, "error");
+    }
+  });
+}
+
+initBooking();
