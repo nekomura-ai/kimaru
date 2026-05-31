@@ -1,0 +1,163 @@
+body[data-page="booking"] .two-column{
+  grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);
+}
+
+body[data-page="booking"] .panel:nth-of-type(2){
+  background:#fbfbfa;
+  border-color:#deded9;
+}
+
+body[data-page="booking"] .slot-grid{
+  margin-top:14px;
+}
+
+body[data-page="booking"] .schedule-card{
+  padding:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  overflow:visible;
+}
+
+body[data-page="booking"] .schedule-card h3{
+  margin:16px 0 12px;
+  color:#242827;
+  font-size:18px;
+  line-height:1.45;
+}
+
+body[data-page="booking"] .schedule-steps{
+  display:flex;
+  gap:8px;
+  border:0;
+  border-radius:0;
+  overflow:visible;
+  background:transparent;
+}
+
+body[data-page="booking"] .schedule-steps span{
+  justify-content:flex-start;
+  min-height:34px;
+  padding:0 11px;
+  color:#6f7672;
+  background:#f0f1ee;
+  border:1px solid #d9dbd5;
+  border-radius:8px;
+  font-size:12px;
+}
+
+body[data-page="booking"] .schedule-steps .active{
+  color:#163f39;
+  background:#dcefeb;
+  border-color:#bcd9d3;
+}
+
+body[data-page="booking"] .schedule-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 14px;
+}
+
+body[data-page="booking"] .schedule-meta span,
+body[data-page="booking"] .schedule-meta strong{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  padding:0 10px;
+  color:#34403c;
+  background:#fff;
+  border:1px solid #dcded8;
+  border-radius:8px;
+  font-size:13px;
+}
+
+body[data-page="booking"] .schedule-toolbar{
+  margin:0 0 12px;
+  padding:14px 16px;
+  background:#fff;
+  border:1px solid #dcded8;
+  border-radius:8px;
+}
+
+body[data-page="booking"] .schedule-toolbar strong{
+  color:#252b29;
+  font-size:20px;
+}
+
+body[data-page="booking"] .schedule-toolbar span{
+  color:#767d78;
+}
+
+body[data-page="booking"] .calendar-board{
+  display:block;
+  min-width:0;
+  background:transparent;
+  border:0;
+  overflow:visible;
+}
+
+body[data-page="booking"] .calendar-corner,
+body[data-page="booking"] .calendar-days,
+body[data-page="booking"] .calendar-times,
+body[data-page="booking"] .calendar-grid-lines,
+body[data-page="booking"] .calendar-columns>div{
+  display:none;
+}
+
+body[data-page="booking"] .calendar-columns{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(136px,1fr));
+  gap:10px;
+  height:auto;
+}
+
+body[data-page="booking"] .calendar-slot{
+  position:static;
+  display:grid;
+  gap:2px;
+  width:auto!important;
+  height:auto!important;
+  min-height:58px;
+  padding:11px 12px;
+  color:#173835;
+  background:#eef7f5;
+  border:1px solid #b9d8d2;
+  border-radius:8px;
+  box-shadow:none;
+  font-size:15px;
+  line-height:1.35;
+}
+
+body[data-page="booking"] .calendar-slot::before{
+  content:"予約可能";
+  color:#5f6c68;
+  font-size:11px;
+  font-weight:800;
+}
+
+body[data-page="booking"] .calendar-slot:hover,
+body[data-page="booking"] .calendar-slot.selected{
+  color:#fff;
+  background:#24564f;
+  border-color:#24564f;
+  box-shadow:0 10px 24px rgba(36,86,79,.18);
+}
+
+body[data-page="booking"] .calendar-slot:hover::before,
+body[data-page="booking"] .calendar-slot.selected::before{
+  color:rgba(255,255,255,.72);
+}
+
+@media(max-width:620px){
+  body[data-page="booking"] .schedule-steps{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  body[data-page="booking"] .calendar-columns{
+    grid-template-columns:1fr 1fr;
+  }
+}
