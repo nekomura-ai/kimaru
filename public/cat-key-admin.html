@@ -20,10 +20,10 @@
     <section class="panel">
       <p class="eyebrow">Admin / Cat Key</p>
       <h1>猫の鍵 管理</h1>
-      <p class="lead">Cat Keyの不正利用があった場合に、対象ユーザーを無料プランへ戻し、そのユーザーの管理画面からCat Key入力欄を非表示にします。</p>
+      <p class="lead">Cat Keyの不正利用があった場合に、対象ユーザーを無料プランへ戻し、そのユーザーの管理画面からCat Key入力欄を非表示にします。適用・失敗・停止のログも確認できます。</p>
       <form id="secret-form" class="form-grid">
         <label>管理者キー<input id="admin-secret" type="password" autocomplete="off" placeholder="CAT_KEY_ADMIN_SECRET" required /></label>
-        <button class="primary" type="submit">ユーザー一覧を表示</button>
+        <button class="primary" type="submit">ユーザーとログを表示</button>
       </form>
       <p id="admin-message" class="message"></p>
     </section>
@@ -33,10 +33,17 @@
       <h2>ユーザー一覧</h2>
       <div id="owner-admin-list" class="list"></div>
     </section>
+
+    <section class="panel">
+      <p class="eyebrow">Audit Log</p>
+      <h2>Cat Keyログ</h2>
+      <div id="cat-key-event-list" class="list"></div>
+    </section>
   </main>
 
   <script>
     const list = document.querySelector('#owner-admin-list');
+    const eventList = document.querySelector('#cat-key-event-list');
     const message = document.querySelector('#admin-message');
     const secretInput = document.querySelector('#admin-secret');
 
@@ -49,6 +56,15 @@
       return String(value || '').replace(/[<>'"&]/g, (char) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
       }[char]));
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      try {
+        return new Intl.DateTimeFormat('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+      } catch (_) {
+        return value;
+      }
     }
 
     async function adminApi(options = {}) {
@@ -81,10 +97,26 @@
       `).join('');
     }
 
+    function renderEvents(events) {
+      if (!events.length) {
+        eventList.innerHTML = '<p class="muted">まだログはありません。</p>';
+        return;
+      }
+      eventList.innerHTML = events.map((event) => `
+        <article class="list-item">
+          <strong>${escapeHtml(event.action || '')}</strong>
+          <span>${escapeHtml(event.email || '')}</span>
+          <p>Code: ${escapeHtml(event.code || '-')} / IP: ${escapeHtml(event.ip_address || '-')}</p>
+          <small>${escapeHtml(formatDate(event.created_at))}</small>
+        </article>
+      `).join('');
+    }
+
     async function loadOwners() {
       setMessage('読み込み中...');
       const data = await adminApi();
       renderOwners(data.owners || []);
+      renderEvents(data.events || []);
       setMessage('読み込みました。', 'success');
     }
 
