@@ -167,6 +167,21 @@ create table if not exists invite_codes (
   created_at timestamptz not null default now()
 );
 
+create table if not exists cat_key_events (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references owners(id) on delete set null,
+  email text not null default '',
+  action text not null default '',
+  code text not null default '',
+  ip_address text not null default '',
+  user_agent text not null default '',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists cat_key_events_owner_id_created_at_idx on cat_key_events(owner_id, created_at desc);
+create index if not exists cat_key_events_email_created_at_idx on cat_key_events(email, created_at desc);
+
 insert into invite_codes (code, plan_grant, is_active)
 values ('NEKO20240222', 'pro', true)
 on conflict (code) do update set plan_grant = excluded.plan_grant, is_active = excluded.is_active;
