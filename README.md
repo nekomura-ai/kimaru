@@ -6,6 +6,16 @@ Kimaru is a free-first scheduling tool for meetings that should feel easier befo
 > 会った後に、ご縁が育つ。  
 > 予定を決めるだけでなく、明るい未来につながる出会いを増やす。
 
+## Production
+
+Primary production deployment:
+
+```text
+https://kimaru-alpha.vercel.app
+```
+
+The project is deployed on Vercel as `kimaru` under Fumio Uchiyama's projects.
+
 ## Architecture
 
 Primary deployment is now Vercel + Supabase.
@@ -28,7 +38,7 @@ Settings:
 
 - Framework preset: Other
 - Build command: empty
-- Output directory: `public`
+- Output directory: empty
 - Install command: empty
 
 `vercel.json` handles clean URLs and keeps `/api/*` as Vercel Functions.
@@ -43,16 +53,16 @@ Required environment variables:
 - `SESSION_SECRET`
 - `TOKEN_ENCRYPTION_KEY`
 
-Set `APP_BASE_URL` to the Vercel production URL, for example:
+Set `APP_BASE_URL` to:
 
 ```text
-https://YOUR_PROJECT.vercel.app
+https://kimaru-alpha.vercel.app
 ```
 
 Google OAuth redirect URI:
 
 ```text
-https://YOUR_PROJECT.vercel.app/api/google-auth-callback
+https://kimaru-alpha.vercel.app/api/google-auth-callback
 ```
 
 ## Supabase
