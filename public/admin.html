@@ -127,10 +127,45 @@
         <label>キーワード<input name="keywords" placeholder="夢, 仕事, 紹介したい人" /></label>
         <label>メモ<textarea name="notes" rows="4" required></textarea></label>
         <label>次にできること<textarea name="next_action" rows="3"></textarea></label>
+        <div class="questionnaire-box conversation-rating-box">
+          <p class="eyebrow">相手の印象メモ</p>
+          <h3>会話以外の情報を5段階で残す</h3>
+          <p class="muted">1は弱い、3は標準、5は強い印象です。未確認の項目は3のままで保存できます。</p>
+          <label>第一印象
+            <select name="trait_first_impression" data-trait-label="第一印象"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>話し上手
+            <select name="trait_speaking" data-trait-label="話し上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>聞き上手
+            <select name="trait_listening" data-trait-label="聞き上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>積極性
+            <select name="trait_proactive" data-trait-label="積極性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>慎重さ
+            <select name="trait_careful" data-trait-label="慎重さ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>前向きさ
+            <select name="trait_positive" data-trait-label="前向きさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>論理性
+            <select name="trait_logical" data-trait-label="論理性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>共感力
+            <select name="trait_empathy" data-trait-label="共感力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>決断力
+            <select name="trait_decisive" data-trait-label="決断力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+          <label>紹介しやすさ
+            <select name="trait_referral" data-trait-label="紹介しやすさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+          </label>
+        </div>
         <button class="primary" type="submit">メモを保存する</button>
       </form>
       <p id="log-message" class="message"></p>
-      <label class="search-field">メモ検索<input id="log-search" type="search" placeholder="メール、キーワード、メモ、次のアクションで検索" /></label>
+      <label class="search-field">メモ検索<input id="log-search" type="search" placeholder="メール、キーワード、メモ、印象、次のアクションで検索" /></label>
       <p id="log-search-count" class="message"></p>
       <div id="log-list" class="list searchable-list"></div>
     </section>
@@ -165,9 +200,24 @@
       apply();
     }
 
+    function setupConversationRatings() {
+      const form = document.getElementById('log-form');
+      if (!form) return;
+      form.addEventListener('submit', () => {
+        const notes = form.elements.notes;
+        if (!notes) return;
+        const ratings = [...form.querySelectorAll('[data-trait-label]')]
+          .map((select) => `${select.dataset.traitLabel}: ${select.value}/5`)
+          .join(' / ');
+        if (!ratings || notes.value.includes('【印象スコア】')) return;
+        notes.value = `${notes.value.trim()}\n\n【印象スコア】\n${ratings}`.trim();
+      }, true);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       setupSearch('booking-search', 'booking-list', 'booking-search-count', '表示中');
       setupSearch('log-search', 'log-list', 'log-search-count', '表示中');
+      setupConversationRatings();
     });
   </script>
   <script src="/app.js" defer></script>
