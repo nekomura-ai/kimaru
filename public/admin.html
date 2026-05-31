@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - 管理</title>
+  <title>キマル - 相手管理</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body data-page="admin">
@@ -20,7 +20,8 @@
   <main class="shell admin-grid">
     <section class="panel">
       <p class="eyebrow">アカウント</p>
-      <h1>予約ページ管理</h1>
+      <h1>相手管理</h1>
+      <p class="muted">日程調整した相手の情報、面談メモ、印象スコアをまとめて確認できます。</p>
       <p id="owner-status" class="message">ログイン状態を確認しています...</p>
       <div id="owner-card" class="soft-box"></div>
     </section>
@@ -112,16 +113,18 @@
     </section>
 
     <section class="panel wide">
-      <p class="eyebrow">予約一覧</p>
-      <h2>日程調整した人</h2>
+      <p class="eyebrow">相手管理</p>
+      <h2>日程調整した相手</h2>
+      <p class="muted">予約した人の情報を一覧で確認し、名前・メール・話題・目標・誕生日メモから探せます。</p>
       <label class="search-field">検索キーワード<input id="booking-search" type="search" placeholder="名前、メール、話題、目標、誕生日メモで検索" /></label>
       <p id="booking-search-count" class="message"></p>
       <div id="booking-list" class="list searchable-list"></div>
     </section>
 
     <section class="panel wide">
-      <p class="eyebrow">面談メモ</p>
+      <p class="eyebrow">相手メモ</p>
       <h2>会った後に、関係を育てる</h2>
+      <p class="muted">話した内容、次のアクション、相手の印象スコアを残して、次の連絡につなげます。</p>
       <form id="log-form" class="form-grid">
         <label>相手のメールアドレス<input name="visitor_email" type="email" required /></label>
         <label>キーワード<input name="keywords" placeholder="夢, 仕事, 紹介したい人" /></label>
