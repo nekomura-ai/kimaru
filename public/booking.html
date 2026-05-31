@@ -28,14 +28,15 @@
       <p class="lead">キマルは、日程調整と事前アンケートをひとつにした予約ツールで、打ち合わせの15分前にこちらのプロフィール付きのリマインドメールが相手に送られます。</p>
       <p class="lead">話したい内容や今の目標を先に確認できるので、打ち合わせをスムーズに進められます。</p>
       <ul class="feature-list">
-        <li>受付できる曜日と時間帯から候補を表示</li>
+        <li>Googleカレンダーの予定と重ならない空き枠だけを表示</li>
+        <li>1週間分の候補を30分刻みの表で確認</li>
         <li>事前アンケートで、話したい内容を確認</li>
       </ul>
     </section>
 
     <section class="panel">
       <p class="eyebrow">予約できる時間</p>
-      <h2>候補から選ぶ</h2>
+      <h2>1週間の空き枠から選ぶ</h2>
       <div id="slot-grid" class="slot-grid"></div>
 
       <form id="booking-form" class="form-grid hidden">
@@ -55,6 +56,6 @@
     </section>
   </main>
 
-  <script src="/app.js" defer></script>
+  <script src="/booking-week.js" defer></script>
 </body>
 </html>
