@@ -28,6 +28,16 @@ function setMessage(selector, text, kind = "") {
   el.className = `message ${kind}`.trim();
 }
 
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>'"]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  }[char]));
+}
+
 function formatSlot(iso) {
   const locale = window.KimaruI18n?.getLanguage() || "ja";
   return new Intl.DateTimeFormat(locale, {
@@ -37,6 +47,111 @@ function formatSlot(iso) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));
+}
+
+function formatBirthDate(dateString) {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("-").map(Number);
+  if (!year || !month || !day) return dateString;
+  return `${year}年${month}月${day}日`;
+}
+
+function getBirthdayStatus(dateString) {
+  if (!dateString) return "";
+  const [, month, day] = dateString.split("-").map(Number);
+  if (!month || !day) return "";
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const target = new Date(currentYear, month - 1, day);
+  const startOfToday = new Date(currentYear, today.getMonth(), today.getDate());
+  if (target < startOfToday) target.setFullYear(currentYear + 1);
+  const days = Math.ceil((target - startOfToday) / 86400000);
+  if (days === 0) return "今日が誕生日です。お祝いメッセージを送るタイミングです。";
+  if (days <= 30) return `次の誕生日まであと${days}日です。`;
+  return `次の誕生日まであと${days}日です。`;
+}
+
+function buildRelationshipProfile(dateString, name = "") {
+  if (!dateString) return null;
+  const [rawYear, month, day] = dateString.split("-").map(Number);
+  if (!rawYear || !month || !day) return null;
+  const adjustedYear = month < 2 || (month === 2 && day < 4) ? rawYear - 1 : rawYear;
+  const stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+  const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+  const elements = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
+  const indexBase = adjustedYear - 4;
+  const stemIndex = ((indexBase % 10) + 10) % 10;
+  const branchIndex = ((indexBase % 12) + 12) % 12;
+  const element = elements[stemIndex];
+  const elementTips = {
+    木: {
+      type: "成長と可能性を大切にするタイプ",
+      approach: "未来の話、挑戦していること、伸ばしたい強みから入ると会話が進みやすいです。",
+      avoid: "最初から結論を急がせすぎず、考えを広げる余白を残すと関係が作りやすくなります。",
+    },
+    火: {
+      type: "熱量と反応を大切にするタイプ",
+      approach: "面白いと思った点や期待していることを先に伝えると、前向きな空気を作りやすいです。",
+      avoid: "淡々と条件だけを並べるより、目的や背景を添えると話が深まりやすくなります。",
+    },
+    土: {
+      type: "安心感と具体性を大切にするタイプ",
+      approach: "流れ、目的、次に決めたいことを整理して伝えると、信頼を得やすいです。",
+      avoid: "抽象的な話だけで進めず、具体例や段取りを添えると安心してもらいやすくなります。",
+    },
+    金: {
+      type: "基準と成果を大切にするタイプ",
+      approach: "何を達成したいか、判断基準は何かを明確にすると、話が噛み合いやすいです。",
+      avoid: "曖昧な約束より、役割や次のアクションをはっきりさせると関係が進みやすくなります。",
+    },
+    水: {
+      type: "情報と柔軟性を大切にするタイプ",
+      approach: "相手の考えを引き出す質問から入ると、自然に本音や関心が見えやすくなります。",
+      avoid: "一方的に話し切らず、相手が整理する時間を作ると会話が深まりやすいです。",
+    },
+  };
+  const tip = elementTips[element];
+  const displayName = name ? `${name}さん` : "お相手";
+  return {
+    method: "四柱推命メモ（簡易）",
+    pillar: `${stems[stemIndex]}${branches[branchIndex]}`,
+    element,
+    type: tip.type,
+    approach: tip.approach,
+    avoid: tip.avoid,
+    birthday_status: getBirthdayStatus(dateString),
+    birthday_message: `${displayName}、お誕生日おめでとうございます。新しい一年が、挑戦したいことに一歩近づく時間になりますように。`,
+    note: "生年月日だけで見る簡易メモです。正確な四柱推命には出生時刻などが必要です。",
+  };
+}
+
+function parseRelationshipContext(value) {
+  if (!value || value === "none") return null;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed?.kind === "relationship_context" ? parsed : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function buildBookingPayload(form) {
+  const data = formData(form);
+  const profile = buildRelationshipProfile(data.birth_date, data.visitor_name);
+  if (profile) {
+    data.filter_request = JSON.stringify({
+      kind: "relationship_context",
+      version: 1,
+      birth_date: data.birth_date,
+      birthday_message_opt_in: data.birthday_message_opt_in === "yes",
+      profile,
+    });
+  } else {
+    data.filter_request = "none";
+  }
+  delete data.birth_date;
+  delete data.birthday_message_opt_in;
+  return data;
 }
 
 async function initSignup() {
@@ -89,7 +204,7 @@ async function initBooking() {
     event.preventDefault();
     setMessage("#booking-message", "予約を保存しています...");
     try {
-      await api("book", { method: "POST", body: JSON.stringify(formData(form)) });
+      await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });
       form.reset();
       form.classList.add("hidden");
       setMessage("#booking-message", "予約が完了しました。確認メールとカレンダー予定を準備します。", "success");
@@ -99,6 +214,22 @@ async function initBooking() {
   });
 }
 
+function renderRelationshipContext(context, booking) {
+  if (!context?.profile) return "";
+  const profile = context.profile;
+  return `
+    <div class="relationship-insight">
+      <strong>${escapeHtml(profile.method)}: ${escapeHtml(profile.pillar)} / ${escapeHtml(profile.element)}</strong>
+      <span>生年月日: ${escapeHtml(formatBirthDate(context.birth_date))}</span>
+      <p>${escapeHtml(profile.type)}</p>
+      <p><b>仲良くなるヒント:</b> ${escapeHtml(profile.approach)}</p>
+      <p><b>気をつけること:</b> ${escapeHtml(profile.avoid)}</p>
+      ${context.birthday_message_opt_in ? `<p><b>誕生日:</b> ${escapeHtml(profile.birthday_status)}</p><p><b>お祝いメッセージ案:</b> ${escapeHtml(profile.birthday_message)}</p>` : ""}
+      <small>${escapeHtml(profile.note)}</small>
+    </div>
+  `;
+}
+
 function renderBookings(bookings) {
   const list = $("#booking-list");
   if (!list) return;
@@ -106,14 +237,18 @@ function renderBookings(bookings) {
     list.innerHTML = '<p class="muted">まだ予約はありません。</p>';
     return;
   }
-  list.innerHTML = bookings.map((booking) => `
-    <article class="list-item">
-      <strong>${booking.visitor_name || booking.guest_name || "Guest"}</strong>
-      <span>${booking.visitor_email || booking.guest_email || ""}</span>
-      <p>${booking.topic || ""}</p>
-      <small>${booking.start_at || booking.start_time ? formatSlot(booking.start_at || booking.start_time) : ""}</small>
-    </article>
-  `).join("");
+  list.innerHTML = bookings.map((booking) => {
+    const context = parseRelationshipContext(booking.filter_request);
+    return `
+      <article class="list-item">
+        <strong>${escapeHtml(booking.visitor_name || booking.guest_name || "Guest")}</strong>
+        <span>${escapeHtml(booking.visitor_email || booking.guest_email || "")}</span>
+        <p>${escapeHtml(booking.topic || "")}</p>
+        ${renderRelationshipContext(context, booking)}
+        <small>${booking.start_at || booking.start_time ? escapeHtml(formatSlot(booking.start_at || booking.start_time)) : ""}</small>
+      </article>
+    `;
+  }).join("");
 }
 
 function renderLogs(logs) {
@@ -121,10 +256,10 @@ function renderLogs(logs) {
   if (!list) return;
   list.innerHTML = logs.map((log) => `
     <article class="list-item">
-      <strong>${log.visitor_email}</strong>
-      <span>${log.keywords || ""}</span>
-      <p>${log.notes || ""}</p>
-      <small>${log.next_action || ""}</small>
+      <strong>${escapeHtml(log.visitor_email)}</strong>
+      <span>${escapeHtml(log.keywords || "")}</span>
+      <p>${escapeHtml(log.notes || "")}</p>
+      <small>${escapeHtml(log.next_action || "")}</small>
     </article>
   `).join("");
 }
@@ -210,7 +345,7 @@ async function refreshAdmin() {
     const me = await api("me");
     currentOwner = me.owner || null;
     $("#owner-status").textContent = me.owner ? "ログイン中" : "未ログインです。Googleカレンダーを連携してください。";
-    $("#owner-card").innerHTML = me.owner ? `<strong>${me.owner.name || me.owner.email}</strong><p>Plan: ${me.owner.plan}</p><p>Slug: ${me.owner.slug}</p>` : "";
+    $("#owner-card").innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>Plan: ${escapeHtml(me.owner.plan)}</p><p>Slug: ${escapeHtml(me.owner.slug)}</p>` : "";
     updateBookingPageControls();
     if (me.owner) {
       const bookings = await api("owner-bookings");
