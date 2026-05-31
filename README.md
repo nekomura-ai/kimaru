@@ -2,26 +2,82 @@
 
 Kimaru is a free-first scheduling tool for meetings that should feel easier before they begin.
 
-The product direction is simple:
-
 > 会う前に、相手を知る。  
 > 会った後に、ご縁が育つ。  
 > 予定を決めるだけでなく、明るい未来につながる出会いを増やす。
 
-## Target Architecture
+## Architecture
 
-- Frontend: Vercel free tier preferred for the public app
+Primary deployment is now Vercel + Supabase.
+
+- Frontend: Vercel free tier, static files in `public/`
+- API: Vercel Functions in `api/`
 - Database: Supabase
-- Auth: Supabase Auth or Google login
+- Auth: Google login now, Supabase Auth-ready schema
 - Calendar: Google Calendar API
 - Meeting: Google Meet auto creation first
-- Future meeting provider: Zoom-ready design, not required in Phase 1
+- Future meeting provider: Zoom-ready design
 
-The current MVP still includes Netlify Functions. The product spec and database now target the Vercel + Supabase direction, while the existing Netlify API can keep running during migration.
+The legacy Netlify Functions remain in `netlify/functions/` as reusable handlers. Vercel routes in `api/` call those handlers through a small adapter so the app can move to Vercel without rewriting every endpoint at once.
 
-## Phase 1 Scope
+## Vercel Deploy
 
-- Supabase schema for users, profiles, booking pages, availability, bookings, questionnaire, Google tokens, and invite codes
+Create a Vercel project from this repository.
+
+Settings:
+
+- Framework preset: Other
+- Build command: empty
+- Output directory: `public`
+- Install command: empty
+
+`vercel.json` handles clean URLs and keeps `/api/*` as Vercel Functions.
+
+Required environment variables:
+
+- `APP_BASE_URL`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `SESSION_SECRET`
+- `TOKEN_ENCRYPTION_KEY`
+
+Set `APP_BASE_URL` to the Vercel production URL, for example:
+
+```text
+https://YOUR_PROJECT.vercel.app
+```
+
+Google OAuth redirect URI:
+
+```text
+https://YOUR_PROJECT.vercel.app/api/google-auth-callback
+```
+
+## Supabase
+
+Run `supabase-schema.sql` in the Supabase SQL Editor before using the app.
+
+The schema includes:
+
+- `users`
+- `profiles`
+- `booking_pages`
+- `availability_settings`
+- `bookings`
+- `questionnaire_questions`
+- `questionnaire_answers`
+- `google_calendar_tokens`
+- `invite_codes`
+
+Compatibility tables for the current Google-login MVP also remain:
+
+- `owners`
+- `google_connections`
+
+## Phase 1
+
 - User signup/login foundation
 - Booking page settings
 - Duration: 30 / 45 / 60 minutes
@@ -33,7 +89,7 @@ The current MVP still includes Netlify Functions. The product spec and database 
 - Cat Key invite code: `Neko20240222`
 - Booking form and booking list foundation
 
-## Phase 2 Scope
+## Phase 2
 
 - Google Calendar connection
 - Free/busy availability lookup
@@ -41,7 +97,7 @@ The current MVP still includes Netlify Functions. The product spec and database 
 - Google Meet auto creation
 - Booking confirmation email
 
-## Phase 3 Scope
+## Phase 3
 
 - Paid-plan controls
 - Group scheduling
@@ -49,32 +105,6 @@ The current MVP still includes Netlify Functions. The product spec and database 
 - Appointment history
 - AI summary
 - Zoom integration
-
-## Deploy
-
-Preferred final deployment is Vercel for the frontend with Supabase as the backend database.
-
-Current MVP deployment can still use Netlify with this GitHub repository:
-
-- Build command: none
-- Publish directory: `public`
-- Functions directory: `netlify/functions`
-
-Required environment variables for the current MVP:
-
-- `APP_BASE_URL`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `SESSION_SECRET`
-- `TOKEN_ENCRYPTION_KEY`
-
-## Database
-
-Run `supabase-schema.sql` in the Supabase SQL Editor before using the app.
-
-The schema includes compatibility tables for the current MVP (`owners`, `google_connections`) and the forward product model (`users`, `profiles`, `google_calendar_tokens`).
 
 ## Invite Code
 
@@ -91,3 +121,7 @@ NEKO20240222
 ```
 
 Users who apply it receive pro capabilities without payment.
+
+## Legacy Netlify
+
+Netlify support is now secondary. `netlify.toml` and `netlify/functions/` remain so the current Netlify deployment can keep running during transition, but new production deployments should use Vercel.
