@@ -67,8 +67,30 @@ function getBirthdayStatus(dateString) {
   if (target < startOfToday) target.setFullYear(currentYear + 1);
   const days = Math.ceil((target - startOfToday) / 86400000);
   if (days === 0) return "今日が誕生日です。お祝いメッセージを送るタイミングです。";
-  if (days <= 30) return `次の誕生日まであと${days}日です。`;
   return `次の誕生日まであと${days}日です。`;
+}
+
+function getWesternZodiac(month, day) {
+  const signs = [
+    [120, "山羊座"], [219, "水瓶座"], [321, "魚座"], [420, "牡羊座"], [521, "牡牛座"], [622, "双子座"],
+    [723, "蟹座"], [823, "獅子座"], [923, "乙女座"], [1024, "天秤座"], [1123, "蠍座"], [1222, "射手座"], [1232, "山羊座"],
+  ];
+  const value = month * 100 + day;
+  return signs.find(([limit]) => value < limit)?.[1] || "山羊座";
+}
+
+function getSeasonInsight(month) {
+  if ([3, 4, 5].includes(month)) return { season: "春生まれ", tip: "新しい挑戦や変化の話題から入ると、自然に会話が広がりやすいです。" };
+  if ([6, 7, 8].includes(month)) return { season: "夏生まれ", tip: "体験談や最近熱量が上がっていることを聞くと、空気が温まりやすいです。" };
+  if ([9, 10, 11].includes(month)) return { season: "秋生まれ", tip: "価値観、判断基準、これまで積み上げてきたことを聞くと話が深まりやすいです。" };
+  return { season: "冬生まれ", tip: "落ち着いた雰囲気で、目的や背景を丁寧に確認すると信頼を作りやすいです。" };
+}
+
+function getGenerationInsight(year) {
+  if (year >= 1997) return { generation: "デジタルネイティブ世代", tip: "スピード感、納得感、自由度を大切にすると会話が進みやすいです。" };
+  if (year >= 1981) return { generation: "ミレニアル世代", tip: "意味、成長、働き方や人生設計の話題が接点になりやすいです。" };
+  if (year >= 1965) return { generation: "経験重視世代", tip: "実績、信頼、具体的なメリットを整理して伝えると安心感が出やすいです。" };
+  return { generation: "成熟世代", tip: "敬意を持って背景を聞き、急がず丁寧に関係を作ると話が進みやすいです。" };
 }
 
 function buildRelationshipProfile(dateString, name = "") {
@@ -79,49 +101,40 @@ function buildRelationshipProfile(dateString, name = "") {
   const stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
   const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
   const elements = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
-  const indexBase = adjustedYear - 4;
-  const stemIndex = ((indexBase % 10) + 10) % 10;
-  const branchIndex = ((indexBase % 12) + 12) % 12;
+  const stemIndex = (((adjustedYear - 4) % 10) + 10) % 10;
+  const branchIndex = (((adjustedYear - 4) % 12) + 12) % 12;
   const element = elements[stemIndex];
   const elementTips = {
-    木: {
-      type: "成長と可能性を大切にするタイプ",
-      approach: "未来の話、挑戦していること、伸ばしたい強みから入ると会話が進みやすいです。",
-      avoid: "最初から結論を急がせすぎず、考えを広げる余白を残すと関係が作りやすくなります。",
-    },
-    火: {
-      type: "熱量と反応を大切にするタイプ",
-      approach: "面白いと思った点や期待していることを先に伝えると、前向きな空気を作りやすいです。",
-      avoid: "淡々と条件だけを並べるより、目的や背景を添えると話が深まりやすくなります。",
-    },
-    土: {
-      type: "安心感と具体性を大切にするタイプ",
-      approach: "流れ、目的、次に決めたいことを整理して伝えると、信頼を得やすいです。",
-      avoid: "抽象的な話だけで進めず、具体例や段取りを添えると安心してもらいやすくなります。",
-    },
-    金: {
-      type: "基準と成果を大切にするタイプ",
-      approach: "何を達成したいか、判断基準は何かを明確にすると、話が噛み合いやすいです。",
-      avoid: "曖昧な約束より、役割や次のアクションをはっきりさせると関係が進みやすくなります。",
-    },
-    水: {
-      type: "情報と柔軟性を大切にするタイプ",
-      approach: "相手の考えを引き出す質問から入ると、自然に本音や関心が見えやすくなります。",
-      avoid: "一方的に話し切らず、相手が整理する時間を作ると会話が深まりやすいです。",
-    },
+    木: ["成長と可能性を大切にするタイプ", "未来の話、挑戦していること、伸ばしたい強みから入ると会話が進みやすいです。", "最初から結論を急がせすぎず、考えを広げる余白を残すと関係が作りやすくなります。"],
+    火: ["熱量と反応を大切にするタイプ", "面白いと思った点や期待していることを先に伝えると、前向きな空気を作りやすいです。", "淡々と条件だけを並べるより、目的や背景を添えると話が深まりやすくなります。"],
+    土: ["安心感と具体性を大切にするタイプ", "流れ、目的、次に決めたいことを整理して伝えると、信頼を得やすいです。", "抽象的な話だけで進めず、具体例や段取りを添えると安心してもらいやすくなります。"],
+    金: ["基準と成果を大切にするタイプ", "何を達成したいか、判断基準は何かを明確にすると、話が噛み合いやすいです。", "曖昧な約束より、役割や次のアクションをはっきりさせると関係が進みやすくなります。"],
+    水: ["情報と柔軟性を大切にするタイプ", "相手の考えを引き出す質問から入ると、自然に本音や関心が見えやすくなります。", "一方的に話し切らず、相手が整理する時間を作ると会話が深まりやすいです。"],
   };
-  const tip = elementTips[element];
+  const [type, approach, avoid] = elementTips[element];
+  const zodiac = getWesternZodiac(month, day);
+  const season = getSeasonInsight(month);
+  const generation = getGenerationInsight(rawYear);
   const displayName = name ? `${name}さん` : "お相手";
   return {
-    method: "四柱推命メモ（簡易）",
+    method: "生年月日インサイト（簡易）",
     pillar: `${stems[stemIndex]}${branches[branchIndex]}`,
     element,
-    type: tip.type,
-    approach: tip.approach,
-    avoid: tip.avoid,
+    zodiac,
+    season: season.season,
+    generation: generation.generation,
+    type,
+    approach,
+    avoid,
+    lenses: [
+      `星座: ${zodiac}`,
+      `季節感: ${season.season}。${season.tip}`,
+      `世代感: ${generation.generation}。${generation.tip}`,
+      `四柱推命メモ: ${stems[stemIndex]}${branches[branchIndex]} / ${element}`,
+    ],
     birthday_status: getBirthdayStatus(dateString),
     birthday_message: `${displayName}、お誕生日おめでとうございます。新しい一年が、挑戦したいことに一歩近づく時間になりますように。`,
-    note: "生年月日だけで見る簡易メモです。正確な四柱推命には出生時刻などが必要です。",
+    note: "生年月日から作る簡易メモです。断定ではなく、会話のきっかけや関係構築の仮説として使ってください。",
   };
 }
 
@@ -138,17 +151,7 @@ function parseRelationshipContext(value) {
 function buildBookingPayload(form) {
   const data = formData(form);
   const profile = buildRelationshipProfile(data.birth_date, data.visitor_name);
-  if (profile) {
-    data.filter_request = JSON.stringify({
-      kind: "relationship_context",
-      version: 1,
-      birth_date: data.birth_date,
-      birthday_message_opt_in: data.birthday_message_opt_in === "yes",
-      profile,
-    });
-  } else {
-    data.filter_request = "none";
-  }
+  data.filter_request = profile ? JSON.stringify({ kind: "relationship_context", version: 2, birth_date: data.birth_date, birthday_message_opt_in: data.birthday_message_opt_in === "yes", profile }) : "none";
   delete data.birth_date;
   delete data.birthday_message_opt_in;
   return data;
@@ -175,13 +178,10 @@ async function initBooking() {
   const grid = $("#slot-grid");
   const form = $("#booking-form");
   if (!grid || !form) return;
-
   try {
     const data = await api("availability?owner=demo");
     grid.innerHTML = "";
-    if (!data.slots.length) {
-      grid.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
-    }
+    if (!data.slots.length) grid.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
     data.slots.forEach((slot) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -199,7 +199,6 @@ async function initBooking() {
   } catch (error) {
     setMessage("#booking-message", error.message, "error");
   }
-
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     setMessage("#booking-message", "予約を保存しています...");
@@ -214,18 +213,20 @@ async function initBooking() {
   });
 }
 
-function renderRelationshipContext(context, booking) {
+function renderRelationshipContext(context) {
   if (!context?.profile) return "";
   const profile = context.profile;
+  const lenses = Array.isArray(profile.lenses) ? profile.lenses : [];
   return `
     <div class="relationship-insight">
-      <strong>${escapeHtml(profile.method)}: ${escapeHtml(profile.pillar)} / ${escapeHtml(profile.element)}</strong>
+      <strong>${escapeHtml(profile.method || "生年月日インサイト（簡易）")}: ${escapeHtml(profile.pillar || "")} / ${escapeHtml(profile.element || "")}</strong>
       <span>生年月日: ${escapeHtml(formatBirthDate(context.birth_date))}</span>
-      <p>${escapeHtml(profile.type)}</p>
-      <p><b>仲良くなるヒント:</b> ${escapeHtml(profile.approach)}</p>
-      <p><b>気をつけること:</b> ${escapeHtml(profile.avoid)}</p>
+      ${lenses.map((item) => `<p>${escapeHtml(item)}</p>`).join("")}
+      <p>${escapeHtml(profile.type || "")}</p>
+      <p><b>仲良くなるヒント:</b> ${escapeHtml(profile.approach || "")}</p>
+      <p><b>気をつけること:</b> ${escapeHtml(profile.avoid || "")}</p>
       ${context.birthday_message_opt_in ? `<p><b>誕生日:</b> ${escapeHtml(profile.birthday_status)}</p><p><b>お祝いメッセージ案:</b> ${escapeHtml(profile.birthday_message)}</p>` : ""}
-      <small>${escapeHtml(profile.note)}</small>
+      <small>${escapeHtml(profile.note || "")}</small>
     </div>
   `;
 }
@@ -244,7 +245,7 @@ function renderBookings(bookings) {
         <strong>${escapeHtml(booking.visitor_name || booking.guest_name || "Guest")}</strong>
         <span>${escapeHtml(booking.visitor_email || booking.guest_email || "")}</span>
         <p>${escapeHtml(booking.topic || "")}</p>
-        ${renderRelationshipContext(context, booking)}
+        ${renderRelationshipContext(context)}
         <small>${booking.start_at || booking.start_time ? escapeHtml(formatSlot(booking.start_at || booking.start_time)) : ""}</small>
       </article>
     `;
@@ -287,30 +288,21 @@ function updateBookingPageControls() {
   const locationType = $("#location-type-select");
   const locationField = $("#location-value-field");
   const questionLimitMessage = $("#question-limit-message");
-
   if (rangeSelect) {
     const sixMonthOption = [...rangeSelect.options].find((option) => option.value === "6");
     if (sixMonthOption) sixMonthOption.disabled = !isPro;
     if (!isPro && rangeSelect.value === "6") rangeSelect.value = "3";
   }
-
   document.querySelectorAll(".pro-question").forEach((row) => row.classList.toggle("hidden", !isPro));
   if (questionLimitMessage) {
-    questionLimitMessage.textContent = isPro
-      ? "有料版では最大5問まで設定できます。"
-      : "無料版は最大2問まで。有料版または猫の鍵で最大5問に拡張できます。";
+    questionLimitMessage.textContent = isPro ? "有料版では最大5問まで設定できます。" : "無料版は最大2問まで。有料版または猫の鍵で最大5問に拡張できます。";
   }
-
   if (locationType && locationField) {
     const needsDetail = ["in_person", "phone", "custom_url"].includes(locationType.value);
     locationField.classList.toggle("hidden", !needsDetail);
     const input = locationField.querySelector("input");
     if (input) {
-      input.placeholder = {
-        in_person: "例：東京都渋谷区...",
-        phone: "例：当日こちらからお電話します / 090-...",
-        custom_url: "例：https://...",
-      }[locationType.value] || "";
+      input.placeholder = { in_person: "例：東京都渋谷区...", phone: "例：当日こちらからお電話します / 090-...", custom_url: "例：https://..." }[locationType.value] || "";
     }
   }
   updateAvailabilityRows();
@@ -325,7 +317,6 @@ function collectBookingPagePayload(form) {
     .filter(Boolean)
     .slice(0, maxQuestions)
     .map((question_text, index) => ({ question_text, is_required: index < 2 }));
-
   return {
     title: data.title,
     description: data.description,
@@ -360,31 +351,24 @@ async function refreshAdmin() {
 
 async function initAdmin() {
   await refreshAdmin();
-
   $("#logout-button")?.addEventListener("click", async () => {
     await api("logout", { method: "POST", body: "{}" }).catch(() => null);
     location.reload();
   });
-
   $("#location-type-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-range-select")?.addEventListener("change", updateBookingPageControls);
-  document.querySelectorAll('.availability-row input[type="checkbox"]').forEach((checkbox) => {
-    checkbox.addEventListener("change", updateAvailabilityRows);
-  });
-
+  document.querySelectorAll('.availability-row input[type="checkbox"]').forEach((checkbox) => checkbox.addEventListener("change", updateAvailabilityRows));
   $("#booking-page-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     setMessage("#booking-page-message", "予約ページを保存しています...");
     try {
-      const payload = collectBookingPagePayload(event.currentTarget);
-      await api("booking-page-save", { method: "POST", body: JSON.stringify(payload) });
+      await api("booking-page-save", { method: "POST", body: JSON.stringify(collectBookingPagePayload(event.currentTarget)) });
       setMessage("#booking-page-message", "予約ページ設定を保存しました。", "success");
       await refreshAdmin();
     } catch (error) {
       setMessage("#booking-page-message", error.message, "error");
     }
   });
-
   $("#invite-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     setMessage("#invite-message", "適用しています...");
@@ -396,7 +380,6 @@ async function initAdmin() {
       setMessage("#invite-message", error.message, "error");
     }
   });
-
   $("#log-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     setMessage("#log-message", "保存しています...");
@@ -412,7 +395,6 @@ async function initAdmin() {
 }
 
 window.KimaruI18n?.init();
-
 if (page === "signup") initSignup();
 if (page === "booking") initBooking();
 if (page === "admin") initAdmin();
