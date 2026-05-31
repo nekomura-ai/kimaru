@@ -95,6 +95,9 @@ create table if not exists bookings (
   guest_email text not null default '',
   topic text not null default '',
   filter_request text not null default 'none',
+  visitor_birth_date date,
+  birthday_message_opt_in boolean not null default false,
+  relationship_profile jsonb not null default '{}'::jsonb,
   start_at timestamptz,
   end_at timestamptz,
   start_time timestamptz,
@@ -176,6 +179,9 @@ alter table booking_pages add column if not exists is_active boolean not null de
 alter table bookings add column if not exists user_id uuid references users(id) on delete cascade;
 alter table bookings add column if not exists guest_name text not null default '';
 alter table bookings add column if not exists guest_email text not null default '';
+alter table bookings add column if not exists visitor_birth_date date;
+alter table bookings add column if not exists birthday_message_opt_in boolean not null default false;
+alter table bookings add column if not exists relationship_profile jsonb not null default '{}'::jsonb;
 alter table bookings add column if not exists start_time timestamptz;
 alter table bookings add column if not exists end_time timestamptz;
 alter table bookings add column if not exists meeting_url text not null default '';
