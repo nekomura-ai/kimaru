@@ -29,7 +29,7 @@ function setMessage(selector, text, kind = "") {
 }
 
 function escapeHtml(value) {
-  return String(value || "").replace(/[&<>'"]/g, (char) => ({
+  return String(value || "").replace(/[<>'"&]/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -51,6 +51,7 @@ function formatSlot(iso) {
 
 function formatBirthDate(dateString) {
   if (!dateString) return "";
+  if (dateString === "非公開") return dateString;
   const [year, month, day] = dateString.split("-").map(Number);
   if (!year || !month || !day) return dateString;
   return `${year}年${month}月${day}日`;
@@ -151,9 +152,8 @@ function parseRelationshipContext(value) {
 function buildBookingPayload(form) {
   const data = formData(form);
   const profile = buildRelationshipProfile(data.birth_date, data.visitor_name);
-  data.filter_request = profile ? JSON.stringify({ kind: "relationship_context", version: 2, birth_date: data.birth_date, birthday_message_opt_in: data.birthday_message_opt_in === "yes", profile }) : "none";
+  data.filter_request = profile ? JSON.stringify({ kind: "relationship_context", version: 3, birth_date: data.birth_date, birth_date_private: data.birth_date_private === "yes", birthday_message_opt_in: Boolean(data.birth_date), profile }) : "none";
   delete data.birth_date;
-  delete data.birthday_message_opt_in;
   return data;
 }
 
