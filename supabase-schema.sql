@@ -17,6 +17,7 @@ create table if not exists owners (
   slug text not null default 'demo',
   plan text not null default 'free' check (plan in ('free', 'pro')),
   invite_code text,
+  cat_key_disabled boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -181,6 +182,7 @@ create table if not exists payment_events (
 );
 
 alter table owners add column if not exists invite_code text;
+alter table owners add column if not exists cat_key_disabled boolean not null default false;
 alter table booking_pages add column if not exists user_id uuid references users(id) on delete cascade;
 alter table booking_pages add column if not exists buffer_before_minutes int not null default 0;
 alter table booking_pages add column if not exists buffer_after_minutes int not null default 0;
