@@ -222,6 +222,16 @@ textarea{resize:vertical}
 }
 .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:28px}
 .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plan-lead{max-width:760px}
+.plan-table-card{padding:0;overflow:hidden}
+.comparison-table-wrap{width:100%;overflow-x:auto}
+.comparison-table{width:100%;min-width:760px;border-collapse:collapse;background:var(--surface)}
+.comparison-table th,.comparison-table td{padding:16px 18px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.comparison-table th{color:var(--ink);background:var(--surface-subtle);font-size:13px;font-weight:850}
+.comparison-table td:first-child{color:var(--ink);font-weight:850;white-space:nowrap}
+.comparison-table td{color:var(--muted);font-size:14px;line-height:1.55}
+.comparison-table tr:last-child td{border-bottom:0}
+.plan-note{margin:0;padding:16px 18px;color:var(--primary);background:rgba(237,243,235,.72);border-top:1px solid var(--line);font-size:14px;font-weight:850}
 .footer{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 44px;color:var(--muted);font-size:14px}
 @media(max-width:900px){.two-column,.admin-grid,.hero{grid-template-columns:1fr}.feature-grid,.slot-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.site-header{align-items:flex-start;flex-direction:column}.feature-grid,.slot-grid,.inline-form,.form-grid{grid-template-columns:1fr}.availability-row{grid-template-columns:24px 1fr;gap:8px}.availability-row input[type=time],.availability-row span{grid-column:2}h1{font-size:34px}}
