@@ -18,12 +18,12 @@
 
   const messages = {
     ja: {
-      "common.brand": "Kimaru",
+      "common.brand": "キマル",
       "common.book": "予約",
       "common.admin": "管理",
-      "signup.pageTitle": "Kimaru - 無料登録",
+      "signup.pageTitle": "キマル - 無料登録",
       "signup.eyebrow": "無料アカウント",
-      "signup.heading": "Kimaruをはじめる",
+      "signup.heading": "キマルをはじめる",
       "signup.lead": "予約受付、シンプルなプロフィール共有、15分前リマインドを使える無料アカウントを作成します。",
       "signup.name": "名前",
       "signup.email": "メールアドレス",
