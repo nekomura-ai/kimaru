@@ -17,9 +17,9 @@ async function createBooking(payload) {
     return await sb("bookings", { method: "POST", body: JSON.stringify(payload) });
   } catch (error) {
     const message = String(error.message || "");
-    const isMissingNewColumn = ["visitor_birth_date", "birthday_message_opt_in", "relationship_profile"].some((column) => message.includes(column));
+    const isMissingNewColumn = ["visitor_birth_date", "visitor_birth_date_private", "birthday_message_opt_in", "relationship_profile"].some((column) => message.includes(column));
     if (!isMissingNewColumn) throw error;
-    const { visitor_birth_date, birthday_message_opt_in, relationship_profile, ...fallbackPayload } = payload;
+    const { visitor_birth_date, visitor_birth_date_private, birthday_message_opt_in, relationship_profile, ...fallbackPayload } = payload;
     return sb("bookings", { method: "POST", body: JSON.stringify(fallbackPayload) });
   }
 }
@@ -49,6 +49,7 @@ exports.handler = async (event) => {
     };
     if (relationshipContext) {
       bookingPayload.visitor_birth_date = relationshipContext.birth_date || null;
+      bookingPayload.visitor_birth_date_private = body.birth_date_private === "yes" || body.birth_date_private === true;
       bookingPayload.birthday_message_opt_in = Boolean(relationshipContext.birthday_message_opt_in);
       bookingPayload.relationship_profile = relationshipContext.profile || {};
     }
