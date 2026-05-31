@@ -12,6 +12,7 @@
     <nav>
       <a href="/booking.html">予約ページ</a>
       <a href="/admin.html">相手管理</a>
+      <a href="/ai-assist.html">AIアシスト</a>
       <a href="/pro.html">Pro版</a>
       <a href="/pro-apply.html">Pro申し込み</a>
       <a href="/signup.html">無料登録</a>
@@ -61,7 +62,7 @@
         <input name="target_keyword" placeholder="相手の名前・メール・キーワード" required />
         <button class="primary" type="submit">相手データを照合する</button>
       </form>
-      <p class="muted">検索対象は、予約者名・メール・事前アンケート・面談メモ・印象スコアです。</p>
+      <p class="muted">相手管理の一覧から開いた場合は、対象者が自動で入力されます。下の候補から「この相手で分析」を押しても実行できます。</p>
       <div id="ai-assist-candidates" class="list"></div>
     </section>
 
@@ -132,6 +133,7 @@
           booking.description,
           booking.topic,
           booking.goal,
+          booking.filter_request,
           booking.birthday_analysis_note,
           answerText
         ])
@@ -194,13 +196,12 @@
 
     function analyze(record, profile) {
       const text = record.text || '';
-      const opening = [];
+      const opening = [profileStyleText(profile.profile_style)];
       const topics = [];
       const avoid = [];
       const next = [];
       const optimum = [];
 
-      opening.push(profileStyleText(profile.profile_style));
       if (score(text, '聞き上手') >= 4) opening.push('相手は聞き役に回りやすいので、こちらが話しすぎず相談形式で始めるのが合います。');
       if (score(text, '話し上手') >= 4) opening.push('相手の言葉を拾って要約し、主導権を奪わずに会話を進めると自然です。');
       if (score(text, '共感力') >= 4) opening.push('いきなり条件面に入らず、背景や想いを先に共有すると距離が縮まりやすいです。');
@@ -250,18 +251,37 @@
         <p class="muted">このMVPは保存済み情報から提案を作成します。本格AI連携時は、同じプロフィールシートと相手データをAI APIへ渡せます。</p>`;
     }
 
+    function runAssist(keyword) {
+      const form = $('#profile-sheet-form');
+      const input = $('#ai-assist-form input[name="target_keyword"]');
+      const normalized = String(keyword || '').trim().toLowerCase();
+      if (!normalized) return false;
+      input.value = keyword;
+      const record = aiAssistRecords.find((item) => item.searchText.includes(normalized));
+      if (!record) {
+        $('#ai-assist-result').innerHTML = '<p class="muted">一致する相手データが見つかりませんでした。名前・メール・キーワードを変えて検索してください。</p>';
+        return false;
+      }
+      renderResult(record, saveProfile(form));
+      return true;
+    }
+
     function renderCandidates(records) {
       const list = $('#ai-assist-candidates');
       if (!records.length) {
         list.innerHTML = '<p class="muted">まだ照合できる相手データがありません。相手管理に予約やメモが増えるとここに表示されます。</p>';
         return;
       }
-      list.innerHTML = records.slice(0, 8).map((record) => `
-        <div class="list-item">
-          <strong>${escapeHtml(record.name || record.email || '相手データ')}</strong>
-          <p>${escapeHtml(record.email || '')}</p>
-          <small>${escapeHtml([...new Set(record.sources)].join(' / '))}</small>
-        </div>`).join('');
+      list.innerHTML = records.slice(0, 12).map((record) => {
+        const keyword = record.email || record.name || record.text.slice(0, 30);
+        return `
+          <div class="list-item">
+            <strong>${escapeHtml(record.name || record.email || '相手データ')}</strong>
+            <p>${escapeHtml(record.email || '')}</p>
+            <small>${escapeHtml([...new Set(record.sources)].join(' / '))}</small>
+            <p><button class="secondary ai-candidate-button" type="button" data-keyword="${escapeHtml(keyword)}">この相手で分析</button></p>
+          </div>`;
+      }).join('');
     }
 
     async function loadRecords() {
@@ -284,6 +304,13 @@
         ]);
         status.textContent = `照合できる相手データ: ${aiAssistRecords.length}件`;
         renderCandidates(aiAssistRecords);
+
+        const target = new URLSearchParams(location.search).get('target');
+        if (target) {
+          const decoded = decodeURIComponent(target);
+          const matched = runAssist(decoded);
+          if (!matched) $('#ai-assist-form input[name="target_keyword"]').value = decoded;
+        }
       } catch (error) {
         status.textContent = error.message || 'データを読み込めませんでした。';
       }
@@ -301,14 +328,14 @@
 
       $('#ai-assist-form').addEventListener('submit', (event) => {
         event.preventDefault();
-        const keyword = new FormData(event.currentTarget).get('target_keyword').trim().toLowerCase();
-        const record = aiAssistRecords.find((item) => item.searchText.includes(keyword));
-        if (!record) {
-          $('#ai-assist-result').innerHTML = '<p class="muted">一致する相手データが見つかりませんでした。名前・メール・キーワードを変えて検索してください。</p>';
-          return;
-        }
-        const profile = saveProfile(profileForm);
-        renderResult(record, profile);
+        runAssist(new FormData(event.currentTarget).get('target_keyword'));
+      });
+
+      $('#ai-assist-candidates').addEventListener('click', (event) => {
+        const button = event.target.closest('.ai-candidate-button');
+        if (!button) return;
+        runAssist(button.dataset.keyword);
+        $('#ai-assist-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
       loadRecords();
