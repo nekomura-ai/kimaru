@@ -1,5 +1,5 @@
 body[data-page="booking"] .two-column{
-  grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);
+  grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);
 }
 
 body[data-page="booking"] .panel:nth-of-type(2){
@@ -11,153 +11,194 @@ body[data-page="booking"] .slot-grid{
   margin-top:14px;
 }
 
-body[data-page="booking"] .schedule-card{
-  padding:0;
-  background:transparent;
-  border:0;
-  border-radius:0;
-  box-shadow:none;
-  overflow:visible;
+.week-schedule-card{
+  display:grid;
+  gap:14px;
 }
 
-body[data-page="booking"] .schedule-card h3{
-  margin:16px 0 12px;
-  color:#242827;
-  font-size:18px;
-  line-height:1.45;
-}
-
-body[data-page="booking"] .schedule-steps{
+.week-schedule-head{
   display:flex;
-  gap:8px;
-  border:0;
-  border-radius:0;
-  overflow:visible;
-  background:transparent;
-}
-
-body[data-page="booking"] .schedule-steps span{
-  justify-content:flex-start;
-  min-height:34px;
-  padding:0 11px;
-  color:#6f7672;
-  background:#f0f1ee;
-  border:1px solid #d9dbd5;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding:16px;
+  background:#fff;
+  border:1px solid #deded9;
   border-radius:8px;
-  font-size:12px;
 }
 
-body[data-page="booking"] .schedule-steps .active{
-  color:#163f39;
-  background:#dcefeb;
-  border-color:#bcd9d3;
+.week-schedule-head h3{
+  margin:0;
+  color:#242827;
+  font-size:22px;
+  line-height:1.25;
 }
 
-body[data-page="booking"] .schedule-meta{
+.week-schedule-meta{
   display:flex;
   flex-wrap:wrap;
+  justify-content:flex-end;
   gap:8px;
-  margin:0 0 14px;
 }
 
-body[data-page="booking"] .schedule-meta span,
-body[data-page="booking"] .schedule-meta strong{
+.week-schedule-meta span,
+.week-schedule-meta strong{
   display:inline-flex;
   align-items:center;
   min-height:32px;
   padding:0 10px;
   color:#34403c;
-  background:#fff;
-  border:1px solid #dcded8;
+  background:#f3f4f1;
+  border:1px solid #d9dbd5;
   border-radius:8px;
   font-size:13px;
+  white-space:nowrap;
 }
 
-body[data-page="booking"] .schedule-toolbar{
-  margin:0 0 12px;
-  padding:14px 16px;
+.week-table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid #d8dbd5;
+  border-radius:8px;
   background:#fff;
-  border:1px solid #dcded8;
-  border-radius:8px;
 }
 
-body[data-page="booking"] .schedule-toolbar strong{
-  color:#252b29;
-  font-size:20px;
+.week-table{
+  width:100%;
+  min-width:860px;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
 }
 
-body[data-page="booking"] .schedule-toolbar span{
-  color:#767d78;
+.week-table th,
+.week-table td{
+  border-right:1px solid #e1e3de;
+  border-bottom:1px solid #e1e3de;
 }
 
-body[data-page="booking"] .calendar-board{
+.week-table thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  min-height:48px;
+  padding:12px 8px;
+  color:#333a37;
+  background:#f4f5f2;
+  font-size:13px;
+  font-weight:850;
+  text-align:center;
+}
+
+.week-table thead th:first-child,
+.week-table tbody th{
+  position:sticky;
+  left:0;
+  z-index:3;
+  width:76px;
+  background:#f7f8f5;
+}
+
+.week-table tbody th{
+  padding:8px 9px;
+  color:#68706c;
+  font-size:12px;
+  font-weight:850;
+  text-align:right;
+  vertical-align:top;
+}
+
+.week-table td{
+  height:48px;
+  padding:5px;
+  background:#fff;
+  text-align:center;
+  vertical-align:middle;
+}
+
+.week-table tr:nth-child(even) td{
+  background:#fcfcfb;
+}
+
+.week-table th:last-child,
+.week-table td:last-child{
+  border-right:0;
+}
+
+.week-table tbody tr:last-child th,
+.week-table tbody tr:last-child td{
+  border-bottom:0;
+}
+
+.week-slot{
+  display:grid;
+  place-items:center;
+  gap:1px;
+  width:100%;
+  min-height:38px;
+  padding:6px 4px;
+  color:#17433e;
+  background:#e7f4f1;
+  border:1px solid #b7d6d0;
+  border-radius:7px;
+  cursor:pointer;
+  font:inherit;
+  font-weight:850;
+}
+
+.week-slot span{
   display:block;
-  min-width:0;
-  background:transparent;
-  border:0;
-  overflow:visible;
+  font-size:13px;
+  line-height:1.1;
 }
 
-body[data-page="booking"] .calendar-corner,
-body[data-page="booking"] .calendar-days,
-body[data-page="booking"] .calendar-times,
-body[data-page="booking"] .calendar-grid-lines,
-body[data-page="booking"] .calendar-columns>div{
-  display:none;
-}
-
-body[data-page="booking"] .calendar-columns{
-  position:relative;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(136px,1fr));
-  gap:10px;
-  height:auto;
-}
-
-body[data-page="booking"] .calendar-slot{
-  position:static;
-  display:grid;
-  gap:2px;
-  width:auto!important;
-  height:auto!important;
-  min-height:58px;
-  padding:11px 12px;
-  color:#173835;
-  background:#eef7f5;
-  border:1px solid #b9d8d2;
-  border-radius:8px;
-  box-shadow:none;
-  font-size:15px;
-  line-height:1.35;
-}
-
-body[data-page="booking"] .calendar-slot::before{
-  content:"予約可能";
-  color:#5f6c68;
-  font-size:11px;
+.week-slot small{
+  display:block;
+  color:#55706b;
+  font-size:10px;
   font-weight:800;
+  line-height:1.1;
 }
 
-body[data-page="booking"] .calendar-slot:hover,
-body[data-page="booking"] .calendar-slot.selected{
+.week-slot:hover,
+.week-slot.selected{
   color:#fff;
   background:#24564f;
   border-color:#24564f;
-  box-shadow:0 10px 24px rgba(36,86,79,.18);
+  box-shadow:0 8px 18px rgba(36,86,79,.16);
 }
 
-body[data-page="booking"] .calendar-slot:hover::before,
-body[data-page="booking"] .calendar-slot.selected::before{
-  color:rgba(255,255,255,.72);
+.week-slot:hover small,
+.week-slot.selected small{
+  color:rgba(255,255,255,.78);
+}
+
+.week-busy{
+  color:#c0c5bf;
+  font-size:12px;
+}
+
+@media(max-width:900px){
+  body[data-page="booking"] .two-column{
+    grid-template-columns:1fr;
+  }
 }
 
 @media(max-width:620px){
-  body[data-page="booking"] .schedule-steps{
+  .week-schedule-head{
     display:grid;
-    grid-template-columns:1fr;
   }
 
-  body[data-page="booking"] .calendar-columns{
-    grid-template-columns:1fr 1fr;
+  .week-schedule-meta{
+    justify-content:flex-start;
+  }
+
+  .week-table{
+    min-width:760px;
+  }
+
+  .week-table thead th:first-child,
+  .week-table tbody th{
+    width:66px;
   }
 }
