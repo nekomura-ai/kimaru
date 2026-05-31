@@ -61,7 +61,7 @@ function generateSlots(weeklySettings, bookingPage) {
     }
   }
 
-  return slots.slice(0, 24);
+  return slots.slice(0, 80);
 }
 
 function overlaps(slot, busy) {
