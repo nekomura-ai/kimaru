@@ -64,6 +64,9 @@ async function initBooking() {
   try {
     const data = await api("availability?owner=demo");
     grid.innerHTML = "";
+    if (!data.slots.length) {
+      grid.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
+    }
     data.slots.forEach((slot) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -126,6 +129,23 @@ function renderLogs(logs) {
   `).join("");
 }
 
+function updateAvailabilityRows() {
+  document.querySelectorAll(".availability-row").forEach((row) => {
+    const enabled = row.querySelector('input[type="checkbox"]')?.checked;
+    row.classList.toggle("disabled", !enabled);
+    row.querySelectorAll('input[type="time"]').forEach((input) => { input.disabled = !enabled; });
+  });
+}
+
+function collectAvailabilitySettings(data) {
+  return [0, 1, 2, 3, 4, 5, 6].map((day) => ({
+    day_of_week: day,
+    enabled: data[`availability_enabled_${day}`] === "on",
+    start_time: data[`availability_start_${day}`] || "10:00",
+    end_time: data[`availability_end_${day}`] || "18:00",
+  })).filter((setting) => setting.enabled);
+}
+
 function updateBookingPageControls() {
   const isPro = currentOwner?.plan === "pro";
   const rangeSelect = $("#booking-range-select");
@@ -158,6 +178,7 @@ function updateBookingPageControls() {
       }[locationType.value] || "";
     }
   }
+  updateAvailabilityRows();
 }
 
 function collectBookingPagePayload(form) {
@@ -179,6 +200,7 @@ function collectBookingPagePayload(form) {
     booking_range_months: Number(data.booking_range_months),
     location_type: data.location_type,
     location_value: data.location_value || "",
+    availability_settings: collectAvailabilitySettings(data),
     questions,
   };
 }
@@ -211,6 +233,9 @@ async function initAdmin() {
 
   $("#location-type-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-range-select")?.addEventListener("change", updateBookingPageControls);
+  document.querySelectorAll('.availability-row input[type="checkbox"]').forEach((checkbox) => {
+    checkbox.addEventListener("change", updateAvailabilityRows);
+  });
 
   $("#booking-page-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
