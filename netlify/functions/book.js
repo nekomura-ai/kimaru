@@ -2,8 +2,20 @@ const { json, readJson } = require("./_lib/response");
 const { sb, defaultOwner } = require("./_lib/supabase");
 const { createCalendarEvent } = require("./_lib/google");
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function clean(value, max = 500) {
+  return String(value || "").trim().slice(0, max);
+}
+
+function parseDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function parseRelationshipContext(value) {
   if (!value || value === "none") return null;
+  if (String(value).length > 12000) return null;
   try {
     const parsed = JSON.parse(value);
     return parsed?.kind === "relationship_context" ? parsed : null;
@@ -33,7 +45,18 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
   try {
     const body = readJson(event);
-    if (!body.start || !body.end || !body.visitor_email || !body.visitor_name) return json(400, { error: "Missing booking fields" });
+    const visitorName = clean(body.visitor_name, 100);
+    const visitorEmail = clean(body.visitor_email, 254).toLowerCase();
+    const start = parseDate(body.start);
+    const end = parseDate(body.end);
+    if (!start || !end || !visitorEmail || !visitorName) return json(400, { error: "Missing booking fields" });
+    if (!EMAIL_RE.test(visitorEmail)) return json(400, { error: "Invalid email address" });
+    if (start >= end) return json(400, { error: "Invalid booking time" });
+    const now = new Date();
+    const maxFuture = new Date(now);
+    maxFuture.setMonth(maxFuture.getMonth() + 6);
+    if (start < now || start > maxFuture) return json(400, { error: "Booking time is outside the allowed range" });
+
     const owner = await defaultOwner();
     if (!owner) return json(400, { error: "Owner is not set. Please login with Google first." });
     const relationshipContext = parseRelationshipContext(body.filter_request);
@@ -41,17 +64,17 @@ exports.handler = async (event) => {
     const storedRelationshipContext = sanitizePrivateBirthDate(relationshipContext, birthDatePrivate);
     const bookingPayload = {
       owner_id: owner.id,
-      visitor_name: body.visitor_name,
-      visitor_email: body.visitor_email,
-      guest_name: body.visitor_name,
-      guest_email: body.visitor_email,
-      topic: body.topic || "",
-      filter_request: storedRelationshipContext ? JSON.stringify(storedRelationshipContext) : body.filter_request || "none",
-      start_at: body.start,
-      end_at: body.end,
-      start_time: body.start,
-      end_time: body.end,
-      location_type: body.location_type || "google_meet",
+      visitor_name: visitorName,
+      visitor_email: visitorEmail,
+      guest_name: visitorName,
+      guest_email: visitorEmail,
+      topic: clean(body.topic, 2000),
+      filter_request: storedRelationshipContext ? JSON.stringify(storedRelationshipContext) : clean(body.filter_request || "none", 12000),
+      start_at: start.toISOString(),
+      end_at: end.toISOString(),
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      location_type: clean(body.location_type || "google_meet", 40),
       status: "confirmed",
     };
     if (relationshipContext) {
