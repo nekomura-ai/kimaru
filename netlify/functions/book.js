@@ -12,6 +12,11 @@ function parseRelationshipContext(value) {
   }
 }
 
+function sanitizePrivateBirthDate(context, isPrivate) {
+  if (!context || !isPrivate) return context;
+  return { ...context, birth_date: "非公開", birth_date_private: true };
+}
+
 async function createBooking(payload) {
   try {
     return await sb("bookings", { method: "POST", body: JSON.stringify(payload) });
@@ -32,6 +37,8 @@ exports.handler = async (event) => {
     const owner = await defaultOwner();
     if (!owner) return json(400, { error: "Owner is not set. Please login with Google first." });
     const relationshipContext = parseRelationshipContext(body.filter_request);
+    const birthDatePrivate = body.birth_date_private === "yes" || body.birth_date_private === true;
+    const storedRelationshipContext = sanitizePrivateBirthDate(relationshipContext, birthDatePrivate);
     const bookingPayload = {
       owner_id: owner.id,
       visitor_name: body.visitor_name,
@@ -39,7 +46,7 @@ exports.handler = async (event) => {
       guest_name: body.visitor_name,
       guest_email: body.visitor_email,
       topic: body.topic || "",
-      filter_request: body.filter_request || "none",
+      filter_request: storedRelationshipContext ? JSON.stringify(storedRelationshipContext) : body.filter_request || "none",
       start_at: body.start,
       end_at: body.end,
       start_time: body.start,
@@ -49,7 +56,7 @@ exports.handler = async (event) => {
     };
     if (relationshipContext) {
       bookingPayload.visitor_birth_date = relationshipContext.birth_date || null;
-      bookingPayload.visitor_birth_date_private = body.birth_date_private === "yes" || body.birth_date_private === true;
+      bookingPayload.visitor_birth_date_private = birthDatePrivate;
       bookingPayload.birthday_message_opt_in = Boolean(relationshipContext.birthday_message_opt_in);
       bookingPayload.relationship_profile = relationshipContext.profile || {};
     }
