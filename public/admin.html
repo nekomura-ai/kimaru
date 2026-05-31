@@ -113,8 +113,10 @@
 
     <section class="panel wide">
       <p class="eyebrow">予約一覧</p>
-      <h2>最近の予約</h2>
-      <div id="booking-list" class="list"></div>
+      <h2>日程調整した人</h2>
+      <label class="search-field">検索キーワード<input id="booking-search" type="search" placeholder="名前、メール、話題、目標、誕生日メモで検索" /></label>
+      <p id="booking-search-count" class="message"></p>
+      <div id="booking-list" class="list searchable-list"></div>
     </section>
 
     <section class="panel wide">
@@ -128,7 +130,9 @@
         <button class="primary" type="submit">メモを保存する</button>
       </form>
       <p id="log-message" class="message"></p>
-      <div id="log-list" class="list"></div>
+      <label class="search-field">メモ検索<input id="log-search" type="search" placeholder="メール、キーワード、メモ、次のアクションで検索" /></label>
+      <p id="log-search-count" class="message"></p>
+      <div id="log-list" class="list searchable-list"></div>
     </section>
   </main>
 
@@ -139,6 +143,32 @@
         if (data?.owner?.cat_key_disabled) document.getElementById('cat-key-panel')?.remove();
       })
       .catch(() => null);
+
+    function setupSearch(inputId, listId, countId, label) {
+      const input = document.getElementById(inputId);
+      const list = document.getElementById(listId);
+      const count = document.getElementById(countId);
+      if (!input || !list || !count) return;
+      const apply = () => {
+        const keyword = input.value.trim().toLowerCase();
+        const items = [...list.querySelectorAll('.list-item')];
+        let visible = 0;
+        items.forEach((item) => {
+          const matched = !keyword || item.textContent.toLowerCase().includes(keyword);
+          item.classList.toggle('hidden', !matched);
+          if (matched) visible += 1;
+        });
+        count.textContent = items.length ? `${label}: ${visible} / ${items.length}件` : '';
+      };
+      input.addEventListener('input', apply);
+      new MutationObserver(apply).observe(list, { childList: true, subtree: false });
+      apply();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupSearch('booking-search', 'booking-list', 'booking-search-count', '表示中');
+      setupSearch('log-search', 'log-list', 'log-search-count', '表示中');
+    });
   </script>
   <script src="/app.js" defer></script>
 </body>
