@@ -49,6 +49,108 @@ function formatSlot(iso) {
   }).format(new Date(iso));
 }
 
+function pad2(value) {
+  return String(value).padStart(2, "0");
+}
+
+function dateKey(date) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function minutesOfDay(date) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function timeText(date) {
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function monthTitle(date) {
+  return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+}
+
+function dayLabel(date) {
+  return new Intl.DateTimeFormat("ja-JP", { day: "numeric", weekday: "short" }).format(date).replace("曜日", "");
+}
+
+function buildScheduleModel(slots) {
+  const normalized = [...slots]
+    .map((slot) => ({ ...slot, startDate: new Date(slot.start), endDate: new Date(slot.end) }))
+    .filter((slot) => !Number.isNaN(slot.startDate.getTime()) && !Number.isNaN(slot.endDate.getTime()))
+    .sort((a, b) => a.startDate - b.startDate);
+  const keys = [...new Set(normalized.map((slot) => dateKey(slot.startDate)))].slice(0, 5);
+  const days = keys.map((key) => normalized.find((slot) => dateKey(slot.startDate) === key).startDate);
+  const visibleSlots = normalized.filter((slot) => keys.includes(dateKey(slot.startDate)));
+  const minMinute = visibleSlots.length ? Math.min(...visibleSlots.map((slot) => minutesOfDay(slot.startDate))) : 600;
+  const maxMinute = visibleSlots.length ? Math.max(...visibleSlots.map((slot) => minutesOfDay(slot.endDate))) : 1080;
+  const startHour = Math.max(0, Math.floor(minMinute / 60));
+  const endHour = Math.min(24, Math.max(startHour + 3, Math.ceil(maxMinute / 60)));
+  return { days, slots: visibleSlots, startHour, endHour };
+}
+
+function selectSlot(slot, button, form) {
+  form.classList.remove("hidden");
+  form.elements.start.value = slot.start;
+  form.elements.end.value = slot.end;
+  document.querySelectorAll(".calendar-slot").forEach((item) => item.classList.remove("selected"));
+  button.classList.add("selected");
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderScheduleGrid(container, slots, form) {
+  if (!slots.length) {
+    container.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
+    return;
+  }
+  const model = buildScheduleModel(slots);
+  const rowHeight = 86;
+  const minutesStart = model.startHour * 60;
+  const totalMinutes = (model.endHour - model.startHour) * 60;
+  const hours = Array.from({ length: model.endHour - model.startHour + 1 }, (_, index) => model.startHour + index);
+  const month = monthTitle(model.days[0]);
+  const duration = Math.round((new Date(slots[0].end) - new Date(slots[0].start)) / 60000);
+
+  container.innerHTML = `
+    <div class="schedule-card">
+      <div class="schedule-steps" aria-label="予約ステップ">
+        <span class="active">1 日程選択</span><span>2 情報入力</span><span>3 予約完了</span>
+      </div>
+      <h3>ご都合の良い日時を選択してください</h3>
+      <div class="schedule-meta"><span>所要時間</span><strong>${duration}分</strong></div>
+      <div class="schedule-toolbar">
+        <strong>${escapeHtml(month)}</strong>
+        <span>アジア/東京 (UTC+09:00)</span>
+      </div>
+      <div class="calendar-board" style="--calendar-rows:${model.endHour - model.startHour};--calendar-row-height:${rowHeight}px;">
+        <div class="calendar-corner"></div>
+        <div class="calendar-days">${model.days.map((day) => `<div>${escapeHtml(dayLabel(day))}</div>`).join("")}</div>
+        <div class="calendar-times">${hours.map((hour) => `<div>${pad2(hour)}:00</div>`).join("")}</div>
+        <div class="calendar-grid-lines"></div>
+        <div class="calendar-columns">${model.days.map((day) => `<div data-day="${dateKey(day)}"></div>`).join("")}</div>
+      </div>
+    </div>
+  `;
+
+  const columns = container.querySelector(".calendar-columns");
+  model.slots.forEach((slot) => {
+    const key = dateKey(slot.startDate);
+    const dayIndex = model.days.findIndex((day) => dateKey(day) === key);
+    if (dayIndex < 0) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "calendar-slot";
+    const top = ((minutesOfDay(slot.startDate) - minutesStart) / totalMinutes) * 100;
+    const height = Math.max(50, ((slot.endDate - slot.startDate) / 60000 / totalMinutes) * (model.endHour - model.startHour) * rowHeight);
+    button.style.left = `calc(${dayIndex} * (100% / ${model.days.length}) + 4px)`;
+    button.style.width = `calc((100% / ${model.days.length}) - 8px)`;
+    button.style.top = `${top}%`;
+    button.style.height = `${height}px`;
+    button.innerHTML = `<span>${timeText(slot.startDate)} -</span><span>${timeText(slot.endDate)}</span>`;
+    button.addEventListener("click", () => selectSlot(slot, button, form));
+    columns.appendChild(button);
+  });
+}
+
 function formatBirthDate(dateString) {
   if (!dateString) return "";
   if (dateString === "非公開") return dateString;
@@ -180,22 +282,7 @@ async function initBooking() {
   if (!grid || !form) return;
   try {
     const data = await api("availability?owner=demo");
-    grid.innerHTML = "";
-    if (!data.slots.length) grid.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
-    data.slots.forEach((slot) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "slot-button";
-      button.textContent = formatSlot(slot.start);
-      button.addEventListener("click", () => {
-        form.classList.remove("hidden");
-        form.elements.start.value = slot.start;
-        form.elements.end.value = slot.end;
-        document.querySelectorAll(".slot-button").forEach((item) => item.classList.remove("selected"));
-        button.classList.add("selected");
-      });
-      grid.appendChild(button);
-    });
+    renderScheduleGrid(grid, data.slots || [], form);
   } catch (error) {
     setMessage("#booking-message", error.message, "error");
   }
