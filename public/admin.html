@@ -11,7 +11,10 @@
     <a class="brand" href="/">キマル</a>
     <nav>
       <a href="/booking.html">予約ページ</a>
+      <a href="/admin.html">相手管理</a>
       <a href="/pro.html">Pro版</a>
+      <a href="/pro-apply.html">Pro申し込み</a>
+      <a href="/signup.html">無料登録</a>
       <a id="login-link" href="/api/google-auth-start">Google連携</a>
       <button id="logout-button" class="link-button" type="button">ログアウト</button>
     </nav>
@@ -43,27 +46,9 @@
       <form id="booking-page-form" class="form-grid">
         <label>ページタイトル<input name="title" value="キマル面談" required /></label>
         <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
-        <label>予約時間
-          <select name="duration_minutes">
-            <option value="30">30分</option>
-            <option value="45">45分</option>
-            <option value="60">60分</option>
-          </select>
-        </label>
-        <label>前バッファ
-          <select name="buffer_before_minutes">
-            <option value="0">なし</option>
-            <option value="15">15分</option>
-            <option value="30">30分</option>
-          </select>
-        </label>
-        <label>後バッファ
-          <select name="buffer_after_minutes">
-            <option value="0">なし</option>
-            <option value="15">15分</option>
-            <option value="30">30分</option>
-          </select>
-        </label>
+        <label>予約時間<select name="duration_minutes"><option value="30">30分</option><option value="45">45分</option><option value="60">60分</option></select></label>
+        <label>前バッファ<select name="buffer_before_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
+        <label>後バッファ<select name="buffer_after_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
         <label>予約枠の公開範囲
           <select name="booking_range_months" id="booking-range-select">
             <option value="1">今日から1ヶ月先の日程まで公開</option>
@@ -134,36 +119,16 @@
           <p class="eyebrow">相手の印象メモ</p>
           <h3>会話以外の情報を5段階で残す</h3>
           <p class="muted">1は弱い、3は標準、5は強い印象です。未確認の項目は3のままで保存できます。</p>
-          <label>第一印象
-            <select name="trait_first_impression" data-trait-label="第一印象"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>話し上手
-            <select name="trait_speaking" data-trait-label="話し上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>聞き上手
-            <select name="trait_listening" data-trait-label="聞き上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>積極性
-            <select name="trait_proactive" data-trait-label="積極性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>ギバー度
-            <select name="trait_giver" data-trait-label="ギバー度"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>前向きさ
-            <select name="trait_positive" data-trait-label="前向きさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>論理性
-            <select name="trait_logical" data-trait-label="論理性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>共感力
-            <select name="trait_empathy" data-trait-label="共感力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>決断力
-            <select name="trait_decisive" data-trait-label="決断力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
-          <label>紹介しやすさ
-            <select name="trait_referral" data-trait-label="紹介しやすさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
-          </label>
+          <label>第一印象<select name="trait_first_impression" data-trait-label="第一印象"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>話し上手<select name="trait_speaking" data-trait-label="話し上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>聞き上手<select name="trait_listening" data-trait-label="聞き上手"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>積極性<select name="trait_proactive" data-trait-label="積極性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>ギバー度<select name="trait_giver" data-trait-label="ギバー度"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>前向きさ<select name="trait_positive" data-trait-label="前向きさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>論理性<select name="trait_logical" data-trait-label="論理性"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>共感力<select name="trait_empathy" data-trait-label="共感力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>決断力<select name="trait_decisive" data-trait-label="決断力"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label>紹介しやすさ<select name="trait_referral" data-trait-label="紹介しやすさ"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
         </div>
         <button class="primary" type="submit">メモを保存する</button>
       </form>
