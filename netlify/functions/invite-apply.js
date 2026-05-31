@@ -45,7 +45,8 @@ async function auditCatKey(event, payload) {
 async function listOwners(event) {
   if (!isCatKeyAdmin(event)) return json(401, { error: "Unauthorized" });
   const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200");
-  return json(200, { owners });
+  const events = await sb("cat_key_events?select=id,owner_id,email,action,code,ip_address,user_agent,metadata,created_at&order=created_at.desc&limit=50").catch(() => []);
+  return json(200, { owners, events });
 }
 
 async function updateOwnerCatKey(event) {
