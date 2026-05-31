@@ -24,7 +24,7 @@
       <ul class="feature-list">
         <li>受付できる曜日と時間帯から候補を表示</li>
         <li>事前アンケートで、話したい内容を確認</li>
-        <li>オンライン、対面、電話などの開催方法に対応</li>
+        <li>生年月日から、会話のきっかけになる簡易メモを作成</li>
       </ul>
     </section>
 
@@ -37,10 +37,14 @@
         <input type="hidden" name="owner_slug" value="demo" />
         <input type="hidden" name="start" />
         <input type="hidden" name="end" />
+        <input type="hidden" name="filter_request" />
         <label>お名前<input name="visitor_name" autocomplete="name" required /></label>
         <label>メールアドレス<input name="visitor_email" type="email" autocomplete="email" required /></label>
         <label>今回お話したい内容<textarea name="topic" rows="4" required></textarea></label>
         <label>今、実現したい夢や目標は何ですか？<textarea name="goal" rows="3"></textarea></label>
+        <label>生年月日（任意）<input name="birth_date" type="date" /></label>
+        <label class="checkbox-label"><input name="birthday_message_opt_in" type="checkbox" value="yes" />誕生日のお祝いメッセージを希望する</label>
+        <p class="muted form-note">生年月日は、誕生日メッセージと会話のきっかけ作りに使います。公開ページには表示されません。</p>
         <button class="primary" type="submit">予約を確定する</button>
       </form>
       <p id="booking-message" class="message" role="status"></p>
