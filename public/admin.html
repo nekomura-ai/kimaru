@@ -11,10 +11,12 @@
     <a class="brand" href="/">キマル</a>
     <nav>
       <a href="/booking.html">予約ページ</a>
+      <a href="/booking-settings.html">予約設定</a>
       <a href="/admin.html">相手管理</a>
+      <a href="/profile.html">プロフィール</a>
+      <a href="/ai-assist.html">AIアシスト</a>
       <a href="/pro.html">Pro版</a>
       <a href="/pro-apply.html">Pro申し込み</a>
-      <a href="/signup.html">無料登録</a>
       <a id="login-link" href="/api/google-auth-start">Google連携</a>
       <button id="logout-button" class="link-button" type="button">ログアウト</button>
     </nav>
@@ -41,60 +43,10 @@
     </section>
 
     <section class="panel wide">
-      <p class="eyebrow">予約ページ設定</p>
-      <h2>予約受付を設定する</h2>
-      <form id="booking-page-form" class="form-grid">
-        <label>ページタイトル<input name="title" value="キマル面談" required /></label>
-        <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
-        <label>予約時間<select name="duration_minutes"><option value="30">30分</option><option value="45">45分</option><option value="60">60分</option></select></label>
-        <label>前バッファ<select name="buffer_before_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
-        <label>後バッファ<select name="buffer_after_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
-        <label>予約枠の公開範囲
-          <select name="booking_range_months" id="booking-range-select">
-            <option value="1">今日から1ヶ月先の日程まで公開</option>
-            <option value="3" selected>今日から3ヶ月先の日程まで公開（無料版）</option>
-            <option value="6">今日から6ヶ月先の日程まで公開（有料版）</option>
-          </select>
-        </label>
-        <label>開催方法
-          <select name="location_type" id="location-type-select">
-            <option value="google_meet">Google Meet自動発行</option>
-            <option value="in_person">対面</option>
-            <option value="phone">電話</option>
-            <option value="custom_url">カスタムURL</option>
-            <option value="later">後で連絡</option>
-            <option value="zoom" disabled>Zoom自動発行（将来対応）</option>
-          </select>
-        </label>
-        <label id="location-value-field" class="hidden">開催場所・電話案内・URL<input name="location_value" placeholder="住所、電話案内、またはURL" /></label>
-
-        <div class="availability-box">
-          <p class="eyebrow">受付時間</p>
-          <h3>曜日ごとの受付時間</h3>
-          <p class="muted">予約を受け付ける曜日と時間帯を設定します。休みにする曜日はチェックを外してください。</p>
-          <div class="availability-grid">
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_1" checked />月曜日 <input type="time" name="availability_start_1" value="10:00" /> <span>から</span> <input type="time" name="availability_end_1" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_2" checked />火曜日 <input type="time" name="availability_start_2" value="10:00" /> <span>から</span> <input type="time" name="availability_end_2" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_3" checked />水曜日 <input type="time" name="availability_start_3" value="10:00" /> <span>から</span> <input type="time" name="availability_end_3" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_4" checked />木曜日 <input type="time" name="availability_start_4" value="10:00" /> <span>から</span> <input type="time" name="availability_end_4" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_5" checked />金曜日 <input type="time" name="availability_start_5" value="10:00" /> <span>から</span> <input type="time" name="availability_end_5" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_6" />土曜日 <input type="time" name="availability_start_6" value="10:00" /> <span>から</span> <input type="time" name="availability_end_6" value="18:00" /></label>
-            <label class="availability-row"><input type="checkbox" name="availability_enabled_0" />日曜日 <input type="time" name="availability_start_0" value="10:00" /> <span>から</span> <input type="time" name="availability_end_0" value="18:00" /></label>
-          </div>
-        </div>
-
-        <div class="questionnaire-box">
-          <p class="eyebrow">事前アンケート</p>
-          <p class="muted" id="question-limit-message">無料版は最大2問、有料版は最大5問まで設定できます。</p>
-          <label class="question-row">質問1<input name="question_1" value="今回お話したい内容" /></label>
-          <label class="question-row">質問2<input name="question_2" value="今、実現したい夢や目標は何ですか？" /></label>
-          <label class="question-row pro-question">質問3<input name="question_3" value="最近挑戦していることはありますか？" /></label>
-          <label class="question-row pro-question">質問4<input name="question_4" value="応援してほしいことはありますか？" /></label>
-          <label class="question-row pro-question">質問5<input name="question_5" value="趣味や好きなことはありますか？" /></label>
-        </div>
-        <button class="primary" type="submit">設定を保存する</button>
-      </form>
-      <p id="booking-page-message" class="message"></p>
+      <p class="eyebrow">予約設定</p>
+      <h2>受付時間や公開範囲を変更する</h2>
+      <p class="muted">予約ページのタイトル、開催方法、曜日ごとの受付時間、事前アンケートは専用ページで設定できます。</p>
+      <p><a class="button primary" href="/booking-settings.html">予約設定を開く</a></p>
     </section>
 
     <section class="panel wide">
