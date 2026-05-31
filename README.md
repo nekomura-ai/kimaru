@@ -15,6 +15,7 @@ https://kimaru-alpha.vercel.app
 ```
 
 The project is deployed on Vercel as `kimaru` under Fumio Uchiyama's projects.
+Supabase production project: `kimaru`.
 
 ## Architecture
 
