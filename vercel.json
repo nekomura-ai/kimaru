@@ -6,7 +6,8 @@
     { "source": "/", "destination": "/index.html" },
     { "source": "/booking", "destination": "/booking.html" },
     { "source": "/signup", "destination": "/signup.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/api/birthday-mails", "destination": "/api/book?job=birthday-mails" }
   ],
   "crons": [
     { "path": "/api/birthday-mails", "schedule": "0 0 * * *" }
