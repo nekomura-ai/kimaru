@@ -1,16 +1,52 @@
 const { json, readJson } = require("./_lib/response");
 const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
+const { optional } = require("./_lib/config");
 
 const proCodes = new Set([
   "JF7YAIN40EQL",
   "NEKO20240222",
 ]);
 
+function isCatKeyAdmin(event, body = {}) {
+  const secret = optional("CAT_KEY_ADMIN_SECRET", optional("ADMIN_SECRET", ""));
+  if (!secret) return false;
+  const headers = event.headers || {};
+  const authorization = headers.authorization || headers.Authorization || "";
+  const querySecret = event.queryStringParameters?.secret || "";
+  return authorization === `Bearer ${secret}` || querySecret === secret || body.secret === secret;
+}
+
+async function listOwners(event) {
+  if (!isCatKeyAdmin(event)) return json(401, { error: "Unauthorized" });
+  const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200");
+  return json(200, { owners });
+}
+
+async function updateOwnerCatKey(event) {
+  const body = readJson(event);
+  if (!isCatKeyAdmin(event, body)) return json(401, { error: "Unauthorized" });
+  const ownerId = String(body.owner_id || "").trim();
+  const action = String(body.action || "revoke");
+  if (!ownerId) return json(400, { error: "Missing owner_id" });
+  const patch = action === "restore"
+    ? { cat_key_disabled: false }
+    : { plan: "free", invite_code: "", cat_key_disabled: true };
+  const rows = await sb(`owners?id=${eq(ownerId)}`, { method: "PATCH", body: JSON.stringify(patch) });
+  return json(200, { ok: true, owner: rows[0] });
+}
+
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
   try {
+    if (event.queryStringParameters?.admin === "cat-key") {
+      if (event.httpMethod === "GET") return listOwners(event);
+      if (event.httpMethod === "POST") return updateOwnerCatKey(event);
+      return json(405, { error: "Method not allowed" });
+    }
+
+    if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
     const owner = await requireOwner(event);
+    if (owner.cat_key_disabled) return json(403, { error: "Cat Key is disabled for this account." });
     const body = readJson(event);
     const code = String(body.code || "").trim().toUpperCase();
     if (!proCodes.has(code)) return json(400, { error: "Invalid invite code" });
