@@ -28,6 +28,8 @@ Primary deployment is now Vercel + Supabase.
 - Calendar: Google Calendar API
 - Meeting: Google Meet auto creation first
 - Future meeting provider: Zoom-ready design
+- Scheduled jobs: Vercel Cron
+- Email delivery: Resend-ready, disabled until environment variables are set
 
 The legacy Netlify Functions remain in `netlify/functions/` as reusable handlers. Vercel routes in `api/` call those handlers through a small adapter so the app can move to Vercel without rewriting every endpoint at once.
 
@@ -42,7 +44,7 @@ Settings:
 - Output directory: empty
 - Install command: empty
 
-`vercel.json` handles clean URLs and keeps `/api/*` as Vercel Functions.
+`vercel.json` handles clean URLs, keeps `/api/*` as Vercel Functions, and runs `/api/birthday-mails` once a day with Vercel Cron.
 
 Required environment variables:
 
@@ -53,6 +55,15 @@ Required environment variables:
 - `GOOGLE_CLIENT_SECRET`
 - `SESSION_SECRET`
 - `TOKEN_ENCRYPTION_KEY`
+
+Optional birthday email variables:
+
+- `RESEND_API_KEY`
+- `BIRTHDAY_EMAIL_FROM`
+- `BIRTHDAY_EMAIL_REPLY_TO`
+- `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`
+
+If `RESEND_API_KEY` and `BIRTHDAY_EMAIL_FROM` are not set, the birthday job stays in dry-run mode and only returns the target users and message text. If a cron secret is set, the job requires `Authorization: Bearer <secret>` or `?secret=<secret>`.
 
 Set `APP_BASE_URL` to:
 
@@ -81,11 +92,29 @@ The schema includes:
 - `questionnaire_answers`
 - `google_calendar_tokens`
 - `invite_codes`
+- `birthday_message_deliveries`
 
 Compatibility tables for the current Google-login MVP also remain:
 
 - `owners`
 - `google_connections`
+
+## Birthday Emails
+
+Birthday email automation is implemented as a Pro feature.
+
+- Booking guests can optionally enter a birth date and request a birthday message.
+- The booking stores birth-date context and a relationship profile for later analysis.
+- `/api/birthday-mails` checks confirmed bookings every day at 09:00 JST.
+- Only bookings owned by Pro owners are eligible.
+- `birthday_message_deliveries` prevents duplicate sends for the same booking and date.
+- Resend sends the email when `RESEND_API_KEY` and `BIRTHDAY_EMAIL_FROM` are configured.
+
+Manual dry-run check:
+
+```text
+https://kimaru-alpha.vercel.app/api/birthday-mails?dry_run=1
+```
 
 ## Phase 1
 
@@ -99,6 +128,7 @@ Compatibility tables for the current Google-login MVP also remain:
 - Questionnaire limits: free 2 questions, pro 5 questions
 - Cat Key invite code: `Neko20240222`
 - Booking form and booking list foundation
+- Birthday message opt-in and birth-date insight foundation
 
 ## Phase 2
 
@@ -107,6 +137,7 @@ Compatibility tables for the current Google-login MVP also remain:
 - Calendar event creation
 - Google Meet auto creation
 - Booking confirmation email
+- Birthday email delivery
 
 ## Phase 3
 
