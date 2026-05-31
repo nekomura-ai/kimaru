@@ -15,17 +15,22 @@ exports.handler = async (event) => {
         owner_id: owner.id,
         visitor_name: body.visitor_name,
         visitor_email: body.visitor_email,
+        guest_name: body.visitor_name,
+        guest_email: body.visitor_email,
         topic: body.topic || "",
         filter_request: body.filter_request || "none",
         start_at: body.start,
         end_at: body.end,
+        start_time: body.start,
+        end_time: body.end,
+        location_type: body.location_type || "google_meet",
         status: "confirmed",
       }),
     });
     const booking = rows[0];
     const eventResult = await createCalendarEvent(owner.id, booking).catch((error) => ({ error: error.message }));
     if (eventResult?.id) {
-      await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id }) });
+      await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || "" }) });
     }
     return json(200, { ok: true, booking, google: eventResult });
   } catch (error) {
