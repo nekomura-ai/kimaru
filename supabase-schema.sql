@@ -96,6 +96,7 @@ create table if not exists bookings (
   topic text not null default '',
   filter_request text not null default 'none',
   visitor_birth_date date,
+  visitor_birth_date_private boolean not null default false,
   birthday_message_opt_in boolean not null default false,
   relationship_profile jsonb not null default '{}'::jsonb,
   start_at timestamptz,
@@ -191,6 +192,7 @@ alter table bookings add column if not exists user_id uuid references users(id) 
 alter table bookings add column if not exists guest_name text not null default '';
 alter table bookings add column if not exists guest_email text not null default '';
 alter table bookings add column if not exists visitor_birth_date date;
+alter table bookings add column if not exists visitor_birth_date_private boolean not null default false;
 alter table bookings add column if not exists birthday_message_opt_in boolean not null default false;
 alter table bookings add column if not exists relationship_profile jsonb not null default '{}'::jsonb;
 alter table bookings add column if not exists start_time timestamptz;
