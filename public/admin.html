@@ -24,7 +24,7 @@
       <div id="owner-card" class="soft-box"></div>
     </section>
 
-    <section class="panel">
+    <section id="cat-key-panel" class="panel">
       <p class="eyebrow">猫の鍵 / Cat Key</p>
       <h2>有料版を解放する</h2>
       <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます。入力内容は公開ページには表示されません。</p>
@@ -131,6 +131,14 @@
     </section>
   </main>
 
+  <script>
+    fetch('/api/me', { credentials: 'include' })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data?.owner?.cat_key_disabled) document.getElementById('cat-key-panel')?.remove();
+      })
+      .catch(() => null);
+  </script>
   <script src="/app.js" defer></script>
 </body>
 </html>
