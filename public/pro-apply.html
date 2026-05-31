@@ -11,10 +11,10 @@
     <a class="brand" href="/">キマル</a>
     <nav>
       <a href="/booking.html">予約ページ</a>
+      <a href="/admin.html">相手管理</a>
       <a href="/pro.html">Pro版</a>
-      <a href="/square.html">Square決済</a>
+      <a href="/pro-apply.html">Pro申し込み</a>
       <a href="/signup.html">無料登録</a>
-      <a href="/admin.html">管理画面</a>
     </nav>
   </header>
 
@@ -33,13 +33,7 @@
         <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
         <label>会社名・屋号（任意）<input name="company" autocomplete="organization" /></label>
         <label>電話番号（任意）<input name="phone" type="tel" autocomplete="tel" /></label>
-        <label>希望プラン
-          <select name="plan">
-            <option value="Pro版">Pro版</option>
-            <option value="法人・チーム利用相談">法人・チーム利用相談</option>
-            <option value="Cat Key利用">Cat Key利用</option>
-          </select>
-        </label>
+        <label>希望プラン<select name="plan"><option value="Pro版">Pro版</option><option value="法人・チーム利用相談">法人・チーム利用相談</option><option value="Cat Key利用">Cat Key利用</option></select></label>
         <label>猫の鍵 / Cat Key（お持ちの方のみ）<input name="invite_code" placeholder="Neko20240222" /></label>
         <label>利用目的<textarea name="use_case" rows="4" placeholder="例：営業面談、採用面談、顧客フォロー、コミュニティ運営など"></textarea></label>
         <label>相談したいこと<textarea name="message" rows="4" placeholder="導入時期、使いたい機能、確認したいことがあれば入力してください。"></textarea></label>
@@ -53,10 +47,7 @@
   <script>
     const form = document.getElementById('pro-apply-form');
     const message = document.getElementById('pro-apply-message');
-    const setMessage = (text, kind = '') => {
-      message.textContent = text;
-      message.className = `message ${kind}`.trim();
-    };
+    const setMessage = (text, kind = '') => { message.textContent = text; message.className = `message ${kind}`.trim(); };
     const value = (data, key) => String(data.get(key) || '').trim();
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -74,18 +65,12 @@
         const response = await fetch('/api/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: value(data, 'name'),
-            email: value(data, 'email'),
-            purpose,
-            invite_code: value(data, 'invite_code'),
-            language: value(data, 'language') || 'ja',
-          }),
+          body: JSON.stringify({ name: value(data, 'name'), email: value(data, 'email'), purpose, invite_code: value(data, 'invite_code'), language: 'ja' }),
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || '送信に失敗しました。');
         form.reset();
-        setMessage('申し込みを受け付けました。確認後、Pro版の利用開始方法を案内します。', 'success');
+        setMessage('送信しました。確認後にご連絡します。', 'success');
       } catch (error) {
         setMessage(error.message, 'error');
       }
