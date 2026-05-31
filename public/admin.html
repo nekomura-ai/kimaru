@@ -26,8 +26,8 @@
 
     <section class="panel">
       <p class="eyebrow">猫の鍵 / Cat Key</p>
-      <h2>招待コードを適用</h2>
-      <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版の機能を無料で利用できます。入力内容は公開ページには表示されません。</p>
+      <h2>有料版を解放する</h2>
+      <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます。入力内容は公開ページには表示されません。</p>
       <form id="invite-form" class="inline-form">
         <input name="code" placeholder="Neko20240222" />
         <button class="primary" type="submit">適用</button>
@@ -37,7 +37,7 @@
 
     <section class="panel wide">
       <p class="eyebrow">予約ページ設定</p>
-      <h2>受付条件を設定する</h2>
+      <h2>予約受付を設定する</h2>
       <form id="booking-page-form" class="form-grid">
         <label>ページタイトル<input name="title" value="Kimaru meeting" required /></label>
         <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
@@ -99,11 +99,11 @@
         <div class="questionnaire-box">
           <p class="eyebrow">事前アンケート</p>
           <p class="muted" id="question-limit-message">無料版は最大2問、有料版は最大5問まで設定できます。</p>
-          <label class="question-row">質問1<input name="question_1" value="今回相談したい内容" /></label>
-          <label class="question-row">質問2<input name="question_2" value="事前に共有しておきたいこと" /></label>
-          <label class="question-row pro-question">質問3<input name="question_3" value="現在取り組んでいることはありますか？" /></label>
-          <label class="question-row pro-question">質問4<input name="question_4" value="今回の時間で解決したいことはありますか？" /></label>
-          <label class="question-row pro-question">質問5<input name="question_5" value="その他、伝えておきたいことはありますか？" /></label>
+          <label class="question-row">質問1<input name="question_1" value="今回お話したい内容" /></label>
+          <label class="question-row">質問2<input name="question_2" value="今、実現したい夢や目標は何ですか？" /></label>
+          <label class="question-row pro-question">質問3<input name="question_3" value="最近挑戦していることはありますか？" /></label>
+          <label class="question-row pro-question">質問4<input name="question_4" value="応援してほしいことはありますか？" /></label>
+          <label class="question-row pro-question">質問5<input name="question_5" value="趣味や好きなことはありますか？" /></label>
         </div>
         <button class="primary" type="submit">設定を保存する</button>
       </form>
@@ -112,18 +112,18 @@
 
     <section class="panel wide">
       <p class="eyebrow">予約一覧</p>
-      <h2>予約を確認する</h2>
+      <h2>最近の予約</h2>
       <div id="booking-list" class="list"></div>
     </section>
 
     <section class="panel wide">
       <p class="eyebrow">面談メモ</p>
-      <h2>対応履歴を残す</h2>
+      <h2>会った後に、関係を育てる</h2>
       <form id="log-form" class="form-grid">
         <label>相手のメールアドレス<input name="visitor_email" type="email" required /></label>
-        <label>キーワード<input name="keywords" placeholder="相談内容, 次回確認, 紹介" /></label>
+        <label>キーワード<input name="keywords" placeholder="夢, 仕事, 紹介したい人" /></label>
         <label>メモ<textarea name="notes" rows="4" required></textarea></label>
-        <label>次に対応すること<textarea name="next_action" rows="3"></textarea></label>
+        <label>次にできること<textarea name="next_action" rows="3"></textarea></label>
         <button class="primary" type="submit">メモを保存する</button>
       </form>
       <p id="log-message" class="message"></p>
