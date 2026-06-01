@@ -73,7 +73,7 @@ exports.handler = async (event) => {
     const payload = {
       owner_id: owner.id,
       slug: owner.slug || "demo",
-      title: String(body.title || "Kimaru meeting").trim(),
+      title: String(body.title || "〇〇との面談").trim(),
       description: String(body.description || "").trim(),
       duration_minutes: duration,
       buffer_before_minutes: bufferBefore,
