@@ -49,6 +49,7 @@ a{color:inherit;text-decoration:none}
 .site-header a,.link-button{font:inherit;color:var(--ink-soft);background:transparent;border:0;cursor:pointer;font-size:14px;font-weight:750}
 .site-header a:hover,.link-button:hover{color:var(--primary)}
 .site-header a[href="/pro-apply.html"]{display:none!important}
+body[data-page="admin"]:not([data-booking-settings]) .admin-grid>section:nth-of-type(3){display:none!important}
 .shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:48px 0}
 .shell.narrow{width:min(680px,calc(100% - 32px))}
 .two-column{display:grid;grid-template-columns:.92fr 1.08fr;gap:22px;align-items:start}
