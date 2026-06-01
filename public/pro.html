@@ -29,7 +29,7 @@
       <p class="lead">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
       <div class="actions">
         <a class="button primary" href="/square.html">Square決済へ進む</a>
-        <a class="button secondary" href="/admin.html">Cat Keyを入力する</a>
+        <a class="button secondary" href="#cat-key">Cat Keyを入力する</a>
       </div>
     </section>
 
@@ -50,13 +50,59 @@
             </tbody>
           </table>
         </div>
-        <p class="plan-note">Square決済ページで支払い後、確認でき次第Pro機能を有効化します。Cat Keyを持っている方は、相手管理画面から入力すると無料でPro機能を利用できます。</p>
+        <p class="plan-note">Square決済ページで支払い後、確認でき次第Pro機能を有効化します。Cat Keyを持っている方は、このページで入力すると無料でPro機能を利用できます。</p>
       </div>
       <div class="actions">
         <a class="button primary" href="/square.html">Square決済へ進む</a>
-        <a class="button secondary" href="/admin.html">Cat Keyを入力する</a>
+        <a class="button secondary" href="#cat-key">Cat Keyを入力する</a>
+      </div>
+    </section>
+
+    <section id="cat-key" class="section">
+      <div class="panel">
+        <p class="eyebrow">猫の鍵 / Cat Key</p>
+        <h2>Cat KeyでPro版を解放する</h2>
+        <p class="muted">猫の集会メンバーさんは、Cat Keyを入力するとPro版を無料で利用できます。入力内容は公開ページには表示されません。</p>
+        <form id="pro-cat-key-form" class="inline-form">
+          <input name="code" placeholder="Neko20240222" autocomplete="off" />
+          <button class="primary" type="submit">適用</button>
+        </form>
+        <p id="pro-cat-key-message" class="message" role="status"></p>
       </div>
     </section>
   </main>
+
+  <script>
+    const catKeyForm = document.getElementById('pro-cat-key-form');
+    const catKeyMessage = document.getElementById('pro-cat-key-message');
+
+    function setCatKeyMessage(text, kind = '') {
+      catKeyMessage.textContent = text;
+      catKeyMessage.className = `message ${kind}`.trim();
+    }
+
+    catKeyForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const code = new FormData(catKeyForm).get('code');
+      setCatKeyMessage('Cat Keyを確認しています...');
+      try {
+        const response = await fetch('/api/invite-apply', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'Cat Keyを適用できませんでした。');
+        catKeyForm.reset();
+        setCatKeyMessage('Pro版機能が解放されました。', 'success');
+      } catch (error) {
+        const message = /login|owner|unauthorized/i.test(error.message)
+          ? 'Google連携後にCat Keyを入力してください。'
+          : error.message;
+        setCatKeyMessage(message, 'error');
+      }
+    });
+  </script>
 </body>
 </html>
