@@ -12,7 +12,7 @@ async function api(path, options = {}) {
     ...options,
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Request failed.");
+  if (!response.ok) throw new Error(data.error || t("common.requestFailed"));
   return data;
 }
 
@@ -83,12 +83,12 @@ async function initBooking() {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    setMessage("#booking-message", "Saving booking...");
+    setMessage("#booking-message", t("booking.saving"));
     try {
       await api("book", { method: "POST", body: JSON.stringify(formData(form)) });
       form.reset();
       form.classList.add("hidden");
-      setMessage("#booking-message", "Booked. A 15-minute reminder will be sent by Google Calendar.", "success");
+      setMessage("#booking-message", t("booking.done"), "success");
     } catch (error) {
       setMessage("#booking-message", error.message, "error");
     }
@@ -99,12 +99,12 @@ function renderBookings(bookings) {
   const list = $("#booking-list");
   if (!list) return;
   if (!bookings.length) {
-    list.innerHTML = '<p class="muted">No bookings yet.</p>';
+    list.innerHTML = `<p class="muted">${t("admin.noBookings")}</p>`;
     return;
   }
   list.innerHTML = bookings.map((booking) => `
     <article class="list-item">
-      <strong>${booking.visitor_name || "Guest"}</strong>
+      <strong>${booking.visitor_name || t("admin.guest")}</strong>
       <span>${booking.visitor_email || ""}</span>
       <p>${booking.topic || ""}</p>
       <small>${booking.start_at ? formatSlot(booking.start_at) : ""}</small>
@@ -128,8 +128,8 @@ function renderLogs(logs) {
 async function refreshAdmin() {
   try {
     const me = await api("me");
-    $("#owner-status").textContent = me.owner ? "Logged in" : "Not logged in. Please connect Google Calendar.";
-    $("#owner-card").innerHTML = me.owner ? `<strong>${me.owner.name || me.owner.email}</strong><p>Plan: ${me.owner.plan}</p><p>Slug: ${me.owner.slug}</p>` : "";
+    $("#owner-status").textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
+    $("#owner-card").innerHTML = me.owner ? `<strong>${me.owner.name || me.owner.email}</strong><p>${t("admin.plan")}: ${me.owner.plan}</p><p>${t("admin.slug")}: ${me.owner.slug}</p>` : "";
     if (me.owner) {
       const bookings = await api("owner-bookings");
       renderBookings(bookings.bookings || []);
@@ -144,6 +144,10 @@ async function refreshAdmin() {
 async function initAdmin() {
   await refreshAdmin();
 
+  document.addEventListener("kimaru:languagechange", () => {
+    refreshAdmin();
+  });
+
   $("#logout-button")?.addEventListener("click", async () => {
     await api("logout", { method: "POST", body: "{}" }).catch(() => null);
     location.reload();
@@ -151,10 +155,10 @@ async function initAdmin() {
 
   $("#invite-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    setMessage("#invite-message", "Applying...");
+    setMessage("#invite-message", t("admin.applying"));
     try {
       await api("invite-apply", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) });
-      setMessage("#invite-message", "Pro unlocked.", "success");
+      setMessage("#invite-message", t("admin.proUnlocked"), "success");
       await refreshAdmin();
     } catch (error) {
       setMessage("#invite-message", error.message, "error");
@@ -163,11 +167,11 @@ async function initAdmin() {
 
   $("#log-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    setMessage("#log-message", "Saving...");
+    setMessage("#log-message", t("admin.logSaving"));
     try {
       await api("appointment-log", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) });
       event.currentTarget.reset();
-      setMessage("#log-message", "Saved.", "success");
+      setMessage("#log-message", t("admin.logSaved"), "success");
       await refreshAdmin();
     } catch (error) {
       setMessage("#log-message", error.message, "error");

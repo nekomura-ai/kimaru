@@ -1,61 +1,63 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kimaru - Admin</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body data-page="admin">
+<body data-page="admin" data-i18n-title="admin.pageTitle">
   <header class="site-header">
-    <a class="brand" href="/">Kimaru</a>
-    <nav>
-      <a href="/booking.html">Booking page</a>
-      <a id="login-link" href="/api/google-auth-start">Google login</a>
-      <button id="logout-button" class="link-button" type="button">Logout</button>
+    <a class="brand" href="/" data-i18n="common.brand">Kimaru</a>
+    <nav class="nav">
+      <a href="/booking.html" data-i18n="admin.nav.booking"></a>
+      <a id="login-link" href="/api/google-auth-start" data-i18n="admin.nav.login"></a>
+      <button id="logout-button" class="link-button" type="button" data-i18n="admin.nav.logout"></button>
+      <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>
 
   <main class="shell admin-grid">
     <section class="panel">
-      <p class="eyebrow">Account</p>
-      <h1>Owner dashboard</h1>
-      <p id="owner-status" class="message">Checking login...</p>
+      <p class="eyebrow" data-i18n="admin.account.eyebrow"></p>
+      <h1 data-i18n="admin.account.heading"></h1>
+      <p id="owner-status" class="message" data-i18n="admin.account.checking"></p>
       <div id="owner-card" class="soft-box"></div>
     </section>
 
     <section class="panel">
-      <p class="eyebrow">猫の鍵 / Cat Key</p>
-      <h2>Unlock Pro for 猫の集会 members</h2>
-      <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます。</p>
+      <p class="eyebrow" data-i18n="admin.catkey.eyebrow"></p>
+      <h2 data-i18n="admin.catkey.heading"></h2>
+      <p class="muted" data-i18n="admin.catkey.desc"></p>
       <form id="invite-form" class="inline-form">
         <input name="code" placeholder="Neko20240222" />
-        <button class="primary" type="submit">Apply</button>
+        <button class="primary" type="submit" data-i18n="admin.catkey.apply"></button>
       </form>
       <p id="invite-message" class="message"></p>
     </section>
 
     <section class="panel wide">
-      <p class="eyebrow">Bookings</p>
-      <h2>Recent meetings</h2>
+      <p class="eyebrow" data-i18n="admin.bookings.eyebrow"></p>
+      <h2 data-i18n="admin.bookings.heading"></h2>
       <div id="booking-list" class="list"></div>
     </section>
 
     <section class="panel wide">
-      <p class="eyebrow">Appointment log</p>
-      <h2>Keep relationship context</h2>
+      <p class="eyebrow" data-i18n="admin.log.eyebrow"></p>
+      <h2 data-i18n="admin.log.heading"></h2>
       <form id="log-form" class="form-grid">
-        <label>Visitor email<input name="visitor_email" type="email" required /></label>
-        <label>Topic keywords<input name="keywords" placeholder="soccer, travel, food" /></label>
-        <label>Notes<textarea name="notes" rows="4" required></textarea></label>
-        <label>Next proposal<textarea name="next_action" rows="3"></textarea></label>
-        <button class="primary" type="submit">Save log</button>
+        <label><span data-i18n="admin.log.email"></span><input name="visitor_email" type="email" required /></label>
+        <label><span data-i18n="admin.log.keywords"></span><input name="keywords" data-i18n-placeholder="admin.log.keywordsPlaceholder" /></label>
+        <label><span data-i18n="admin.log.notes"></span><textarea name="notes" rows="4" required></textarea></label>
+        <label><span data-i18n="admin.log.next"></span><textarea name="next_action" rows="3"></textarea></label>
+        <button class="primary" type="submit" data-i18n="admin.log.save"></button>
       </form>
       <p id="log-message" class="message"></p>
       <div id="log-list" class="list"></div>
     </section>
   </main>
 
+  <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

@@ -1,51 +1,53 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kimaru - Booking</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body data-page="booking">
+<body data-page="booking" data-i18n-title="booking.pageTitle">
   <header class="site-header">
-    <a class="brand" href="/">Kimaru</a>
-    <nav>
-      <a href="/signup.html">Free signup</a>
-      <a href="/admin.html">Admin</a>
+    <a class="brand" href="/" data-i18n="common.brand">Kimaru</a>
+    <nav class="nav">
+      <a href="/signup.html" data-i18n="common.signup"></a>
+      <a href="/admin.html" data-i18n="common.admin"></a>
+      <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>
 
   <main class="shell two-column">
     <section class="panel profile-card">
-      <p class="eyebrow">Before the meeting</p>
-      <h1>Know each other before the call.</h1>
-      <p class="lead">Kimaru shares a short introduction sheet and a pre-meeting questionnaire so the first meeting starts warmer and deeper.</p>
+      <p class="eyebrow" data-i18n="booking.intro.eyebrow"></p>
+      <h1 data-i18n="booking.intro.heading"></h1>
+      <p class="lead" data-i18n="booking.intro.lead"></p>
       <ul class="feature-list">
-        <li>15-minute reminder email</li>
-        <li>Google Calendar event creation</li>
-        <li>NG filters and meeting notes for Pro users</li>
+        <li data-i18n="booking.intro.li1"></li>
+        <li data-i18n="booking.intro.li2"></li>
+        <li data-i18n="booking.intro.li3"></li>
       </ul>
     </section>
 
     <section class="panel">
-      <p class="eyebrow">Available slots</p>
-      <h2>Choose a time</h2>
+      <p class="eyebrow" data-i18n="booking.slots.eyebrow"></p>
+      <h2 data-i18n="booking.slots.heading"></h2>
       <div id="slot-grid" class="slot-grid"></div>
 
       <form id="booking-form" class="form-grid hidden">
         <input type="hidden" name="owner_slug" value="demo" />
         <input type="hidden" name="start" />
         <input type="hidden" name="end" />
-        <label>Your name<input name="visitor_name" autocomplete="name" required /></label>
-        <label>Email<input name="visitor_email" type="email" autocomplete="email" required /></label>
-        <label>What would you like to discuss?<textarea name="topic" rows="4" required></textarea></label>
-        <label>Anything to avoid?<select name="filter_request"><option value="none">Nothing special</option><option value="finance_ng">Finance sales NG</option><option value="mlm_ng">MLM NG</option><option value="religion_ng">Religious solicitation NG</option><option value="taker_ng">One-sided request NG</option></select></label>
-        <button class="primary" type="submit">Confirm booking</button>
+        <label><span data-i18n="booking.form.name"></span><input name="visitor_name" autocomplete="name" required /></label>
+        <label><span data-i18n="booking.form.email"></span><input name="visitor_email" type="email" autocomplete="email" required /></label>
+        <label><span data-i18n="booking.form.topic"></span><textarea name="topic" rows="4" required></textarea></label>
+        <label><span data-i18n="booking.form.avoid"></span><select name="filter_request"><option value="none" data-i18n="booking.form.avoid.none"></option><option value="finance_ng" data-i18n="booking.form.avoid.finance"></option><option value="mlm_ng" data-i18n="booking.form.avoid.mlm"></option><option value="religion_ng" data-i18n="booking.form.avoid.religion"></option><option value="taker_ng" data-i18n="booking.form.avoid.taker"></option></select></label>
+        <button class="primary" type="submit" data-i18n="booking.form.submit"></button>
       </form>
       <p id="booking-message" class="message" role="status"></p>
     </section>
   </main>
 
+  <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
