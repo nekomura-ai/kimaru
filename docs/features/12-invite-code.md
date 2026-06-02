@@ -1,35 +1,35 @@
-# 12. 招待コード
+# 12. 招待コード（Cat Key）
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ⚠️ 部分実装（コード値が仕様と異なる）
+- ステータス: ✅ 実装済
 - 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 9
 
 ## 概要
 
-猫の集会メンバー用の招待コード入力欄を設け、コードを入力したユーザーは有料版機能を無料で使えるようにする。
+猫の集会メンバー用の招待コード（Cat Key）入力欄を設け、コードを入力したユーザーは有料版機能を無料で使えるようにする。
 
 ## 仕様詳細
 
 - 招待コード: `Neko20240222`
-- このコードを入力したユーザーは有料版機能を無料で利用可能。
-- 猫の集会は「招待コード特典」としての運用。
+- 適用したユーザーは有料版機能を無料で利用可能。
 
 ## 現状の実装
 
-- ⚠️ 招待コード入力・適用フローは実装済（free → pro 昇格）。
-- ただし現状のコード値は `JF7YAIN40EQL` で、仕様の `Neko20240222` と異なる。
-- `invite_codes` テーブル（仕様）は未作成で、コードはコード内/設定で扱われている。
+- `admin.html` の Cat Key パネルにコード入力 UI。`invite-apply` が大文字化して照合。
+- 有効コード: `JF7YAIN40EQL`, `NEKO20240222`（= Cat Key `Neko20240222`、大文字化して比較）。
+- 適用で `owners.plan='pro'` ＋ `invite_code` 更新。`cat_key_events` に監査ログ（成功/無効/形式不正/ブロック）。
+- `cat_key_disabled` のアカウントは適用不可（403）。
+- 運営向けに Cat Key 管理モードあり（[19](./19-cat-key-admin.md)）。
 
 ## 関連ファイル
 
-- `netlify/functions/invite-apply.js` — コード適用・プラン昇格
-- `public/admin.html` / `public/app.js` — 入力 UI
-- DB: `owners.invite_code` / `owners.plan`、`invite_codes`（仕様。現スキーマには未追加）
+- `netlify/functions/invite-apply.js` — コード適用・監査・管理モード
+- `public/admin.html` — 入力 UI（`#cat-key-panel`）
+- DB: `owners.invite_code` / `owners.plan` / `owners.cat_key_disabled`、`cat_key_events`
 
 ## 残タスク
 
-- コード値を `Neko20240222` に変更。
-- 仕様どおり `invite_codes` テーブル（`code` / `plan_grant` / `is_active`）で管理する設計へ。
-- 適用したユーザーが有料版機能を解放されることを [13. プラン](./13-plans.md) と連動して保証。
+- 仕様の `invite_codes` テーブル運用は未採用（コードは関数内 `proCodes` セットで管理）。テーブル化するかは要判断。
+- プラン解放の保証は [13. プラン](./13-plans.md) と連動。

@@ -1,83 +1,84 @@
 # キマル（Kimaru）現状機能一覧
 
-最終更新: 2026-06-02
+最終更新: 2026-06-02（リデザイン版 origin/main の実態に同期）
 
 このドキュメントは、現在のコードベースに**実装済みの機能**を棚卸ししたもの。
-「やりたいこと（仕様）」は [`docs/spec.md`](./spec.md) を参照。両者の差分管理に使う。
+「やりたいこと（仕様）」は [`spec.md`](./spec.md)、機能ごとの詳細は [`features/README.md`](./features/README.md)、画面/URLは [`screens.md`](./screens.md)、API は [`api.md`](./api.md)。
 
-技術構成: 静的 HTML / CSS / バニラ JS（`public/`）＋ Netlify Functions（Node.js, `netlify/functions/`）＋ Supabase。ビルド工程なし。
+技術構成: 静的 HTML / CSS / バニラ JS（`public/`）＋ サーバレス関数（`netlify/functions/`、Vercel は `api/` アダプタ）＋ Supabase。ビルド工程なし。
+
+凡例: ✅ 実装済 / ⚠️ 部分実装 / ❌ 未実装
 
 ## 🔐 認証・ログイン
 
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
-| Google ソーシャルログイン（OAuth2） | ✅ 実装済 | `netlify/functions/google-auth-start.js` / `google-auth-callback.js` |
-| セッション管理（HMAC 署名 Cookie・30日） | ✅ 実装済 | `netlify/functions/_lib/crypto.js`, `_lib/auth.js` |
-| ログアウト | ✅ 実装済 | `netlify/functions/logout.js` |
-| ログイン状態確認 | ✅ 実装済 | `netlify/functions/me.js` |
+| Google ソーシャルログイン（OAuth2） | ✅ | `google-auth-start.js` / `google-auth-callback.js` |
+| セッション管理（HMAC Cookie・30日） | ✅ | `_lib/crypto.js`, `_lib/auth.js` |
+| ログアウト / ログイン状態確認 | ✅ | `logout.js` / `me.js` |
 
-OAuth スコープ: `openid email profile https://www.googleapis.com/auth/calendar`（`_lib/google.js:5`）。
-
-## 📅 Google カレンダー連携
+## 📅 予約ページ設定（発行者）
 
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
-| Google カレンダー予定の取得（空き判定 / freeBusy API） | ✅ 実装済 | `_lib/google.js` `freebusy()` |
-| 既存予定を避けた空き時間表示 | ✅ 実装済 | `netlify/functions/availability.js` |
-| 予約確定時にカレンダー予定を自動作成 | ✅ 実装済 | `_lib/google.js` `createCalendarEvent()` |
-| 15分前リマインダー（メール＋ポップアップ） | ✅ 実装済 | 同上 |
-| ゲストへの招待メール送信（`sendUpdates=all`） | ✅ 実装済 | 同上 |
-| アクセストークン自動リフレッシュ | ✅ 実装済 | `_lib/google.js` `accessTokenForOwner()` |
-| トークンの暗号化保存（AES-256-GCM） | ✅ 実装済 | `_lib/crypto.js` |
+| 予約時間（30/45/60分） | ✅ | `booking-settings.html`, `booking-page-save.js`, `availability.js` |
+| 前後バッファ（なし/15/30分） | ✅ | 同上 |
+| 受付期間（1/3/6ヶ月・プラン制限） | ✅ | 同上＋`app.js` |
+| 開催方法（対面/Meet/電話/URL/後で連絡） | ✅（Zoomは将来） | `booking-settings.html`, `booking-page-save.js` |
+| 受付可能時間（曜日・時間帯） | ✅ | `availability_settings` 利用 |
 
-## 📝 予約機能
+## 🗓 Google カレンダー連携・予約
 
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
-| 公開予約ページ（空き枠選択＋予約フォーム） | ✅ 実装済 | `public/booking.html`, `public/app.js` |
-| 予約作成（DB 保存＋カレンダー登録） | ✅ 実装済 | `netlify/functions/book.js` |
-| 予約一覧（管理者向け） | ✅ 実装済 | `netlify/functions/owner-bookings.js` |
-| 面談ログ（メモ / キーワード / 次アクション） | ✅ 実装済 | `netlify/functions/appointment-log.js` |
+| 空き判定（freeBusy で既存予定を除外） | ✅ | `_lib/google.js` `freebusy()`, `availability.js` |
+| 予約作成＋カレンダー予定自動登録 | ✅ | `book.js`, `_lib/google.js` |
+| Google Meet 自動発行（conferenceData） | ✅ | `_lib/google.js`（`meeting_url` 保存） |
+| 1週間スケジュールグリッド予約UI | ✅ | `booking.html`, `booking-week.js` |
+| 15分前リマインダー / 招待メール | ✅ | `createCalendarEvent`（`sendUpdates=all`） |
 
-現状の空き枠生成は 30分固定・10時/13時/15時/17時の簡易グリッド（`availability.js`）。
-
-## 👤 アカウント・プラン
+## 📝 アンケート・メール
 
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
-| 無料サインアップ（名前 / メール / 目的 / 言語） | ✅ 実装済 | `netlify/functions/signup.js`, `public/signup.html` |
-| 招待コード適用（free → pro 昇格） | ✅ 実装済 | `netlify/functions/invite-apply.js` |
-| 管理ダッシュボード | ✅ 実装済 | `public/admin.html` |
-| Square 決済 Webhook（プラン昇格） | ⚠️ プレースホルダ | `netlify/functions/square-webhook.js` |
+| 事前アンケート（設定・保存・プラン別問数） | ✅ | `booking-settings.html`, `booking-page-save.js` |
+| 事前アンケート（ゲスト動的表示・回答保存） | ❌ | 未配線（`questionnaire_answers` 未使用） |
+| 予約完了メール（独自テンプレ） | ⚠️ | カレンダー招待で代替。独自送信は未実装 |
+| 誕生日メール（Resend） | ⚠️ | `birthday-mails.js`（要 Resend 設定・cron） |
+
+## 👤 アカウント・プラン・顧客管理
+
+| 機能 | 状態 | 実装場所 |
+|---|---|---|
+| 無料サインアップ | ✅ | `signup.js`, `signup.html` |
+| 招待コード Cat Key（`NEKO20240222`） | ✅ | `invite-apply.js`, `admin.html` |
+| Cat Key 管理（運営・取消/復元） | ✅ | `cat-key-admin.html`, `invite-apply.js?admin=cat-key` |
+| プラン制限（受付期間・問数） | ✅ | `booking-page-save.js` |
+| Square 決済での Pro 昇格 | ✅（Webhook） | `square-webhook.js` |
+| 相手管理（予約一覧・検索・面談メモ・印象スコア） | ✅ | `admin.html`, `owner-bookings.js`, `appointment-log.js` |
+| 生年月日インサイト（簡易・ルールベース） | ⚠️ | `app.js` `buildRelationshipProfile` |
+| プロフィールシート | ⚠️ | `profile.html`（localStorage のみ） |
+| AIアシスト | ⚠️ | `ai-assist.html`（簡易ロジック・クライアント側） |
 
 ## 🌐 フロントエンド
 
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
-| トップ / サインアップ / 予約 / 管理の4ページ | ✅ 実装済 | `public/index.html` ほか |
-| 多言語対応（i18n・日/英/繁中の3言語） | ✅ 全ページにプルダウン設置・3言語完備 | `public/i18n.js`, `public/app.js` |
-| レスポンシブ CSS（フレームワーク不使用） | ✅ 実装済 | `public/styles.css` |
-| ビルド工程なし（静的配信） | ✅ | `netlify.toml` |
+| 多言語対応（日/英/繁中・全ページセレクタ） | ✅（4画面） | `i18n.js`, `app.js` |
+| レスポンシブ CSS（フレームワーク不使用） | ✅ | `styles.css`, `booking-redesign.css` |
+| ビルド工程なし（静的配信） | ✅ | `netlify.toml` / `vercel.json` |
 
-## データベース（現状スキーマ）
+## DB（現状の主なテーブル）
 
-`supabase-schema.sql` で定義。テーブル: `owners`, `google_connections`, `booking_pages`, `bookings`, `appointment_logs`, `free_signups`, `payment_events`。
-
-> 注: 仕様（`spec.md`）の DB 設計とはテーブル名・カラムが異なる（例: `owners`↔`users`、`google_connections`↔`google_calendar_tokens`）。
+`owners`, `google_connections`, `booking_pages`, `availability_settings`, `bookings`, `questionnaire_questions`(設定のみ), `appointment_logs`, `free_signups`, `payment_events`, `cat_key_events`, `birthday_message_deliveries` ほか。詳細は `supabase-schema.sql` と各機能ドキュメント。
 
 ---
 
-## ⚠️ 仕様にあるが「未実装」の差分
+## ⚠️ 主な残課題
 
-[`docs/spec.md`](./spec.md) にあって現状コードに無い主なもの:
-
-- **Google Meet 自動発行**（`createCalendarEvent` に `conferenceData` を追加すれば実現可能）
-- 予約時間の選択（30 / 45 / 60分）※現状 30分固定
-- 前後バッファ設定（なし / 15 / 30分）
-- 予約受付期間（1 / 3 / 6ヶ月）とプラン別制限
-- 開催方法の選択（対面 / Meet / 電話 / カスタム URL / 後で連絡）
-- 事前アンケート（質問・回答テーブル含む）
-- 顧客管理・予約履歴管理（有料版）
-- 複数名での日程調整（有料版）
-- 招待コードの仕様変更: 現状 `JF7YAIN40EQL` → 仕様 `Neko20240222`
-- ホスティング: 現状 Netlify → 仕様 Vercel（移行は保留中）
+- **事前アンケートのゲスト表示・回答保存**（[features/10](./features/10-questionnaire.md)）が未配線。
+- **独自の予約完了メール**は未実装（現状はカレンダー招待で代替）。
+- **誕生日メールのスケジューラ（cron）** と Resend 設定が必要。
+- **プロフィール/AIアシスト** はクライアント側の簡易実装（サーバ保存・LLM 連携は将来）。
+- **Zoom 自動発行** は将来対応。
+- 注: 仕様の `users`/`profiles`/`invite_codes`/`questionnaire_answers` などテーブル名・運用は現状実装と一部差異あり。

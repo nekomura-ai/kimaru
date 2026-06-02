@@ -17,20 +17,23 @@
 
 ## 現状の実装
 
-- 公開予約ページで空き枠を表示し、選択 → フォーム入力 → 予約確定。
-- 予約は `bookings` に保存（status=confirmed）、`createCalendarEvent` でカレンダー登録、`google_event_id` を保存。
-- 管理側で予約一覧を表示。
+- 公開予約ページ（リデザイン版）は 1 週間のスケジュールグリッド（30分刻み）で空き枠を表示（`booking-week.js`）。選択 → フォーム入力 → 予約確定。
+- フォーム項目: 名前 / メール / お話したい内容 / 夢・目標 / 生年月日（任意・非公開可）。
+- 予約は `bookings` に保存（status=confirmed、`location_type` 既定 `google_meet`）、`createCalendarEvent` でカレンダー登録、`google_event_id` と `meeting_url` を保存。
+- 生年月日から「生年月日インサイト（簡易プロフィール）」を生成し `relationship_profile` 等に保存（[16](./16-birthday.md)）。
+- 予約時間/バッファ/受付期間/受付時間が空き枠に反映済み（[03](./03-duration.md)〜[07](./07-availability-settings.md)）。
+- 管理側（相手管理）で予約一覧・検索を表示。
 
 ## 関連ファイル
 
-- `public/booking.html` / `public/app.js` — ゲスト UI（`initBooking`）
+- `public/booking.html` / `public/booking-week.js` — ゲスト UI（スケジュールグリッド）
 - `netlify/functions/availability.js` — 空き枠取得
-- `netlify/functions/book.js` — 予約作成
-- `netlify/functions/owner-bookings.js` — 予約一覧
+- `netlify/functions/book.js` — 予約作成・Meet/インサイト保存
+- `netlify/functions/owner-bookings.js` — 予約一覧（生年月日非公開はマスク）
 - DB: `bookings`
 
 ## 残タスク
 
-- 予約時間/バッファ/開催方法/アンケート（[03](./03-duration.md)/[04](./04-buffer.md)/[06](./06-location-type.md)/[10](./10-questionnaire.md)）の反映。
+- 事前アンケートのゲスト動的表示（[10](./10-questionnaire.md)）。
 - キャンセル・リスケジュール導線。
 - 複数名調整（有料）。

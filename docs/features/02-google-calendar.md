@@ -30,8 +30,11 @@
 - `netlify/functions/book.js` — 予約時の予定作成
 - DB: `google_connections`（トークン・calendar_id）
 
+## 実装メモ（リデザイン版）
+
+- 空き枠は `availability_settings`（曜日・時間帯）＋ `booking_pages`（duration/buffer/range）から生成し、Asia/Tokyo で計算（`availability.js`）。
+- 予約時間（[03](./03-duration.md)）・前後バッファ（[04](./04-buffer.md)）・受付期間（[05](./05-booking-range.md)）・受付可能時間（[07](./07-availability-settings.md)）が空き判定に反映済み。
+
 ## 残タスク
 
 - カレンダー ID は `primary` 固定。複数カレンダー対応は将来検討。
-- タイムゾーン処理（`booking_pages.timezone` は未使用）。
-- バッファ（[04](./04-buffer.md)）・予約時間（[03](./03-duration.md)）を空き判定へ反映。

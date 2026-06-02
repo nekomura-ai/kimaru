@@ -2,39 +2,32 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ❌ 未実装
-- 対象プラン: 共通（Zoom は将来対応）
+- ステータス: ✅ 実装済（Zoom は将来対応）
+- 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 5
 
 ## 概要
 
-予約ページ作成時に、発行者が開催方法を選択できるようにする。選択により入力欄や予約後の挙動が変わる。
+予約ページ作成時に発行者が開催方法を選択できる。選択により入力欄や予約後の挙動が変わる。
 
 ## 仕様詳細
 
-選択肢と挙動:
-
-- **対面** → 住所入力欄を表示
-- **Google Meet 自動発行** → [09. Google Meet 自動発行](./09-google-meet.md) を参照
-- **Zoom 自動発行** → ※将来対応（設計だけ用意）
-- **電話** → 電話番号または案内文を設定可能
-- **カスタム URL** → 任意 URL を入力可能
-- **後で連絡** → 追加入力なし
+選択肢: 対面 / Google Meet 自動発行 / Zoom 自動発行(将来) / 電話 / カスタム URL / 後で連絡。
 
 ## 現状の実装
 
-- 未実装。開催方法の概念・カラム・UI が無い。
+- 予約設定画面に開催方法の選択 UI（`location_type`）あり。`app.js` の `updateBookingPageControls` が対面/電話/カスタムURLのとき詳細入力欄（`location_value`）を表示し、種別に応じた placeholder を切替。
+- `booking-page-save` が `location_type ∈ {in_person, google_meet, zoom, phone, custom_url, later}` を検証して保存。
+- `book.js` は予約の `location_type`（既定 `google_meet`）を保存。Google Meet の場合は [09](./09-google-meet.md) でリンク自動発行。
 
 ## 関連ファイル
 
-- 発行者の予約ページ設定 UI（未作成）
-- `public/booking.html` — ゲスト側の表示
-- `netlify/functions/book.js` — 予約確定時の `meeting_url` / `location` 反映
-- DB: `booking_pages.location_type` / `location_value`、`bookings.meeting_url` / `location_type`（仕様。現スキーマには未追加）
+- `public/booking-settings.html` / `public/app.js` — UI・種別別入力欄
+- `netlify/functions/booking-page-save.js` — 検証・保存
+- `netlify/functions/book.js` — 予約への `location_type` 反映
+- DB: `booking_pages.location_type` / `location_value`、`bookings.location_type` / `meeting_url`
 
 ## 残タスク
 
-- `booking_pages` に `location_type` / `location_value` を追加。
-- 設定 UI（種別選択＋種別ごとの入力欄）。
-- ゲスト予約完了時に種別に応じた情報（住所/URL/電話/Meetリンク）を確定・通知。
-- Zoom は将来差し込めるよう種別を拡張可能な形にしておく。
+- **Zoom 自動発行は将来対応**（種別の枠はあるが発行処理は未実装）。
+- 対面/電話/カスタムURLの値を予約完了メール（[11](./11-notification-email.md)）へ反映する導線の整備。

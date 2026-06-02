@@ -2,7 +2,7 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ⚠️ 部分実装（概念はあるが制限ロジック未整備）
+- ステータス: ✅ 実装済（主要な制限ロジックを実装）
 - 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 7・8
 
@@ -27,19 +27,23 @@
 
 ## 現状の実装
 
-- `owners.plan`（`free` / `pro`）が存在し、招待コードで `pro` に昇格できる。
-- ただしプランに応じた**機能制限ロジックは未整備**（受付期間・アンケート数などの上限が効いていない）。
+- `owners.plan`（`free` / `pro`）が存在。昇格経路は2つ:
+  - 招待コード（Cat Key）適用（[12](./12-invite-code.md)）
+  - Square 決済 Webhook（`square-webhook` が payment/subscription イベント＋email でオーナーを `pro` 更新）
+- プラン別制限が `booking-page-save` で実効:
+  - 受付期間: 無料は最大3ヶ月（6要求は 403、`updateBookingPageControls` で UI も無効化）
+  - 事前アンケート設定数: 無料2問 / 有料5問（超過は 403）
+- 判定は各関数で `owner.plan === "pro"` を参照。
 
 ## 関連ファイル
 
 - DB: `owners.plan`
-- `netlify/functions/invite-apply.js` — 昇格
-- 各機能側の制限判定（[05](./05-booking-range.md) / [10](./10-questionnaire.md) / [14](./14-customer-management.md)）
+- `netlify/functions/invite-apply.js` — Cat Key 昇格
+- `netlify/functions/square-webhook.js` — 決済による昇格
+- `netlify/functions/booking-page-save.js` / `public/app.js` — 制限の実効・UI制御
 
 ## 残タスク
 
-- プラン判定を共通関数化し、各機能の上限へ反映:
-  - 受付期間: 無料 最大3ヶ月 / 有料 最大6ヶ月
-  - アンケート: 無料 2問 / 有料 5問・編集可
-  - 顧客管理・複数名調整は有料のみ
-- 決済（Square）連携は現状プレースホルダ。
+- プラン判定の共通関数化（現状は各所で個別に `plan==="pro"` 判定）。
+- 複数名調整など有料専用機能の追加。
+- 事前アンケートのゲスト表示はプラン制限以前に未配線（[10](./10-questionnaire.md)）。

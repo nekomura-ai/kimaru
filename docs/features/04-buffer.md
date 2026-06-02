@@ -2,13 +2,13 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ❌ 未実装
+- ステータス: ✅ 実装済
 - 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 3
 
 ## 概要
 
-予約の前後に空ける余白（バッファ）を発行者が設定できるようにする。空き枠計算でバッファ分を確保する。
+予約の前後に空ける余白（バッファ）を発行者が設定でき、空き枠計算でバッファ分を確保する。
 
 ## 仕様詳細
 
@@ -17,16 +17,17 @@
 
 ## 現状の実装
 
-- 未実装。DB カラム・UI・計算ロジックいずれも無い。
+- 予約設定画面に 前/後バッファ（なし/15/30）の選択 UI あり。
+- `booking-page-save` で `{0,15,30}` を検証し `booking_pages.buffer_before_minutes` / `buffer_after_minutes` に保存。
+- `availability.js` の枠生成で `step = duration + bufferBefore + bufferAfter`、各枠は `open+bufferBefore` 〜 `close-bufferAfter` の範囲で生成。
 
 ## 関連ファイル
 
-- `netlify/functions/availability.js` — 空き枠計算（バッファ考慮が必要）
-- 発行者の予約ページ設定 UI（未作成）
-- DB: `booking_pages.buffer_before_minutes` / `buffer_after_minutes`（仕様。現スキーマには未追加）
+- `public/booking-settings.html` — 設定 UI
+- `netlify/functions/booking-page-save.js` — 検証・保存
+- `netlify/functions/availability.js` — バッファを反映した枠生成
+- DB: `booking_pages.buffer_before_minutes` / `buffer_after_minutes`
 
 ## 残タスク
 
-- `booking_pages` にバッファ用カラムを追加（マイグレーション）。
-- 設定 UI（なし/15/30 の選択）。
-- 空き枠計算で前後バッファ分を busy として扱う。
+- なし（基本実装は完了）。

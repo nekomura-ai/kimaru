@@ -2,13 +2,13 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ❌ 未実装（現状 30分固定）
+- ステータス: ✅ 実装済
 - 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 2
 
 ## 概要
 
-発行者が予約 1 件あたりの所要時間を選択できるようにする。
+発行者が予約 1 件あたりの所要時間を選択できる。
 
 ## 仕様詳細
 
@@ -16,18 +16,17 @@
 
 ## 現状の実装
 
-- `booking_pages.duration_minutes` カラムは存在（デフォルト 30）。
-- ただし空き枠生成は 30分固定で、選択 UI も反映ロジックも無い。
+- 予約設定画面（`booking-settings.html`）に 30/45/60 の選択 UI あり。
+- `booking-page-save` で `{30,45,60}` を検証し `booking_pages.duration_minutes` に保存。
+- `availability.js` が `duration_minutes` を使って空き枠を生成、`book.js` は予約の `end_at` を枠から確定。
 
 ## 関連ファイル
 
-- `netlify/functions/availability.js` — 枠生成（duration 反映が必要）
-- `public/booking.html` / `public/app.js` — 予約 UI
-- 発行者の予約ページ設定 UI（未作成）
+- `public/booking-settings.html` — 設定 UI
+- `netlify/functions/booking-page-save.js` — 検証・保存
+- `netlify/functions/availability.js` — 枠生成への反映
 - DB: `booking_pages.duration_minutes`
 
 ## 残タスク
 
-- 発行者設定 UI に 30/45/60 の選択を追加。
-- `availability.js` で `duration_minutes` を参照して枠を生成。
-- 予約作成時の `end_at` を duration から算出。
+- なし（基本実装は完了）。UI の多言語化は [15](./15-i18n.md) で順次。
