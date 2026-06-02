@@ -1,0 +1,204 @@
+body[data-page="booking"] .two-column{
+  grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);
+}
+
+body[data-page="booking"] .panel:nth-of-type(2){
+  background:#fbfbfa;
+  border-color:#deded9;
+}
+
+body[data-page="booking"] .slot-grid{
+  margin-top:14px;
+}
+
+.week-schedule-card{
+  display:grid;
+  gap:14px;
+}
+
+.week-schedule-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding:16px;
+  background:#fff;
+  border:1px solid #deded9;
+  border-radius:8px;
+}
+
+.week-schedule-head h3{
+  margin:0;
+  color:#242827;
+  font-size:22px;
+  line-height:1.25;
+}
+
+.week-schedule-meta{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.week-schedule-meta span,
+.week-schedule-meta strong{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  padding:0 10px;
+  color:#34403c;
+  background:#f3f4f1;
+  border:1px solid #d9dbd5;
+  border-radius:8px;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.week-table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid #d8dbd5;
+  border-radius:8px;
+  background:#fff;
+}
+
+.week-table{
+  width:100%;
+  min-width:860px;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+
+.week-table th,
+.week-table td{
+  border-right:1px solid #e1e3de;
+  border-bottom:1px solid #e1e3de;
+}
+
+.week-table thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  min-height:48px;
+  padding:12px 8px;
+  color:#333a37;
+  background:#f4f5f2;
+  font-size:13px;
+  font-weight:850;
+  text-align:center;
+}
+
+.week-table thead th:first-child,
+.week-table tbody th{
+  position:sticky;
+  left:0;
+  z-index:3;
+  width:76px;
+  background:#f7f8f5;
+}
+
+.week-table tbody th{
+  padding:8px 9px;
+  color:#68706c;
+  font-size:12px;
+  font-weight:850;
+  text-align:right;
+  vertical-align:top;
+}
+
+.week-table td{
+  height:48px;
+  padding:5px;
+  background:#fff;
+  text-align:center;
+  vertical-align:middle;
+}
+
+.week-table tr:nth-child(even) td{
+  background:#fcfcfb;
+}
+
+.week-table th:last-child,
+.week-table td:last-child{
+  border-right:0;
+}
+
+.week-table tbody tr:last-child th,
+.week-table tbody tr:last-child td{
+  border-bottom:0;
+}
+
+.week-slot{
+  display:grid;
+  place-items:center;
+  gap:1px;
+  width:100%;
+  min-height:38px;
+  padding:6px 4px;
+  color:#17433e;
+  background:#e7f4f1;
+  border:1px solid #b7d6d0;
+  border-radius:7px;
+  cursor:pointer;
+  font:inherit;
+  font-weight:850;
+}
+
+.week-slot span{
+  display:block;
+  font-size:13px;
+  line-height:1.1;
+}
+
+.week-slot small{
+  display:block;
+  color:#55706b;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.1;
+}
+
+.week-slot:hover,
+.week-slot.selected{
+  color:#fff;
+  background:#24564f;
+  border-color:#24564f;
+  box-shadow:0 8px 18px rgba(36,86,79,.16);
+}
+
+.week-slot:hover small,
+.week-slot.selected small{
+  color:rgba(255,255,255,.78);
+}
+
+.week-busy{
+  color:#c0c5bf;
+  font-size:12px;
+}
+
+@media(max-width:900px){
+  body[data-page="booking"] .two-column{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:620px){
+  .week-schedule-head{
+    display:grid;
+  }
+
+  .week-schedule-meta{
+    justify-content:flex-start;
+  }
+
+  .week-table{
+    min-width:760px;
+  }
+
+  .week-table thead th:first-child,
+  .week-table tbody th{
+    width:66px;
+  }
+}

@@ -3,51 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kimaru - Booking</title>
+  <title>キマル - 予約</title>
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/booking-redesign.css" />
 </head>
 <body data-page="booking" data-i18n-title="booking.pageTitle">
   <header class="site-header">
-    <a class="brand" href="/" data-i18n="common.brand">Kimaru</a>
-    <nav class="nav">
-      <a href="/signup.html" data-i18n="common.signup"></a>
-      <a href="/admin.html" data-i18n="common.admin"></a>
+    <a class="brand" href="/" data-i18n="common.brand">キマル</a>
+    <nav>
+      <a href="/booking.html" data-i18n="nav.booking">予約ページ</a>
+      <a href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
+      <a href="/admin.html" data-i18n="nav.admin">相手管理</a>
+      <a href="/profile.html" data-i18n="nav.profile">プロフィール</a>
+      <a href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
+      <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
+      <a href="/signup.html" data-i18n="nav.signup">無料登録</a>
       <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>
 
   <main class="shell two-column">
     <section class="panel profile-card">
-      <p class="eyebrow" data-i18n="booking.intro.eyebrow"></p>
-      <h1 data-i18n="booking.intro.heading"></h1>
-      <p class="lead" data-i18n="booking.intro.lead"></p>
+      <p class="eyebrow" data-i18n="booking.intro.eyebrow">会う前の準備</p>
+      <h1 data-i18n="booking.intro.heading">日程がキマル。Pro版では契約がキマりやすく。</h1>
+      <p class="lead" data-i18n="home.lead1">キマルは、日程調整と事前アンケートと面談後の管理をひとつにした予約システムです。</p>
+      <p class="lead" data-i18n="home.lead2">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
+      <p class="lead" data-i18n="home.lead3">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
       <ul class="feature-list">
-        <li data-i18n="booking.intro.li1"></li>
-        <li data-i18n="booking.intro.li2"></li>
-        <li data-i18n="booking.intro.li3"></li>
+        <li data-i18n="booking.intro.li1">Googleカレンダーの予定と重ならない空き枠だけを表示</li>
+        <li data-i18n="booking.intro.li2">1週間分の候補を30分刻みの表で確認</li>
+        <li data-i18n="booking.intro.li3">事前アンケートで、話したい内容を確認</li>
       </ul>
     </section>
 
     <section class="panel">
-      <p class="eyebrow" data-i18n="booking.slots.eyebrow"></p>
-      <h2 data-i18n="booking.slots.heading"></h2>
+      <p class="eyebrow" data-i18n="booking.slots.eyebrow">予約できる時間</p>
+      <h2 data-i18n="booking.slots.heading">1週間の空き枠から選ぶ</h2>
       <div id="slot-grid" class="slot-grid"></div>
 
       <form id="booking-form" class="form-grid hidden">
         <input type="hidden" name="owner_slug" value="demo" />
         <input type="hidden" name="start" />
         <input type="hidden" name="end" />
-        <label><span data-i18n="booking.form.name"></span><input name="visitor_name" autocomplete="name" required /></label>
-        <label><span data-i18n="booking.form.email"></span><input name="visitor_email" type="email" autocomplete="email" required /></label>
-        <label><span data-i18n="booking.form.topic"></span><textarea name="topic" rows="4" required></textarea></label>
-        <label><span data-i18n="booking.form.avoid"></span><select name="filter_request"><option value="none" data-i18n="booking.form.avoid.none"></option><option value="finance_ng" data-i18n="booking.form.avoid.finance"></option><option value="mlm_ng" data-i18n="booking.form.avoid.mlm"></option><option value="religion_ng" data-i18n="booking.form.avoid.religion"></option><option value="taker_ng" data-i18n="booking.form.avoid.taker"></option></select></label>
-        <button class="primary" type="submit" data-i18n="booking.form.submit"></button>
+        <input type="hidden" name="filter_request" />
+        <label><span data-i18n="booking.form.name">お名前</span><input name="visitor_name" autocomplete="name" required /></label>
+        <label><span data-i18n="booking.form.email">メールアドレス</span><input name="visitor_email" type="email" autocomplete="email" required /></label>
+        <label><span data-i18n="booking.form.topic">今回お話したい内容</span><textarea name="topic" rows="4" required></textarea></label>
+        <label><span data-i18n="booking.form.goal">今、実現したい夢や目標は何ですか？</span><textarea name="goal" rows="3"></textarea></label>
+        <label><span data-i18n="booking.form.birth">生年月日（任意）</span><input name="birth_date" type="date" /></label>
+        <label class="checkbox-label"><input name="birth_date_private" type="checkbox" value="yes" /><span data-i18n="booking.form.birthPrivate">生年月日を非公開にする</span></label>
+        <button class="primary" type="submit" data-i18n="booking.form.submit">予約を確定する</button>
       </form>
       <p id="booking-message" class="message" role="status"></p>
     </section>
   </main>
 
   <script src="/i18n.js" defer></script>
-  <script src="/app.js" defer></script>
+  <script src="/booking-week.js" defer></script>
 </body>
 </html>

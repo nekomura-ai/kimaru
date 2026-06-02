@@ -1,28 +1,50 @@
 # Kimaru
 
-Kimaru is a scheduling MVP for meetings that should start warmer and convert better.
+Kimaru is a free-first scheduling tool for meetings that should feel easier before they begin.
 
-It includes:
+> 会う前に、相手を知る。  
+> 会った後に、ご縁が育つ。  
+> 予定を決めるだけでなく、明るい未来につながる出会いを増やす。
 
-- Free signup
-- Booking page
-- Google login
-- Google Calendar availability check
-- Calendar event creation with 15-minute reminders
-- Pro invite code: `JF7YAIN40EQL`
-- Appointment logs
-- Simple admin dashboard
-- Square webhook placeholder for paid plan upgrades
+## Production
 
-## Deploy
+Primary production deployment:
 
-Use Netlify with this GitHub repository.
+```text
+https://kimaru-alpha.vercel.app
+```
 
-Build settings:
+The project is deployed on Vercel as `kimaru` under Fumio Uchiyama's projects.
+Supabase production project: `kimaru`.
 
-- Build command: none
-- Publish directory: `public`
-- Functions directory: `netlify/functions`
+## Architecture
+
+Primary deployment is now Vercel + Supabase.
+
+- Frontend: Vercel free tier, static files in `public/`
+- API: Vercel Functions in `api/`
+- Database: Supabase
+- Auth: Google login now, Supabase Auth-ready schema
+- Calendar: Google Calendar API
+- Meeting: Google Meet auto creation first
+- Future meeting provider: Zoom-ready design
+- Scheduled jobs: Vercel Cron
+- Email delivery: Resend-ready, disabled until environment variables are set
+
+The legacy Netlify Functions remain in `netlify/functions/` as reusable handlers. Vercel routes in `api/` call those handlers through a small adapter so the app can move to Vercel without rewriting every endpoint at once.
+
+## Vercel Deploy
+
+Create a Vercel project from this repository.
+
+Settings:
+
+- Framework preset: Other
+- Build command: empty
+- Output directory: empty
+- Install command: empty
+
+`vercel.json` handles clean URLs, keeps `/api/*` as Vercel Functions, and runs `/api/birthday-mails` once a day with Vercel Cron.
 
 Required environment variables:
 
@@ -34,22 +56,114 @@ Required environment variables:
 - `SESSION_SECRET`
 - `TOKEN_ENCRYPTION_KEY`
 
-Optional:
+Optional birthday email variables:
 
-- `SQUARE_WEBHOOK_SHARED_SECRET`
+- `RESEND_API_KEY`
+- `BIRTHDAY_EMAIL_FROM`
+- `BIRTHDAY_EMAIL_REPLY_TO`
+- `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`
 
-## Database
+If `RESEND_API_KEY` and `BIRTHDAY_EMAIL_FROM` are not set, the birthday job stays in dry-run mode and only returns the target users and message text. If a cron secret is set, the job requires `Authorization: Bearer <secret>` or `?secret=<secret>`.
 
-Run `supabase-schema.sql` in Supabase SQL Editor before using the app.
+Set `APP_BASE_URL` to:
 
-## Google OAuth
+```text
+https://kimaru-alpha.vercel.app
+```
 
-Set the Google OAuth redirect URI to:
+Google OAuth redirect URI:
 
-`https://YOUR-NETLIFY-SITE.netlify.app/api/google-auth-callback`
+```text
+https://kimaru-alpha.vercel.app/api/google-auth-callback
+```
 
-Then set `APP_BASE_URL` to the same site URL without a trailing slash.
+## Supabase
 
-## Notes
+Run `supabase-schema.sql` in the Supabase SQL Editor before using the app.
 
-This is a practical MVP, not the final polished product. The next production steps are Japanese UI copy, official Square signature verification, cancellation/reschedule flows, and stronger privacy controls for shared relationship notes.
+The schema includes:
+
+- `users`
+- `profiles`
+- `booking_pages`
+- `availability_settings`
+- `bookings`
+- `questionnaire_questions`
+- `questionnaire_answers`
+- `google_calendar_tokens`
+- `invite_codes`
+- `birthday_message_deliveries`
+
+Compatibility tables for the current Google-login MVP also remain:
+
+- `owners`
+- `google_connections`
+
+## Birthday Emails
+
+Birthday email automation is implemented as a Pro feature.
+
+- Booking guests can optionally enter a birth date and request a birthday message.
+- The booking stores birth-date context and a relationship profile for later analysis.
+- `/api/birthday-mails` checks confirmed bookings every day at 09:00 JST.
+- Only bookings owned by Pro owners are eligible.
+- `birthday_message_deliveries` prevents duplicate sends for the same booking and date.
+- Resend sends the email when `RESEND_API_KEY` and `BIRTHDAY_EMAIL_FROM` are configured.
+
+Manual dry-run check:
+
+```text
+https://kimaru-alpha.vercel.app/api/birthday-mails?dry_run=1
+```
+
+## Phase 1
+
+- User signup/login foundation
+- Booking page settings
+- Duration: 30 / 45 / 60 minutes
+- Buffer before/after: none / 15 / 30 minutes
+- Booking range: 1 / 3 / 6 months
+- Free plan limit: up to 3 months
+- Pro plan limit: up to 6 months
+- Questionnaire limits: free 2 questions, pro 5 questions
+- Cat Key invite code: `Neko20240222`
+- Booking form and booking list foundation
+- Birthday message opt-in and birth-date insight foundation
+
+## Phase 2
+
+- Google Calendar connection
+- Free/busy availability lookup
+- Calendar event creation
+- Google Meet auto creation
+- Booking confirmation email
+- Birthday email delivery
+
+## Phase 3
+
+- Paid-plan controls
+- Group scheduling
+- Customer management
+- Appointment history
+- AI summary
+- Zoom integration
+
+## Invite Code
+
+The Cat Key code is:
+
+```text
+Neko20240222
+```
+
+Internally it is normalized as:
+
+```text
+NEKO20240222
+```
+
+Users who apply it receive pro capabilities without payment.
+
+## Legacy Netlify
+
+Netlify support is now secondary. `netlify.toml` and `netlify/functions/` remain so the current Netlify deployment can keep running during transition, but new production deployments should use Vercel.

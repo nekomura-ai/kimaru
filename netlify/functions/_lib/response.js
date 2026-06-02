@@ -1,7 +1,13 @@
+const defaultHeaders = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Cache-Control": "no-store",
+};
+
 function json(statusCode, body, headers = {}) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json", ...headers },
+    headers: { ...defaultHeaders, "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   };
 }
@@ -9,7 +15,7 @@ function json(statusCode, body, headers = {}) {
 function redirect(location, headers = {}) {
   return {
     statusCode: 302,
-    headers: { Location: location, ...headers },
+    headers: { ...defaultHeaders, Location: location, ...headers },
     body: "",
   };
 }

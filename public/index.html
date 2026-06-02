@@ -1,12 +1,76 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Kimaru</title><link rel="stylesheet" href="/styles.css"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>キマル | 日程調整と面談前準備</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
 <body data-i18n-title="home.pageTitle">
-<header class="site-header"><a class="brand" href="/"><span class="brand-mark">K</span><span data-i18n="common.brand">Kimaru</span></a><nav class="nav"><a href="/booking.html" class="button secondary" data-i18n="common.book">Booking</a><a href="/signup.html" class="button primary" data-i18n="common.signup">Free signup</a><a href="/admin.html" class="button secondary" data-i18n="common.admin">Admin</a><select class="lang-select" data-language-select aria-label="Language"></select></nav></header>
+<header class="site-header">
+  <a class="brand" href="/" data-i18n="common.brand">キマル</a>
+  <nav>
+    <a href="/booking.html" data-i18n="nav.booking">予約ページ</a>
+    <a href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
+    <a href="/admin.html" data-i18n="nav.admin">相手管理</a>
+    <a href="/profile.html" data-i18n="nav.profile">プロフィール</a>
+    <a href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
+    <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
+    <a href="/signup.html" data-i18n="nav.signup">無料登録</a>
+    <select class="lang-select" data-language-select aria-label="Language"></select>
+  </nav>
+</header>
 <main>
-<section class="section hero"><div><p class="eyebrow" data-i18n="home.hero.eyebrow"></p><h1 data-i18n="home.hero.heading"></h1><p class="lead" data-i18n="home.hero.lead"></p><div class="actions"><a class="button primary" href="/signup.html" data-i18n="home.hero.startFree"></a><a class="button secondary" href="/booking.html" data-i18n="home.hero.viewBooking"></a></div></div><div class="panel"><span class="badge" data-i18n="home.pro.badge"></span><h2 data-i18n="home.pro.heading"></h2><p data-i18n="home.pro.lead"></p><div class="actions"><a class="button primary" href="/admin.html" data-i18n="home.pro.connectGoogle"></a><a class="button secondary" href="https://square.link/u/sKdZIsyS?src=embed" target="_blank" rel="noopener" data-i18n="home.pro.startPro"></a></div></div></section>
-<section class="section"><p class="eyebrow" data-i18n="home.features.eyebrow"></p><h2 data-i18n="home.features.heading"></h2><div class="feature-grid"><article class="card"><h3 data-i18n="home.features.login.title"></h3><p data-i18n="home.features.login.desc"></p></article><article class="card"><h3 data-i18n="home.features.availability.title"></h3><p data-i18n="home.features.availability.desc"></p></article><article class="card"><h3 data-i18n="home.features.booking.title"></h3><p data-i18n="home.features.booking.desc"></p></article><article class="card"><h3 data-i18n="home.features.membership.title"></h3><p data-i18n="home.features.membership.desc"></p></article><article class="card"><h3 data-i18n="home.features.logs.title"></h3><p data-i18n="home.features.logs.desc"></p></article><article class="card"><h3 data-i18n="home.features.filters.title"></h3><p data-i18n="home.features.filters.desc"></p></article></div></section>
-</main><footer class="footer" data-i18n="home.footer"></footer>
+  <section class="section hero">
+    <div>
+      <p class="eyebrow" data-i18n="home.hero.eyebrow">Scheduling + prep + CRM</p>
+      <h1 data-i18n="home.hero.heading">日程がキマル。Pro版では契約がキマりやすく。</h1>
+      <p class="lead" data-i18n="home.lead1">キマルは、日程調整と事前アンケートと面談後の管理をひとつにした予約システムです。</p>
+      <p class="lead" data-i18n="home.lead2">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
+      <p class="lead" data-i18n="home.lead3">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
+      <div class="actions">
+        <a class="button primary" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
+        <a class="button secondary" href="/booking.html" data-i18n="home.hero.viewBooking">予約ページを見る</a>
+        <a class="button secondary" href="/pro.html" data-i18n="home.hero.viewPro">Pro版を見る</a>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="badge" data-i18n="home.panel.badge">Free: 3ヶ月先まで / Pro: 6ヶ月先まで</span>
+      <h2 data-i18n="home.panel.heading">会う前の準備まで、ひとつに。</h2>
+      <p data-i18n="home.panel.desc">事前アンケート、プロフィール付きリマインド、面談メモ、印象スコアを組み合わせて、日程調整を「会う前の関係づくり」まで広げます。</p>
+      <div class="actions">
+        <a class="button primary" href="/booking.html" data-i18n="home.panel.openBooking">予約ページを開く</a>
+        <a class="button secondary" href="/admin.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="eyebrow" data-i18n="home.plan.eyebrow">Plan</p>
+    <h2 data-i18n="home.plan.heading">無料版とPro版の違い</h2>
+    <div class="panel plan-table-card">
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <thead><tr><th data-i18n="home.plan.th.feature">機能</th><th data-i18n="home.plan.th.free">無料版</th><th data-i18n="home.plan.th.pro">Pro版</th></tr></thead>
+          <tbody>
+            <tr><td data-i18n="home.plan.range.label">予約枠の公開範囲</td><td data-i18n="home.plan.range.free">今日から3ヶ月先まで</td><td data-i18n="home.plan.range.pro">今日から6ヶ月先まで</td></tr>
+            <tr><td data-i18n="home.plan.survey.label">事前アンケート</td><td data-i18n="home.plan.survey.free">最大2問</td><td data-i18n="home.plan.survey.pro">最大5問</td></tr>
+            <tr><td data-i18n="home.plan.hours.label">曜日ごとの受付時間</td><td data-i18n="home.plan.hours.free">利用可能</td><td data-i18n="home.plan.hours.pro">利用可能</td></tr>
+            <tr><td data-i18n="home.plan.contacts.label">相手管理</td><td data-i18n="home.plan.contacts.free">基本メモ</td><td data-i18n="home.plan.contacts.pro">印象スコア・フォロー管理を強化</td></tr>
+            <tr><td data-i18n="home.plan.aiBirthday.label">AI誕生日分析</td><td data-i18n="home.plan.aiBirthday.free">-</td><td data-i18n="home.plan.aiBirthday.pro">面談前のAI誕生日分析で関係構築ヒントを提案</td></tr>
+            <tr><td data-i18n="home.plan.aiAssist.label">AIアシスト</td><td data-i18n="home.plan.aiAssist.free">-</td><td data-i18n="home.plan.aiAssist.pro">プロフィールシートと相手データを照合し、関係構築の最適解を提案</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="plan-note" data-i18n="home.plan.note">Cat Keyを適用したユーザーは、Pro版の機能を無料で利用できます。通常のPro版利用はSquare決済から進められます。</p>
+    </div>
+    <div class="actions">
+      <a class="button primary" href="/square.html" data-i18n="home.plan.square">Square決済へ進む</a>
+      <a class="button secondary" href="/pro.html" data-i18n="home.plan.proDetail">Pro版の詳細を見る</a>
+    </div>
+  </section>
+</main>
+<footer class="footer" data-i18n="home.footer">キマル | 日程がキマル。会う前の準備で、関係が進む。</footer>
 <script src="/i18n.js" defer></script>
-<script src="/app.js" defer></script>
-</body></html>
+</body>
+</html>

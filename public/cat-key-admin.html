@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キマル - Cat Key Admin</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">キマル</a>
+    <nav>
+      <a href="/booking.html">予約ページ</a>
+      <a href="/admin.html">相手管理</a>
+      <a href="/pro.html">Pro版</a>
+      <a href="/pro-apply.html">Pro申し込み</a>
+      <a href="/signup.html">無料登録</a>
+    </nav>
+  </header>
+
+  <main class="shell narrow">
+    <section class="panel">
+      <p class="eyebrow">Admin / Cat Key</p>
+      <h1>猫の鍵 管理</h1>
+      <p class="lead">Cat Keyの不正利用があった場合に、対象ユーザーを無料プランへ戻し、そのユーザーの管理画面からCat Key入力欄を非表示にします。適用・失敗・停止のログも確認できます。</p>
+      <form id="secret-form" class="form-grid">
+        <label>管理者キー<input id="admin-secret" type="password" autocomplete="off" placeholder="CAT_KEY_ADMIN_SECRET" required /></label>
+        <button class="primary" type="submit">ユーザーとログを表示</button>
+      </form>
+      <p id="admin-message" class="message"></p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Owners</p>
+      <h2>ユーザー一覧</h2>
+      <div id="owner-admin-list" class="list"></div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Audit Log</p>
+      <h2>Cat Keyログ</h2>
+      <div id="cat-key-event-list" class="list"></div>
+    </section>
+  </main>
+
+  <script>
+    const list = document.querySelector('#owner-admin-list');
+    const eventList = document.querySelector('#cat-key-event-list');
+    const message = document.querySelector('#admin-message');
+    const secretInput = document.querySelector('#admin-secret');
+
+    function setMessage(text, kind = '') {
+      message.textContent = text;
+      message.className = `message ${kind}`.trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[<>'"&]/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[char]));
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      try {
+        return new Intl.DateTimeFormat('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+      } catch (_) {
+        return value;
+      }
+    }
+
+    async function adminApi(options = {}) {
+      const secret = secretInput.value.trim();
+      const response = await fetch('/api/invite-apply?admin=cat-key', {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` },
+        ...options,
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || '管理者操作に失敗しました。');
+      return data;
+    }
+
+    function renderOwners(owners) {
+      if (!owners.length) {
+        list.innerHTML = '<p class="muted">ユーザーが見つかりません。</p>';
+        return;
+      }
+      list.innerHTML = owners.map((owner) => `
+        <article class="list-item">
+          <strong>${escapeHtml(owner.name || owner.email || 'No name')}</strong>
+          <span>${escapeHtml(owner.email || '')}</span>
+          <p>Plan: ${escapeHtml(owner.plan || 'free')} / Cat Key: ${escapeHtml(owner.invite_code || '-')} / 欄: ${owner.cat_key_disabled ? '非表示' : '表示中'}</p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="revoke" data-owner-id="${escapeHtml(owner.id)}">無料に戻してCat Key欄を消す</button>
+            <button class="button secondary" type="button" data-action="restore" data-owner-id="${escapeHtml(owner.id)}">Cat Key欄を再表示</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderEvents(events) {
+      if (!events.length) {
+        eventList.innerHTML = '<p class="muted">まだログはありません。</p>';
+        return;
+      }
+      eventList.innerHTML = events.map((event) => `
+        <article class="list-item">
+          <strong>${escapeHtml(event.action || '')}</strong>
+          <span>${escapeHtml(event.email || '')}</span>
+          <p>Code: ${escapeHtml(event.code || '-')} / IP: ${escapeHtml(event.ip_address || '-')}</p>
+          <small>${escapeHtml(formatDate(event.created_at))}</small>
+        </article>
+      `).join('');
+    }
+
+    async function loadOwners() {
+      setMessage('読み込み中...');
+      const data = await adminApi();
+      renderOwners(data.owners || []);
+      renderEvents(data.events || []);
+      setMessage('読み込みました。', 'success');
+    }
+
+    document.querySelector('#secret-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try { await loadOwners(); } catch (error) { setMessage(error.message, 'error'); }
+    });
+
+    list.addEventListener('click', async (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const action = button.dataset.action;
+      const ownerId = button.dataset.ownerId;
+      const confirmText = action === 'revoke'
+        ? 'このユーザーを無料プランへ戻し、Cat Key欄を非表示にします。実行しますか？'
+        : 'このユーザーのCat Key欄を再表示します。実行しますか？';
+      if (!confirm(confirmText)) return;
+      setMessage('更新中...');
+      try {
+        await adminApi({ method: 'POST', body: JSON.stringify({ action, owner_id: ownerId }) });
+        await loadOwners();
+        setMessage('更新しました。', 'success');
+      } catch (error) {
+        setMessage(error.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -82,17 +82,28 @@ async function freebusy(ownerId, timeMin, timeMax) {
 async function createCalendarEvent(ownerId, booking) {
   const accessToken = await accessTokenForOwner(ownerId);
   if (!accessToken) return null;
-  const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all", {
+  const shouldCreateMeet = (booking.location_type || "google_meet") === "google_meet";
+  const eventBody = {
+    summary: `Kimaru: ${booking.visitor_name || booking.guest_name || "Meeting"}`,
+    description: `${booking.topic || ""}\n\nKimaru helps the meeting start with shared context.`,
+    start: { dateTime: booking.start_at || booking.start_time },
+    end: { dateTime: booking.end_at || booking.end_time },
+    attendees: booking.visitor_email ? [{ email: booking.visitor_email, displayName: booking.visitor_name }] : [],
+    reminders: { useDefault: false, overrides: [{ method: "email", minutes: 15 }, { method: "popup", minutes: 15 }] },
+  };
+  if (shouldCreateMeet) {
+    eventBody.conferenceData = {
+      createRequest: {
+        requestId: `kimaru-${booking.id || Date.now()}`,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    };
+  }
+
+  const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all&conferenceDataVersion=1", {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      summary: `Kimaru: ${booking.visitor_name || "Meeting"}`,
-      description: `${booking.topic || ""}\n\nFilter: ${booking.filter_request || "none"}`,
-      start: { dateTime: booking.start_at },
-      end: { dateTime: booking.end_at },
-      attendees: booking.visitor_email ? [{ email: booking.visitor_email, displayName: booking.visitor_name }] : [],
-      reminders: { useDefault: false, overrides: [{ method: "email", minutes: 15 }, { method: "popup", minutes: 15 }] },
-    }),
+    body: JSON.stringify(eventBody),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error?.message || "Google event create failed");

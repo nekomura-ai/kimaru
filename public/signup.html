@@ -3,15 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kimaru</title>
+  <title>キマル</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body data-page="signup" data-i18n-title="signup.pageTitle">
   <header class="site-header">
-    <a class="brand" href="/" data-i18n="common.brand">Kimaru</a>
-    <nav class="nav">
-      <a href="/booking.html" data-i18n="common.book"></a>
-      <a href="/admin.html" data-i18n="common.admin"></a>
+    <a class="brand" href="/" data-i18n="common.brand">キマル</a>
+    <nav>
+      <a href="/booking.html" data-i18n="nav.booking">予約ページ</a>
+      <a href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
+      <a href="/admin.html" data-i18n="nav.admin">相手管理</a>
+      <a href="/profile.html" data-i18n="nav.profile">プロフィール</a>
+      <a href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
+      <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
+      <a href="/signup.html" data-i18n="nav.signup">無料登録</a>
       <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>
@@ -26,7 +31,6 @@
         <label><span data-i18n="signup.name"></span><input name="name" autocomplete="name" required /></label>
         <label><span data-i18n="signup.email"></span><input name="email" type="email" autocomplete="email" required /></label>
         <label><span data-i18n="signup.purpose"></span><textarea name="purpose" rows="4" data-i18n-placeholder="signup.purposePlaceholder"></textarea></label>
-        <label><span data-i18n="signup.catKey"></span><input name="invite_code" data-i18n-placeholder="signup.catKeyPlaceholder" /></label>
         <label><span data-i18n="signup.language"></span><select name="language" data-language-select></select></label>
         <button class="primary" type="submit" data-i18n="signup.submit"></button>
       </form>
