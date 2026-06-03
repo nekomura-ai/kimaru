@@ -32,6 +32,17 @@
     </section>
 
     <section class="panel">
+      <p class="eyebrow">Google連携</p>
+      <h2>Googleカレンダー連携</h2>
+      <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
+      <div class="actions">
+        <a class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
+        <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
+      </div>
+      <p class="form-note muted">ログイン方法に関わらず、ここからカレンダー連携を追加・解除できます。</p>
+    </section>
+
+    <section class="panel">
       <p class="eyebrow">公開ページ</p>
       <h2>相手に見える予約枠</h2>
       <p class="muted">曜日ごとの受付時間とGoogleカレンダーの予定をもとに、空いている枠だけが予約ページに表示されます。</p>
@@ -105,5 +116,34 @@
   </main>
 
   <script src="/app.js" defer></script>
+  <script>
+    (async () => {
+      const statusEl = document.getElementById('calendar-connect-status');
+      const disconnectBtn = document.getElementById('calendar-disconnect');
+      if (!statusEl) return;
+      async function refresh() {
+        try {
+          const res = await fetch('/api/me', { credentials: 'include' });
+          const data = await res.json().catch(() => ({}));
+          const connected = Boolean(data.calendar_connected);
+          statusEl.textContent = connected
+            ? 'Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
+            : '未連携です。連携すると空き枠判定・予定作成が有効になります。';
+          statusEl.className = 'message ' + (connected ? 'success' : '');
+          if (disconnectBtn) disconnectBtn.style.display = connected ? '' : 'none';
+        } catch (_) {
+          statusEl.textContent = '連携状態を確認できませんでした。';
+        }
+      }
+      disconnectBtn?.addEventListener('click', async () => {
+        if (!confirm('Googleカレンダー連携を解除します。よろしいですか？')) return;
+        try {
+          await fetch('/api/google-disconnect', { method: 'POST', credentials: 'include' });
+          await refresh();
+        } catch (_) {}
+      });
+      refresh();
+    })();
+  </script>
 </body>
 </html>
