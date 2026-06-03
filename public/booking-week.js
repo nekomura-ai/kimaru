@@ -227,12 +227,21 @@ function buildBookingPayload(form) {
   return data;
 }
 
+function resolveSlug() {
+  const pathMatch = location.pathname.match(/^\/b\/([a-z0-9-]+)/i);
+  if (pathMatch) return pathMatch[1].toLowerCase();
+  const param = new URLSearchParams(location.search).get("slug");
+  return param ? param.toLowerCase() : "demo";
+}
+
 async function initBooking() {
   const grid = $("#slot-grid");
   const form = $("#booking-form");
   if (!grid || !form) return;
+  const slug = resolveSlug();
+  if (form.elements.owner_slug) form.elements.owner_slug.value = slug;
   try {
-    const data = await api("availability?owner=demo");
+    const data = await api(`availability?slug=${encodeURIComponent(slug)}`);
     renderWeeklyAvailability(grid, data.slots || [], form);
     renderQuestions(data.questions || []);
   } catch (error) {

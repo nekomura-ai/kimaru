@@ -8,6 +8,8 @@ const allowedRanges = new Set([1, 2, 3, 6]);
 const FREE_RANGE_LIMIT = 2;
 const allowedLocationTypes = new Set(["in_person", "google_meet", "zoom", "phone", "custom_url", "later"]);
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+const SLUG_RE = /^[a-z0-9-]{3,40}$/;
+const PAGE_LIMIT = { free: 2, pro: 5 };
 
 function intValue(value, fallback) {
   const number = Number(value);
@@ -71,9 +73,28 @@ exports.handler = async (event) => {
     if (questions.length > questionLimit) return json(403, { error: `Your plan supports up to ${questionLimit} questionnaire questions` });
     if (!availability.length) return json(400, { error: "At least one booking reception time is required" });
 
+    // 複数予約ページ対応: id 指定で編集、無ければ新規作成（slug はグローバル一意）。
+    const requestedId = String(body.id || "").trim();
+    let existing = null;
+    if (requestedId) {
+      const rows = await sb(`booking_pages?id=${eq(requestedId)}&owner_id=${eq(owner.id)}&limit=1`);
+      existing = rows[0] || null;
+      if (!existing) return json(404, { error: "Booking page not found" });
+    }
+    let slug = String(body.slug || "").trim().toLowerCase();
+    if (!slug) slug = existing?.slug || `${owner.slug || "demo"}-${Math.random().toString(36).slice(2, 7)}`;
+    if (!SLUG_RE.test(slug)) return json(400, { error: "Slug must be 3-40 chars (a-z, 0-9, -)" });
+
+    // 新規作成時の保存数上限（無料2 / 有料・猫5）
+    if (!existing) {
+      const owned = await sb(`booking_pages?owner_id=${eq(owner.id)}&select=id`);
+      const limit = isPro ? PAGE_LIMIT.pro : PAGE_LIMIT.free;
+      if ((owned || []).length >= limit) return json(403, { error: `Your plan can save up to ${limit} booking pages` });
+    }
+
     const payload = {
       owner_id: owner.id,
-      slug: owner.slug || "demo",
+      slug,
       title: String(body.title || "〇〇との面談").trim(),
       description: String(body.description || "").trim(),
       duration_minutes: duration,
@@ -86,10 +107,15 @@ exports.handler = async (event) => {
       is_active: body.is_active !== false,
     };
 
-    const existing = await sb(`booking_pages?owner_id=${eq(owner.id)}&slug=${eq(payload.slug)}&limit=1`);
-    const saved = existing[0]
-      ? await sb(`booking_pages?id=${eq(existing[0].id)}`, { method: "PATCH", body: JSON.stringify(payload) })
-      : await sb("booking_pages", { method: "POST", body: JSON.stringify(payload) });
+    let saved;
+    try {
+      saved = existing
+        ? await sb(`booking_pages?id=${eq(existing.id)}`, { method: "PATCH", body: JSON.stringify(payload) })
+        : await sb("booking_pages", { method: "POST", body: JSON.stringify(payload) });
+    } catch (error) {
+      if (/duplicate|unique/i.test(String(error.message || ""))) return json(409, { error: "そのURL(slug)は既に使われています" });
+      throw error;
+    }
     const bookingPage = saved[0];
 
     await sb(`questionnaire_questions?booking_page_id=${eq(bookingPage.id)}`, { method: "DELETE" });

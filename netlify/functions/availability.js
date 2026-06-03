@@ -1,5 +1,5 @@
 const { json } = require("./_lib/response");
-const { defaultOwner, sb, eq } = require("./_lib/supabase");
+const { defaultOwner, findOwnerById, sb, eq } = require("./_lib/supabase");
 const { freebusy } = require("./_lib/google");
 
 const DEFAULT_WEEKLY_AVAILABILITY = [1, 2, 3, 4, 5].map((day) => ({ day_of_week: day, start_time: "10:00", end_time: "18:00" }));
@@ -85,12 +85,23 @@ async function bookingPageQuestions(bookingPage) {
   return rows.map((row) => ({ id: row.id, question_text: row.question_text, is_required: Boolean(row.is_required) }));
 }
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   try {
-    const owner = await defaultOwner();
+    // slug 指定があれば該当の予約ページ＋オーナーを解決（無ければ既定オーナーの先頭ページ）。
+    const slug = String(event?.queryStringParameters?.slug || "").trim().toLowerCase();
+    let owner = null;
+    let bookingPage = null;
+    if (slug && slug !== "demo") {
+      const pages = await sb(`booking_pages?slug=${eq(slug)}&limit=1`).catch(() => []);
+      bookingPage = pages[0] || null;
+      if (bookingPage) owner = await findOwnerById(bookingPage.owner_id);
+    }
+    if (!owner) {
+      owner = await defaultOwner();
+      bookingPage = owner ? await ownerBookingPage(owner) : null;
+    }
     if (!owner) return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null), questions: [] });
 
-    const bookingPage = await ownerBookingPage(owner);
     const questions = await bookingPageQuestions(bookingPage);
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
     const slots = generateSlots(weeklySettings, bookingPage);
