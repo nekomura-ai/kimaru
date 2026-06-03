@@ -1,10 +1,11 @@
+/* 予約ページ（週表）— landing3 配色に統一 */
 body[data-page="booking"] .two-column{
   grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);
 }
 
 body[data-page="booking"] .panel:nth-of-type(2){
-  background:#fbfbfa;
-  border-color:#deded9;
+  background:var(--surface);
+  border-color:var(--ink);
 }
 
 body[data-page="booking"] .slot-grid{
@@ -22,14 +23,16 @@ body[data-page="booking"] .slot-grid{
   align-items:flex-start;
   gap:14px;
   padding:16px;
-  background:#fff;
-  border:1px solid #deded9;
-  border-radius:8px;
+  background:var(--surface);
+  border:1px solid var(--ink);
+  border-radius:0;
 }
 
 .week-schedule-head h3{
   margin:0;
-  color:#242827;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:800;
   font-size:22px;
   line-height:1.25;
 }
@@ -47,10 +50,10 @@ body[data-page="booking"] .slot-grid{
   align-items:center;
   min-height:32px;
   padding:0 10px;
-  color:#34403c;
-  background:#f3f4f1;
-  border:1px solid #d9dbd5;
-  border-radius:8px;
+  color:var(--ink-soft);
+  background:var(--surface-subtle);
+  border:1px solid var(--line);
+  border-radius:0;
   font-size:13px;
   white-space:nowrap;
 }
@@ -58,9 +61,9 @@ body[data-page="booking"] .slot-grid{
 .week-table-wrap{
   width:100%;
   overflow:auto;
-  border:1px solid #d8dbd5;
-  border-radius:8px;
-  background:#fff;
+  border:1px solid var(--ink);
+  border-radius:0;
+  background:var(--surface);
 }
 
 .week-table{
@@ -73,8 +76,8 @@ body[data-page="booking"] .slot-grid{
 
 .week-table th,
 .week-table td{
-  border-right:1px solid #e1e3de;
-  border-bottom:1px solid #e1e3de;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
 }
 
 .week-table thead th{
@@ -83,10 +86,11 @@ body[data-page="booking"] .slot-grid{
   z-index:2;
   min-height:48px;
   padding:12px 8px;
-  color:#333a37;
-  background:#f4f5f2;
+  color:var(--ink);
+  background:var(--surface-subtle);
+  font-family:var(--sans);
   font-size:13px;
-  font-weight:850;
+  font-weight:800;
   text-align:center;
 }
 
@@ -96,14 +100,14 @@ body[data-page="booking"] .slot-grid{
   left:0;
   z-index:3;
   width:76px;
-  background:#f7f8f5;
+  background:var(--surface-subtle);
 }
 
 .week-table tbody th{
   padding:8px 9px;
-  color:#68706c;
+  color:var(--muted);
   font-size:12px;
-  font-weight:850;
+  font-weight:700;
   text-align:right;
   vertical-align:top;
 }
@@ -111,13 +115,13 @@ body[data-page="booking"] .slot-grid{
 .week-table td{
   height:48px;
   padding:5px;
-  background:#fff;
+  background:var(--surface);
   text-align:center;
   vertical-align:middle;
 }
 
 .week-table tr:nth-child(even) td{
-  background:#fcfcfb;
+  background:var(--surface-subtle);
 }
 
 .week-table th:last-child,
@@ -137,13 +141,14 @@ body[data-page="booking"] .slot-grid{
   width:100%;
   min-height:38px;
   padding:6px 4px;
-  color:#17433e;
-  background:#e7f4f1;
-  border:1px solid #b7d6d0;
-  border-radius:7px;
+  color:var(--blue);
+  background:var(--primary-soft);
+  border:1px solid var(--blue);
+  border-radius:0;
   cursor:pointer;
   font:inherit;
-  font-weight:850;
+  font-family:var(--sans);
+  font-weight:700;
 }
 
 .week-slot span{
@@ -154,18 +159,18 @@ body[data-page="booking"] .slot-grid{
 
 .week-slot small{
   display:block;
-  color:#55706b;
+  color:var(--muted);
   font-size:10px;
-  font-weight:800;
+  font-weight:700;
   line-height:1.1;
 }
 
 .week-slot:hover,
 .week-slot.selected{
   color:#fff;
-  background:#24564f;
-  border-color:#24564f;
-  box-shadow:0 8px 18px rgba(36,86,79,.16);
+  background:var(--ink);
+  border-color:var(--ink);
+  box-shadow:none;
 }
 
 .week-slot:hover small,
@@ -174,7 +179,7 @@ body[data-page="booking"] .slot-grid{
 }
 
 .week-busy{
-  color:#c0c5bf;
+  color:var(--muted-2);
   font-size:12px;
 }
 
