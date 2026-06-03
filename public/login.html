@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キマル - ログイン / 登録</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">キマル</a>
+    <nav>
+      <a href="/booking.html">予約ページ</a>
+      <a href="/admin.html">相手管理</a>
+      <a href="/pro.html">Pro版</a>
+      <a href="/signup.html">無料登録</a>
+    </nav>
+  </header>
+
+  <main class="shell narrow">
+    <section class="panel">
+      <p class="eyebrow">Login / Register</p>
+      <h1 id="auth-heading">ログイン</h1>
+      <p class="lead">メールアドレスとパスワードでログインします。Googleでログインする場合は<a href="/api/google-auth-start">こちら</a>。</p>
+
+      <form id="auth-form" class="form-grid">
+        <label id="name-label" class="hidden">名前<input name="name" autocomplete="name" /></label>
+        <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
+        <label>パスワード<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
+        <button class="primary" type="submit" id="auth-submit">ログイン</button>
+      </form>
+      <p id="auth-message" class="message" role="status"></p>
+      <p class="form-note muted">
+        <span id="auth-toggle-text">アカウントをお持ちでないですか？</span>
+        <a href="#" id="auth-toggle">新規登録する</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="/i18n.js" defer></script>
+  <script>
+    const $ = (s) => document.querySelector(s);
+    let mode = "login"; // login | register
+
+    function applyMode() {
+      const register = mode === "register";
+      $("#auth-heading").textContent = register ? "新規登録" : "ログイン";
+      $("#auth-submit").textContent = register ? "アカウントを作成" : "ログイン";
+      $("#name-label").classList.toggle("hidden", !register);
+      $("#auth-form").elements.password.autocomplete = register ? "new-password" : "current-password";
+      $("#auth-toggle-text").textContent = register ? "すでにアカウントをお持ちですか？" : "アカウントをお持ちでないですか？";
+      $("#auth-toggle").textContent = register ? "ログインする" : "新規登録する";
+      $("#auth-message").textContent = "";
+    }
+
+    $("#auth-toggle").addEventListener("click", (event) => {
+      event.preventDefault();
+      mode = mode === "login" ? "register" : "login";
+      applyMode();
+    });
+
+    $("#auth-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+      $("#auth-message").textContent = "処理しています...";
+      $("#auth-message").className = "message";
+      try {
+        const path = mode === "register" ? "/api/auth-register" : "/api/auth-login";
+        const res = await fetch(path, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(result.error || "失敗しました");
+        $("#auth-message").textContent = "完了しました。相手管理へ移動します...";
+        $("#auth-message").className = "message success";
+        location.href = "/admin.html";
+      } catch (error) {
+        $("#auth-message").textContent = error.message;
+        $("#auth-message").className = "message error";
+      }
+    });
+
+    applyMode();
+  </script>
+</body>
+</html>

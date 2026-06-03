@@ -67,4 +67,20 @@ function decrypt(value) {
   return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString("utf8");
 }
 
-module.exports = { sessionCookie, clearSessionCookie, verifySession, encrypt, decrypt };
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16);
+  const hash = crypto.scryptSync(String(password), salt, 64);
+  return `scrypt$${salt.toString("base64url")}$${hash.toString("base64url")}`;
+}
+
+function verifyPassword(password, stored) {
+  if (!stored || !String(stored).startsWith("scrypt$")) return false;
+  const [, saltB64, hashB64] = String(stored).split("$");
+  if (!saltB64 || !hashB64) return false;
+  const salt = Buffer.from(saltB64, "base64url");
+  const expected = Buffer.from(hashB64, "base64url");
+  const actual = crypto.scryptSync(String(password), salt, expected.length);
+  return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+}
+
+module.exports = { sessionCookie, clearSessionCookie, verifySession, encrypt, decrypt, hashPassword, verifyPassword };
