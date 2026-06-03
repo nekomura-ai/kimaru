@@ -31,6 +31,7 @@ create table if not exists profiles (
   display_name text not null default '',
   bio text not null default '',
   profile_url text not null default '',
+  data jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -216,5 +217,6 @@ alter table bookings add column if not exists start_time timestamptz;
 alter table bookings add column if not exists end_time timestamptz;
 alter table bookings add column if not exists meeting_url text not null default '';
 alter table bookings add column if not exists location_type text not null default 'google_meet';
+alter table profiles add column if not exists data jsonb not null default '{}'::jsonb;
 alter table free_signups add column if not exists invite_code text not null default '';
 alter table free_signups add column if not exists language text not null default 'ja';
