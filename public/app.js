@@ -461,8 +461,8 @@ async function initAdmin() {
     event.preventDefault();
     setMessage("#invite-message", t("admin.applying"));
     try {
-      await api("invite-apply", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) });
-      setMessage("#invite-message", t("admin.proUnlocked"), "success");
+      const result = await api("invite-apply", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) });
+      setMessage("#invite-message", result?.pending ? t("admin.proPending") : t("admin.proUnlocked"), "success");
       await refreshAdmin();
     } catch (error) {
       setMessage("#invite-message", error.message, "error");

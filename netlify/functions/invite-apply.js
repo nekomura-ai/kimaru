@@ -44,7 +44,8 @@ async function auditCatKey(event, payload) {
 
 async function listOwners(event) {
   if (!isCatKeyAdmin(event)) return json(401, { error: "Unauthorized" });
-  const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200");
+  const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,cat_key_pending,created_at&order=created_at.desc&limit=200").catch(() =>
+    sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200"));
   const events = await sb("cat_key_events?select=id,owner_id,email,action,code,ip_address,user_agent,metadata,created_at&order=created_at.desc&limit=50").catch(() => []);
   return json(200, { owners, events });
 }
@@ -55,10 +56,14 @@ async function updateOwnerCatKey(event) {
   const ownerId = String(body.owner_id || "").trim();
   const action = String(body.action || "revoke");
   if (!ownerId) return json(400, { error: "Missing owner_id" });
-  if (!["revoke", "restore"].includes(action)) return json(400, { error: "Invalid action" });
-  const patch = action === "restore"
-    ? { cat_key_disabled: false }
-    : { plan: "free", invite_code: "", cat_key_disabled: true };
+  if (!["revoke", "restore", "approve", "reject"].includes(action)) return json(400, { error: "Invalid action" });
+  const patchByAction = {
+    approve: { plan: "pro", cat_key_pending: false, cat_key_disabled: false },
+    reject: { cat_key_pending: false, invite_code: "" },
+    restore: { cat_key_disabled: false },
+    revoke: { plan: "free", invite_code: "", cat_key_disabled: true, cat_key_pending: false },
+  };
+  const patch = patchByAction[action];
   const rows = await sb(`owners?id=${eq(ownerId)}`, { method: "PATCH", body: JSON.stringify(patch) });
   await auditCatKey(event, { owner_id: ownerId, email: rows[0]?.email || "", action: `admin_${action}`, metadata: { source: "cat-key-admin" } });
   return json(200, { ok: true, owner: rows[0] });
@@ -88,9 +93,18 @@ exports.handler = async (event) => {
       await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "invalid_code", code });
       return json(400, { error: "Invalid invite code" });
     }
-    const rows = await sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: "pro", invite_code: code }) });
-    await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "apply_success", code });
-    return json(200, { ok: true, owner: rows[0] });
+    // 承認制（決定 2026-06-03）: 即時付与せず「承認待ち」にする。運営がコンソールで承認するとproになる。
+    try {
+      const rows = await sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ cat_key_pending: true, invite_code: code }) });
+      await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "apply_pending", code });
+      return json(200, { ok: true, pending: true, owner: rows[0] });
+    } catch (error) {
+      // cat_key_pending 列が未マイグレーションの環境では従来どおり即時付与（運用を止めない）
+      if (!String(error.message || "").includes("cat_key_pending")) throw error;
+      const rows = await sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: "pro", invite_code: code }) });
+      await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "apply_success", code });
+      return json(200, { ok: true, pending: false, owner: rows[0] });
+    }
   } catch (error) {
     return json(error.statusCode || 500, { error: error.message });
   }
