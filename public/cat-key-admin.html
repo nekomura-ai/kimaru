@@ -91,13 +91,17 @@
 
     function ownerCard(owner) {
       const plan = owner.plan === 'pro' ? 'Pro' : 'Free';
+      const pendingBadge = owner.cat_key_pending ? ' / <strong style="color:#1f3cff;">承認待ち</strong>' : '';
+      const approveButtons = owner.cat_key_pending ? `
+            <button class="button primary" type="button" data-action="approve" data-owner-id="${escapeHtml(owner.id)}">承認してProにする</button>
+            <button class="button secondary" type="button" data-action="reject" data-owner-id="${escapeHtml(owner.id)}">却下する</button>` : '';
       return `
         <article class="list-item">
           <strong>${escapeHtml(owner.name || owner.email || 'No name')}</strong>
           <span>${escapeHtml(owner.email || '')}</span>
-          <p>プラン: ${plan} / Cat Key: ${escapeHtml(owner.invite_code || '-')} / 欄: ${owner.cat_key_disabled ? '非表示' : '表示中'}</p>
+          <p>プラン: ${plan} / Cat Key: ${escapeHtml(owner.invite_code || '-')} / 欄: ${owner.cat_key_disabled ? '非表示' : '表示中'}${pendingBadge}</p>
           <small>登録: ${escapeHtml(formatDate(owner.created_at))}</small>
-          <div class="actions">
+          <div class="actions">${approveButtons}
             <button class="button secondary" type="button" data-action="revoke" data-owner-id="${escapeHtml(owner.id)}">無料に戻してCat Key欄を消す</button>
             <button class="button secondary" type="button" data-action="restore" data-owner-id="${escapeHtml(owner.id)}">Cat Key欄を再表示</button>
           </div>
@@ -158,9 +162,13 @@
       if (!button) return;
       const action = button.dataset.action;
       const ownerId = button.dataset.ownerId;
-      const confirmText = action === 'revoke'
-        ? 'このユーザーを無料プランへ戻し、Cat Key欄を非表示にします。実行しますか？'
-        : 'このユーザーのCat Key欄を再表示します。実行しますか？';
+      const confirmMap = {
+        revoke: 'このユーザーを無料プランへ戻し、Cat Key欄を非表示にします。実行しますか？',
+        restore: 'このユーザーのCat Key欄を再表示します。実行しますか？',
+        approve: 'このユーザーのCat Key申請を承認し、Proを無料で解放します。実行しますか？',
+        reject: 'このユーザーのCat Key申請を却下します。実行しますか？',
+      };
+      const confirmText = confirmMap[action] || '実行しますか？';
       if (!confirm(confirmText)) return;
       setMessage('更新中...');
       try {
