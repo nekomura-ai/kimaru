@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>キマル - 予約設定</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body data-page="admin" data-booking-settings="true">
@@ -29,6 +32,17 @@
       <p class="muted">予約ページに表示する内容、受付時間、開催方法、事前アンケートをここで設定します。</p>
       <p id="owner-status" class="message">ログイン状態を確認しています...</p>
       <div id="owner-card" class="soft-box"></div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Google連携</p>
+      <h2>Googleカレンダー連携</h2>
+      <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
+      <div class="actions">
+        <a class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
+        <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
+      </div>
+      <p class="form-note muted">ログイン方法に関わらず、ここからカレンダー連携を追加・解除できます。</p>
     </section>
 
     <section class="panel">
@@ -58,7 +72,8 @@
         <label>予約枠の公開範囲
           <select name="booking_range_months" id="booking-range-select">
             <option value="1">今日から1ヶ月先の日程まで公開</option>
-            <option value="3" selected>今日から3ヶ月先の日程まで公開（無料版）</option>
+            <option value="2" selected>今日から2ヶ月先の日程まで公開（無料版）</option>
+            <option value="3">今日から3ヶ月先の日程まで公開（有料版）</option>
             <option value="6">今日から6ヶ月先の日程まで公開（有料版）</option>
           </select>
         </label>
@@ -105,5 +120,34 @@
   </main>
 
   <script src="/app.js" defer></script>
+  <script>
+    (async () => {
+      const statusEl = document.getElementById('calendar-connect-status');
+      const disconnectBtn = document.getElementById('calendar-disconnect');
+      if (!statusEl) return;
+      async function refresh() {
+        try {
+          const res = await fetch('/api/me', { credentials: 'include' });
+          const data = await res.json().catch(() => ({}));
+          const connected = Boolean(data.calendar_connected);
+          statusEl.textContent = connected
+            ? 'Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
+            : '未連携です。連携すると空き枠判定・予定作成が有効になります。';
+          statusEl.className = 'message ' + (connected ? 'success' : '');
+          if (disconnectBtn) disconnectBtn.style.display = connected ? '' : 'none';
+        } catch (_) {
+          statusEl.textContent = '連携状態を確認できませんでした。';
+        }
+      }
+      disconnectBtn?.addEventListener('click', async () => {
+        if (!confirm('Googleカレンダー連携を解除します。よろしいですか？')) return;
+        try {
+          await fetch('/api/google-disconnect', { method: 'POST', credentials: 'include' });
+          await refresh();
+        } catch (_) {}
+      });
+      refresh();
+    })();
+  </script>
 </body>
 </html>

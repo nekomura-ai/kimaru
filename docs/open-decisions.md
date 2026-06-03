@@ -51,10 +51,17 @@
 
 ---
 
-## ⏸ 保留事項
+## ✅ 決定事項（追補）
 
-### 9. デザイン最終確定
-- 青構成ベース＋タケダ氏相談、ロゴ。**保留**。
+### 9. デザイン（2026-06-04 決定）
+- **デザインは `landing3`（Swiss/ミニマル・単一アクセント青）を採用し、全ページへ展開**する。
+- パレット: `--bg #fafafa / --ink #0a0a0a / --muted #6b6b6b / --line #e2e2e2 / 単一アクセント --blue #1f3cff`。直角・1pxライン・フラット。
+- フォント: 見出し/ナビ/ボタン = Archivo、本文/日本語 = Zen Kaku Gothic New。
+- 実装: 共通 `public/styles.css` と `public/booking-redesign.css` を landing3 体系へ全面リスキン（全セレクタ温存）。各ページ `<head>` に Google Fonts 読込を追加。`public/landing3.html` は原典プロトタイプとして保持。
+- ブランチ: `design/landing3-all`。
+- ※ロゴは別途（H-G）。
+
+## ⏸ 保留事項
 
 ### 10. タイムゾーン / グローバル対応
 - 現状 Asia/Tokyo 固定。海外対応の範囲は**保留**。

@@ -22,6 +22,35 @@ function setMessage(selector, text, kind = "") {
   el.className = `message ${kind}`.trim();
 }
 
+function escapeHtml(value) {
+  return String(value || "").replace(/[<>'"&]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  }[char]));
+}
+
+let bookingQuestions = [];
+
+function renderQuestions(questions) {
+  const container = document.getElementById("questionnaire-fields");
+  if (!container) return;
+  bookingQuestions = Array.isArray(questions) ? questions : [];
+  const list = bookingQuestions.length
+    ? bookingQuestions
+    : [{ id: null, question_text: "今回お話したい内容", is_required: true }];
+  container.innerHTML = list
+    .map((question, index) => {
+      const required = question.is_required ? " required" : "";
+      const mark = question.is_required ? " *" : "（任意）";
+      const rows = index === 0 ? 4 : 3;
+      return `<label><span>${escapeHtml(question.question_text)}${mark}</span><textarea data-question-id="${escapeHtml(question.id || "")}" rows="${rows}"${required}></textarea></label>`;
+    })
+    .join("");
+}
+
 function pad2(value) {
   return String(value).padStart(2, "0");
 }
@@ -189,6 +218,11 @@ function buildBookingPayload(form) {
     birthday_message_opt_in: Boolean(data.birth_date),
     profile,
   }) : "none";
+  const answers = [...document.querySelectorAll("#questionnaire-fields textarea")]
+    .map((el) => ({ question_id: el.dataset.questionId || null, answer_text: el.value.trim() }))
+    .filter((answer) => answer.answer_text);
+  data.answers = answers;
+  data.topic = answers[0]?.answer_text || "";
   delete data.birth_date;
   return data;
 }
@@ -200,12 +234,18 @@ async function initBooking() {
   try {
     const data = await api("availability?owner=demo");
     renderWeeklyAvailability(grid, data.slots || [], form);
+    renderQuestions(data.questions || []);
   } catch (error) {
     setMessage("#booking-message", error.message, "error");
   }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const missingRequired = [...document.querySelectorAll("#questionnaire-fields textarea[required]")].some((el) => !el.value.trim());
+    if (missingRequired) {
+      setMessage("#booking-message", "必須の質問にご回答ください。", "error");
+      return;
+    }
     setMessage("#booking-message", "予約を保存しています...");
     try {
       await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });

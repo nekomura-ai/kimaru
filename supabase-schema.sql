@@ -19,6 +19,7 @@ create table if not exists owners (
   invite_code text,
   cat_key_disabled boolean not null default false,
   cat_key_pending boolean not null default false,
+  trial_ends_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -32,6 +33,7 @@ create table if not exists profiles (
   display_name text not null default '',
   bio text not null default '',
   profile_url text not null default '',
+  data jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -66,7 +68,7 @@ create table if not exists booking_pages (
   duration_minutes int not null default 30 check (duration_minutes in (30, 45, 60)),
   buffer_before_minutes int not null default 0 check (buffer_before_minutes in (0, 15, 30)),
   buffer_after_minutes int not null default 0 check (buffer_after_minutes in (0, 15, 30)),
-  booking_range_months int not null default 3 check (booking_range_months in (1, 3, 6)),
+  booking_range_months int not null default 3 check (booking_range_months in (1, 2, 3, 6)),
   location_type text not null default 'google_meet' check (location_type in ('in_person', 'google_meet', 'zoom', 'phone', 'custom_url', 'later')),
   location_value text not null default '',
   timezone text not null default 'Asia/Tokyo',
@@ -121,6 +123,15 @@ create table if not exists birthday_message_deliveries (
   error_message text not null default '',
   created_at timestamptz not null default now(),
   unique (booking_id, delivery_date)
+);
+
+create table if not exists reminder_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid references bookings(id) on delete cascade unique,
+  provider_message_id text not null default '',
+  status text not null default 'sent' check (status in ('sent', 'failed')),
+  error_message text not null default '',
+  created_at timestamptz not null default now()
 );
 
 create table if not exists questionnaire_questions (
@@ -200,10 +211,14 @@ create table if not exists payment_events (
 alter table owners add column if not exists invite_code text;
 alter table owners add column if not exists cat_key_disabled boolean not null default false;
 alter table owners add column if not exists cat_key_pending boolean not null default false;
+alter table owners add column if not exists trial_ends_at timestamptz;
 alter table booking_pages add column if not exists user_id uuid references users(id) on delete cascade;
 alter table booking_pages add column if not exists buffer_before_minutes int not null default 0;
 alter table booking_pages add column if not exists buffer_after_minutes int not null default 0;
 alter table booking_pages add column if not exists booking_range_months int not null default 3;
+-- 受付期間: 無料2ヶ月対応のため 2 を許可（既存DBの CHECK 制約も更新。issue #56）
+alter table booking_pages drop constraint if exists booking_pages_booking_range_months_check;
+alter table booking_pages add constraint booking_pages_booking_range_months_check check (booking_range_months in (1, 2, 3, 6));
 alter table booking_pages add column if not exists location_type text not null default 'google_meet';
 alter table booking_pages add column if not exists location_value text not null default '';
 alter table booking_pages add column if not exists is_active boolean not null default true;
@@ -218,5 +233,6 @@ alter table bookings add column if not exists start_time timestamptz;
 alter table bookings add column if not exists end_time timestamptz;
 alter table bookings add column if not exists meeting_url text not null default '';
 alter table bookings add column if not exists location_type text not null default 'google_meet';
+alter table profiles add column if not exists data jsonb not null default '{}'::jsonb;
 alter table free_signups add column if not exists invite_code text not null default '';
 alter table free_signups add column if not exists language text not null default 'ja';
