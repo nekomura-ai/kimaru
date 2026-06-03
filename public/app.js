@@ -376,9 +376,11 @@ function updateBookingPageControls() {
   const locationField = $("#location-value-field");
   const questionLimitMessage = $("#question-limit-message");
   if (rangeSelect) {
-    const sixMonthOption = [...rangeSelect.options].find((option) => option.value === "6");
-    if (sixMonthOption) sixMonthOption.disabled = !isPro;
-    if (!isPro && rangeSelect.value === "6") rangeSelect.value = "3";
+    // 無料は2ヶ月まで。3ヶ月・6ヶ月は有料のみ。
+    [...rangeSelect.options].forEach((option) => {
+      if (option.value === "3" || option.value === "6") option.disabled = !isPro;
+    });
+    if (!isPro && Number(rangeSelect.value) > 2) rangeSelect.value = "2";
   }
   document.querySelectorAll(".pro-question").forEach((row) => row.classList.toggle("hidden", !isPro));
   if (questionLimitMessage) {
