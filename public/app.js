@@ -407,6 +407,8 @@ function collectBookingPagePayload(form) {
     .slice(0, maxQuestions)
     .map((question_text, index) => ({ question_text, is_required: index < 2 }));
   return {
+    id: data.page_id || undefined,
+    slug: (data.slug || "").trim() || undefined,
     title: data.title,
     description: data.description,
     duration_minutes: Number(data.duration_minutes),
@@ -418,6 +420,64 @@ function collectBookingPagePayload(form) {
     availability_settings: collectAvailabilitySettings(data),
     questions,
   };
+}
+
+function bookingPageUrl(slug) {
+  return `${location.origin}/b/${slug}`;
+}
+
+function renderBookingPages(pages) {
+  const el = $("#booking-pages-list");
+  if (!el) return;
+  el._pages = pages;
+  if (!pages.length) {
+    el.innerHTML = '<p class="muted">まだ予約ページがありません。下のフォームから作成してください。</p>';
+    return;
+  }
+  el.innerHTML = pages.map((p) => `
+    <article class="list-item">
+      <strong>${escapeHtml(p.title || "(無題)")}</strong>
+      <span>${escapeHtml(bookingPageUrl(p.slug))}</span>
+      <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.booking_range_months}ヶ月</small>
+      <div class="actions">
+        <button class="button secondary" type="button" data-page-action="copy" data-slug="${escapeHtml(p.slug)}">URLをコピー</button>
+        <button class="button secondary" type="button" data-page-action="edit" data-id="${escapeHtml(p.id)}">編集</button>
+        <button class="button secondary" type="button" data-page-action="delete" data-id="${escapeHtml(p.id)}">削除</button>
+      </div>
+    </article>`).join("");
+}
+
+async function loadBookingPages() {
+  try {
+    const data = await api("booking-pages");
+    renderBookingPages(data.pages || []);
+  } catch (_) {
+    /* 一覧取得は失敗しても致命的ではない */
+  }
+}
+
+function fillBookingPageForm(page) {
+  const form = $("#booking-page-form");
+  if (!form || !page) return;
+  if (form.elements.page_id) form.elements.page_id.value = page.id || "";
+  if (form.elements.slug) form.elements.slug.value = page.slug || "";
+  if (page.title != null && form.elements.title) form.elements.title.value = page.title;
+  if (page.duration_minutes && form.elements.duration_minutes) form.elements.duration_minutes.value = String(page.duration_minutes);
+  if (page.booking_range_months && form.elements.booking_range_months) form.elements.booking_range_months.value = String(page.booking_range_months);
+  if (page.location_type && form.elements.location_type) form.elements.location_type.value = page.location_type;
+  updateBookingPageControls();
+  const editing = $("#booking-page-editing");
+  if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;
+  $("#booking-settings-form-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function clearBookingPageForm() {
+  const form = $("#booking-page-form");
+  if (!form) return;
+  if (form.elements.page_id) form.elements.page_id.value = "";
+  if (form.elements.slug) form.elements.slug.value = "";
+  const editing = $("#booking-page-editing");
+  if (editing) editing.textContent = "新規作成モード";
 }
 
 async function refreshAdmin() {
@@ -432,6 +492,7 @@ async function refreshAdmin() {
       renderBookings(bookings.bookings || []);
       const logs = await api("appointment-log");
       renderLogs(logs.logs || []);
+      await loadBookingPages();
     }
   } catch (error) {
     setMessage("#owner-status", error.message, "error");
@@ -447,6 +508,29 @@ async function initAdmin() {
   });
   $("#location-type-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-range-select")?.addEventListener("change", updateBookingPageControls);
+  $("#booking-page-new")?.addEventListener("click", clearBookingPageForm);
+  $("#booking-pages-list")?.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-page-action]");
+    if (!button) return;
+    const action = button.dataset.pageAction;
+    const pages = $("#booking-pages-list")?._pages || [];
+    if (action === "copy") {
+      const url = bookingPageUrl(button.dataset.slug);
+      navigator.clipboard?.writeText(url).catch(() => {});
+      setMessage("#booking-page-message", `URLをコピーしました: ${url}`, "success");
+    } else if (action === "edit") {
+      fillBookingPageForm(pages.find((p) => p.id === button.dataset.id));
+    } else if (action === "delete") {
+      if (!confirm("この予約ページを削除しますか？")) return;
+      try {
+        await api("booking-pages", { method: "POST", body: JSON.stringify({ action: "delete", id: button.dataset.id }) });
+        await loadBookingPages();
+        setMessage("#booking-page-message", "削除しました。", "success");
+      } catch (error) {
+        setMessage("#booking-page-message", error.message, "error");
+      }
+    }
+  });
   document.querySelectorAll('.availability-row input[type="checkbox"]').forEach((checkbox) => checkbox.addEventListener("change", updateAvailabilityRows));
   $("#booking-page-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();

@@ -1,5 +1,5 @@
 const { json, readJson } = require("./_lib/response");
-const { sb, defaultOwner } = require("./_lib/supabase");
+const { sb, eq, defaultOwner, findOwnerById } = require("./_lib/supabase");
 const { createCalendarEvent } = require("./_lib/google");
 const { optional } = require("./_lib/config");
 
@@ -106,13 +106,23 @@ exports.handler = async (event) => {
     maxFuture.setMonth(maxFuture.getMonth() + 6);
     if (start < now || start > maxFuture) return json(400, { error: "Booking time is outside the allowed range" });
 
-    const owner = await defaultOwner();
+    // owner_slug で予約ページ＋オーナーを解決（無ければ既定オーナー）。
+    const slug = String(body.owner_slug || "").trim().toLowerCase();
+    let owner = null;
+    let bookingPage = null;
+    if (slug && slug !== "demo") {
+      const pages = await sb(`booking_pages?slug=${eq(slug)}&limit=1`).catch(() => []);
+      bookingPage = pages[0] || null;
+      if (bookingPage) owner = await findOwnerById(bookingPage.owner_id);
+    }
+    if (!owner) owner = await defaultOwner();
     if (!owner) return json(400, { error: "Owner is not set. Please login with Google first." });
     const relationshipContext = parseRelationshipContext(body.filter_request);
     const birthDatePrivate = body.birth_date_private === "yes" || body.birth_date_private === true;
     const storedRelationshipContext = sanitizePrivateBirthDate(relationshipContext, birthDatePrivate);
     const bookingPayload = {
       owner_id: owner.id,
+      booking_page_id: bookingPage?.id || null,
       visitor_name: visitorName,
       visitor_email: visitorEmail,
       guest_name: visitorName,
