@@ -94,8 +94,12 @@
         .replaceAll("'", '&#039;');
     }
 
-    async function api(path) {
-      const response = await fetch(`/api/${path}`, { credentials: 'include' });
+    async function api(path, options = {}) {
+      const response = await fetch(`/api/${path}`, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        ...options,
+      });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || '読み込みに失敗しました。');
       return data;
@@ -172,17 +176,25 @@
         } else {
           $('#profile-status').textContent = 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。';
         }
+        const serverProfile = await api('profile').then((result) => result.profile).catch(() => ({}));
+        if (serverProfile && Object.keys(serverProfile).length) applyProfile(form, serverProfile, true);
         renderPreview(readProfile(form));
       } catch (error) {
         $('#profile-status').textContent = 'プロフィール情報を読み込めませんでした。手入力で保存できます。';
       }
 
       form.addEventListener('input', () => renderPreview(readProfile(form)));
-      form.addEventListener('submit', (event) => {
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const profile = saveProfile(form);
         renderPreview(profile);
-        $('#profile-message').textContent = 'プロフィールシートを保存しました。AIアシストに反映されます。';
+        $('#profile-message').textContent = '保存しています...';
+        try {
+          await api('profile', { method: 'POST', body: JSON.stringify(profile) });
+          $('#profile-message').textContent = 'プロフィールシートを保存しました（サーバ保存）。AIアシストにも反映されます。';
+        } catch (error) {
+          $('#profile-message').textContent = 'ローカルに保存しました。サーバ保存はログイン後に有効になります。';
+        }
       });
     }
 
