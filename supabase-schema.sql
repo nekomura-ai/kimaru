@@ -20,6 +20,7 @@ create table if not exists owners (
   cat_key_disabled boolean not null default false,
   cat_key_pending boolean not null default false,
   trial_ends_at timestamptz,
+  password_hash text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -212,6 +213,7 @@ alter table owners add column if not exists invite_code text;
 alter table owners add column if not exists cat_key_disabled boolean not null default false;
 alter table owners add column if not exists cat_key_pending boolean not null default false;
 alter table owners add column if not exists trial_ends_at timestamptz;
+alter table owners add column if not exists password_hash text;
 alter table booking_pages add column if not exists user_id uuid references users(id) on delete cascade;
 alter table booking_pages add column if not exists buffer_before_minutes int not null default 0;
 alter table booking_pages add column if not exists buffer_after_minutes int not null default 0;
