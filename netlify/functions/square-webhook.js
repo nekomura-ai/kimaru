@@ -27,15 +27,33 @@ exports.handler = async (event) => {
       body.data?.object?.subscription?.customer_email ||
       ""
     ).trim().toLowerCase();
-    const shouldGrantPro = /payment|subscription/i.test(eventType) && email;
+    const lowerType = eventType.toLowerCase();
+    // 解約・失効系は無料へ、それ以外の課金/サブスク/請求系は pro 付与（トライアル含む）
+    const isCancel = /cancel|deactivat|delete|expire|fail|unpaid/.test(lowerType);
+    const isGrant = !isCancel && /payment|subscription|invoice|charge/i.test(lowerType) && Boolean(email);
     const owner = email ? await findOwnerByEmail(email) : null;
+    const subscription = body.data?.object?.subscription || {};
+    const trialEndsAt = body.trial_ends_at || subscription.charged_through_date || null;
 
-    if (shouldGrantPro && owner) {
-      await sb(`owners?id=${eq(owner.id)}`, {
-        method: "PATCH",
-        body: JSON.stringify({ plan: "pro", updated_at: new Date().toISOString() }),
-      });
+    let planResult = "none";
+    if (owner) {
+      if (isCancel) {
+        await sb(`owners?id=${eq(owner.id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({ plan: "free", updated_at: new Date().toISOString() }),
+        });
+        planResult = "downgraded";
+      } else if (isGrant) {
+        await sb(`owners?id=${eq(owner.id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({ plan: "pro", trial_ends_at: trialEndsAt, updated_at: new Date().toISOString() }),
+        }).catch(() =>
+          // trial_ends_at 未マイグレーション環境向けフォールバック
+          sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: "pro", updated_at: new Date().toISOString() }) }));
+        planResult = "pro";
+      }
     }
+    const shouldGrantPro = planResult === "pro";
 
     await sb("payment_events", {
       method: "POST",
