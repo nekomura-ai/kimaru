@@ -51,8 +51,7 @@
         <input type="hidden" name="filter_request" />
         <label><span data-i18n="booking.form.name">お名前</span><input name="visitor_name" autocomplete="name" required /></label>
         <label><span data-i18n="booking.form.email">メールアドレス</span><input name="visitor_email" type="email" autocomplete="email" required /></label>
-        <label><span data-i18n="booking.form.topic">今回お話したい内容</span><textarea name="topic" rows="4" required></textarea></label>
-        <label><span data-i18n="booking.form.goal">今、実現したい夢や目標は何ですか？</span><textarea name="goal" rows="3"></textarea></label>
+        <div id="questionnaire-fields" class="wide" style="display:grid;gap:14px;"></div>
         <label><span data-i18n="booking.form.birth">生年月日（任意）</span><input name="birth_date" type="date" /></label>
         <label class="checkbox-label"><input name="birth_date_private" type="checkbox" value="yes" /><span data-i18n="booking.form.birthPrivate">生年月日を非公開にする</span></label>
         <button class="primary" type="submit" data-i18n="booking.form.submit">予約を確定する</button>

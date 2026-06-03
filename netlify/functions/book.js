@@ -85,6 +85,22 @@ exports.handler = async (event) => {
     }
     const rows = await createBooking(bookingPayload);
     const booking = rows[0];
+
+    // 事前アンケート回答を保存（questionnaire_answers）。失敗してもブッキングは成立させる。
+    const answers = Array.isArray(body.answers) ? body.answers : [];
+    if (booking?.id && answers.length) {
+      const answerRows = answers
+        .map((answer) => ({
+          booking_id: booking.id,
+          question_id: answer.question_id || null,
+          answer_text: clean(answer.answer_text, 2000),
+        }))
+        .filter((answer) => answer.answer_text);
+      if (answerRows.length) {
+        await sb("questionnaire_answers", { method: "POST", body: JSON.stringify(answerRows) }).catch(() => {});
+      }
+    }
+
     const eventResult = await createCalendarEvent(owner.id, booking).catch((error) => ({ error: error.message }));
     if (eventResult?.id) {
       await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || "" }) });

@@ -79,20 +79,27 @@ async function ownerAvailability(owner) {
   return sb(`availability_settings?owner_id=${eq(owner.id)}&order=day_of_week.asc,start_time.asc`);
 }
 
+async function bookingPageQuestions(bookingPage) {
+  if (!bookingPage) return [];
+  const rows = await sb(`questionnaire_questions?booking_page_id=${eq(bookingPage.id)}&order=sort_order.asc`).catch(() => []);
+  return rows.map((row) => ({ id: row.id, question_text: row.question_text, is_required: Boolean(row.is_required) }));
+}
+
 exports.handler = async () => {
   try {
     const owner = await defaultOwner();
-    if (!owner) return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null) });
+    if (!owner) return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null), questions: [] });
 
     const bookingPage = await ownerBookingPage(owner);
+    const questions = await bookingPageQuestions(bookingPage);
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
     const slots = generateSlots(weeklySettings, bookingPage);
-    if (!slots.length) return json(200, { slots: [] });
+    if (!slots.length) return json(200, { slots: [], questions });
 
     const timeMin = slots[0].start;
     const timeMax = slots[slots.length - 1].end;
     const busy = await freebusy(owner.id, timeMin, timeMax).catch(() => []);
-    return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)) });
+    return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)), questions });
   } catch (error) {
     return json(500, { error: error.message });
   }
