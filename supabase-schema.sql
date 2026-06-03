@@ -123,6 +123,15 @@ create table if not exists birthday_message_deliveries (
   unique (booking_id, delivery_date)
 );
 
+create table if not exists reminder_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid references bookings(id) on delete cascade unique,
+  provider_message_id text not null default '',
+  status text not null default 'sent' check (status in ('sent', 'failed')),
+  error_message text not null default '',
+  created_at timestamptz not null default now()
+);
+
 create table if not exists questionnaire_questions (
   id uuid primary key default gen_random_uuid(),
   booking_page_id uuid not null references booking_pages(id) on delete cascade,
