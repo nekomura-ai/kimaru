@@ -32,8 +32,9 @@
 
     <section class="panel">
       <p class="eyebrow">Owners</p>
-      <h2>ユーザー一覧</h2>
-      <div id="owner-admin-list" class="list"></div>
+      <h2>ユーザー一覧 <span id="owner-count" class="muted" style="font-size:14px;font-weight:600;"></span></h2>
+      <label>検索<input id="owner-search" type="search" placeholder="名前・メール・プランで絞り込み" /></label>
+      <div id="owner-admin-list" class="list" style="margin-top:12px;"></div>
     </section>
 
     <section class="panel">
@@ -81,23 +82,45 @@
       return data;
     }
 
-    function renderOwners(owners) {
-      if (!owners.length) {
-        list.innerHTML = '<p class="muted">ユーザーが見つかりません。</p>';
-        return;
-      }
-      list.innerHTML = owners.map((owner) => `
+    let allOwners = [];
+    const ownerCount = document.querySelector('#owner-count');
+    const ownerSearch = document.querySelector('#owner-search');
+
+    function ownerCard(owner) {
+      const plan = owner.plan === 'pro' ? 'Pro' : 'Free';
+      return `
         <article class="list-item">
           <strong>${escapeHtml(owner.name || owner.email || 'No name')}</strong>
           <span>${escapeHtml(owner.email || '')}</span>
-          <p>Plan: ${escapeHtml(owner.plan || 'free')} / Cat Key: ${escapeHtml(owner.invite_code || '-')} / 欄: ${owner.cat_key_disabled ? '非表示' : '表示中'}</p>
+          <p>プラン: ${plan} / Cat Key: ${escapeHtml(owner.invite_code || '-')} / 欄: ${owner.cat_key_disabled ? '非表示' : '表示中'}</p>
+          <small>登録: ${escapeHtml(formatDate(owner.created_at))}</small>
           <div class="actions">
             <button class="button secondary" type="button" data-action="revoke" data-owner-id="${escapeHtml(owner.id)}">無料に戻してCat Key欄を消す</button>
             <button class="button secondary" type="button" data-action="restore" data-owner-id="${escapeHtml(owner.id)}">Cat Key欄を再表示</button>
           </div>
-        </article>
-      `).join('');
+        </article>`;
     }
+
+    function applyOwnerFilter() {
+      const query = (ownerSearch?.value || '').trim().toLowerCase();
+      const filtered = query
+        ? allOwners.filter((owner) => [owner.name, owner.email, owner.plan, owner.invite_code]
+            .some((value) => String(value || '').toLowerCase().includes(query)))
+        : allOwners;
+      if (ownerCount) ownerCount.textContent = `（${filtered.length} / ${allOwners.length} 名）`;
+      if (!filtered.length) {
+        list.innerHTML = '<p class="muted">該当ユーザーがいません。</p>';
+        return;
+      }
+      list.innerHTML = filtered.map(ownerCard).join('');
+    }
+
+    function renderOwners(owners) {
+      allOwners = Array.isArray(owners) ? owners : [];
+      applyOwnerFilter();
+    }
+
+    if (ownerSearch) ownerSearch.addEventListener('input', applyOwnerFilter);
 
     function renderEvents(events) {
       if (!events.length) {
