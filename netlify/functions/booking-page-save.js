@@ -4,7 +4,8 @@ const { sb, eq } = require("./_lib/supabase");
 
 const allowedDurations = new Set([30, 45, 60]);
 const allowedBuffers = new Set([0, 15, 30]);
-const allowedRanges = new Set([1, 3, 6]);
+const allowedRanges = new Set([1, 2, 3, 6]);
+const FREE_RANGE_LIMIT = 2;
 const allowedLocationTypes = new Set(["in_person", "google_meet", "zoom", "phone", "custom_url", "later"]);
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -57,7 +58,7 @@ exports.handler = async (event) => {
     const bufferBefore = intValue(body.buffer_before_minutes, 0);
     const bufferAfter = intValue(body.buffer_after_minutes, 0);
     const requestedRange = intValue(body.booking_range_months, 3);
-    const bookingRange = isPro ? requestedRange : Math.min(requestedRange, 3);
+    const bookingRange = isPro ? requestedRange : Math.min(requestedRange, FREE_RANGE_LIMIT);
     const locationType = allowedLocationTypes.has(body.location_type) ? body.location_type : "google_meet";
     const questions = Array.isArray(body.questions) ? body.questions.map(normalizeQuestion).filter((q) => q.question_text) : [];
     const availability = normalizeAvailability(body.availability_settings);
@@ -65,8 +66,8 @@ exports.handler = async (event) => {
 
     if (!allowedDurations.has(duration)) return json(400, { error: "Duration must be 30, 45, or 60 minutes" });
     if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "Buffer must be 0, 15, or 30 minutes" });
-    if (!allowedRanges.has(requestedRange)) return json(400, { error: "Booking range must be 1, 3, or 6 months" });
-    if (!isPro && requestedRange > 3) return json(403, { error: "Free plan can publish up to 3 months ahead" });
+    if (!allowedRanges.has(requestedRange)) return json(400, { error: "Booking range must be 1, 2, 3, or 6 months" });
+    if (!isPro && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "Free plan can publish up to 2 months ahead" });
     if (questions.length > questionLimit) return json(403, { error: `Your plan supports up to ${questionLimit} questionnaire questions` });
     if (!availability.length) return json(400, { error: "At least one booking reception time is required" });
 
