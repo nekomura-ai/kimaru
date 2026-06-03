@@ -1,10 +1,10 @@
 # キマル 画面・URL 一覧
 
-最終更新: 2026-06-02
+最終更新: 2026-06-03
 
 `public/` 配下の静的ページがそのまま URL になる。ローカルは `npm run dev`（`netlify dev`）で **http://localhost:8888** が基点。表中の URL は基点からの相対パス。
 
-関連: 機能一覧は [`features/README.md`](./features/README.md)、仕様は [`spec.md`](./spec.md)、現状機能は [`current-features.md`](./current-features.md)。
+関連: 機能一覧は [`features/README.md`](./features/README.md)、仕様は [`spec.md`](./spec.md)、現状機能は [`current-features.md`](./current-features.md)、**画面一覧・アクター別アクセス権は [`screen-flow.md`](./screen-flow.md)**、DB構成は [`db-schema.md`](./db-schema.md)。
 
 ## 画面（公開ページ）
 
@@ -19,9 +19,14 @@
 | `/ai-assist.html` | AIアシスト | プロフィールと相手データ照合の支援（Pro想定） | ⏳ 日本語のみ | （要確認） |
 | `/pro.html` | Pro版 | Pro機能紹介・無料/Pro比較 | ⏳ 日本語のみ | （要確認） |
 | `/square.html` | Pro版決済 | Square決済への導線 | ⏳ 日本語のみ | （要確認） |
-| `/cat-key-admin.html` | 猫の鍵 管理 | Cat Key利用ユーザーの管理（運営用） | ⏳ 日本語のみ | （要確認） |
+| `/cat-key-admin.html` | 猫の鍵 管理（運営コンソール） | 運営専用。Cat Key の承認・降格・監査。将来は全ユーザー一覧も（[features/22](./features/22-admin-console.md)） | ⏳ 日本語のみ | （要確認） |
 
 凡例: ✅ 3言語対応済 / ⏳ 未対応（日本語のみ・順次対応）
+
+### 管理画面は2系統
+
+- **ユーザー向け管理**（発行者が使う）: `/admin.html`（相手管理）・`/profile.html`（プロフィール）・`/booking-settings.html`（予約設定）。
+- **運営者向け管理**（運営だけが使う）: `/cat-key-admin.html`。現状は Cat Key のみ。全ユーザー一覧・Cat Key 承認制は未実装（[features/22](./features/22-admin-console.md)）。
 
 ### 注意
 

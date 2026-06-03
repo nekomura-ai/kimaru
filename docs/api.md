@@ -73,6 +73,7 @@ OAuth コールバック。`code` をトークン交換し、`owners` を upsert
   - duration ∈ {30,45,60}、buffer ∈ {0,15,30}、range ∈ {1,3,6}
   - location_type ∈ {in_person, google_meet, zoom, phone, custom_url, later}
   - 無料は range 最大3（超過は 403）、質問は無料2問/有料5問（超過は 403）
+    - ※打ち合わせ 2026-06-03 決定: 無料 range は **2ヶ月** に変更予定（実装は未反映。[features/05](./features/05-booking-range.md)）。質問数は無料2問/有料5問で据え置き。
   - 受付時間（availability）が0件なら 400
 - 処理: `booking_pages` を upsert → `questionnaire_questions` を全削除して再投入 → `availability_settings` を全削除して再投入
 - 応答: `{ ok: true, booking_page, availability_settings, question_limit }`

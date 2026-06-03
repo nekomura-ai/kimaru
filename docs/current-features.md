@@ -1,9 +1,9 @@
 # キマル（Kimaru）現状機能一覧
 
-最終更新: 2026-06-02（リデザイン版 origin/main の実態に同期）
+最終更新: 2026-06-03（打ち合わせ 2026-06-03 の決定を反映）
 
 このドキュメントは、現在のコードベースに**実装済みの機能**を棚卸ししたもの。
-「やりたいこと（仕様）」は [`spec.md`](./spec.md)、機能ごとの詳細は [`features/README.md`](./features/README.md)、画面/URLは [`screens.md`](./screens.md)、API は [`api.md`](./api.md)。
+「やりたいこと（仕様）」は [`spec.md`](./spec.md)、機能ごとの詳細は [`features/README.md`](./features/README.md)、画面/URLは [`screens.md`](./screens.md)、画面アクセス権は [`screen-flow.md`](./screen-flow.md)、API は [`api.md`](./api.md)、DB構成は [`db-schema.md`](./db-schema.md)、プラン比較は [`plan-comparison.md`](./plan-comparison.md)。
 
 技術構成: 静的 HTML / CSS / バニラ JS（`public/`）＋ サーバレス関数（`netlify/functions/`、Vercel は `api/` アダプタ）＋ Supabase。ビルド工程なし。
 
@@ -35,7 +35,8 @@
 | 予約作成＋カレンダー予定自動登録 | ✅ | `book.js`, `_lib/google.js` |
 | Google Meet 自動発行（conferenceData） | ✅ | `_lib/google.js`（`meeting_url` 保存） |
 | 1週間スケジュールグリッド予約UI | ✅ | `booking.html`, `booking-week.js` |
-| 15分前リマインダー / 招待メール | ✅ | `createCalendarEvent`（`sendUpdates=all`） |
+| カレンダー招待メール（Meet リンク込み） | ✅ | `createCalendarEvent`（`sendUpdates=all`） |
+| 22分前リマインダー（プロフィール付き） | ❌ | 打ち合わせ 2026-06-03 決定・未実装（[features/21](./features/21-reminder.md)） |
 
 ## 📝 アンケート・メール
 
@@ -74,11 +75,20 @@
 
 ---
 
-## ⚠️ 主な残課題
+## ⚠️ 打ち合わせ 2026-06-03 決定で「実装が未反映」の項目
+
+実装済みだが、打ち合わせの決定値にコードが追いついていないもの。
+
+- **受付期間 無料を 3ヶ月 → 2ヶ月**（[features/05](./features/05-booking-range.md)）。現状コードは無料3ヶ月。
+- **予約ページ（日程調整URL）の複数保存 無料2/有料・猫5**（[features/24](./features/24-multiple-booking-pages.md)）。現状は実質1オーナー1ページ。
+
+## ⚠️ 主な残課題（未実装）
 
 - **事前アンケートのゲスト表示・回答保存**（[features/10](./features/10-questionnaire.md)）が未配線。
+- **22分前リマインダー（プロフィール付き）**（[features/21](./features/21-reminder.md)）。
 - **独自の予約完了メール**は未実装（現状はカレンダー招待で代替）。
 - **誕生日メールのスケジューラ（cron）** と Resend 設定が必要。
 - **プロフィール/AIアシスト** はクライアント側の簡易実装（サーバ保存・LLM 連携は将来）。
-- **Zoom 自動発行** は将来対応。
-- 注: 仕様の `users`/`profiles`/`invite_codes`/`questionnaire_answers` などテーブル名・運用は現状実装と一部差異あり。
+- **会員同士の相互質問**（[features/20](./features/20-member-mutual-questions.md)）。
+- **Zoom 自動発行**・**議事録アプリ連携**は将来対応（[features/25](./features/25-auth-architecture.md) ロードマップ）。
+- 注: DB はレガシー重複あり（`owners`/`users`、`google_connections`/`google_calendar_tokens` ほか）。詳細は [`db-schema.md`](./db-schema.md)。

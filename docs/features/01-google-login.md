@@ -31,6 +31,10 @@
 - `netlify/functions/_lib/auth.js` — セッション検証
 - `netlify/functions/me.js` / `logout.js`
 
+## 補足: 別ログイン方式との関係
+
+現状は Google ログイン1回で認証＋カレンダー権限を同時取得しているが、**認証（ログイン）と外部連携（認可）は分離可能**。別ログイン方式（メール+パスワード等）を採用しても、後から Google カレンダー連携を追加できる（DB は `owners` と `google_connections` で分離済み）。方針は [25 認証アーキテクチャ](./25-auth-architecture.md) を参照。
+
 ## 残タスク
 
 - Google Cloud OAuth クライアント作成と環境変数（`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` ほか）の設定 → 動作させるために必須。
