@@ -5,12 +5,14 @@
 // 判定はセッションCookie `kimaru_session` の存在で行う（presenceベース）。
 // 厳密な署名検証は各API/関数側（_lib/crypto.js）で実施しており、ここはUX用の前段ゲート。
 
+// docs/screen-flow.md のアクセス権マトリクスで「無登録=−（不可）」の画面＝ログイン必須
 const PROTECTED_PATHS = [
   "/admin.html",
   "/booking-settings.html",
   "/profile.html",
   "/ai-assist.html",
   "/cat-key-admin.html",
+  "/square.html",
 ];
 
 function hasSession(request) {

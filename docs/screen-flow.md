@@ -84,3 +84,14 @@
 - **運営**: 運営コンソール（管理キー）→ Cat Key 利用者一覧 → 取消(revoke)/復元(restore) → 監査ログ
 
 > 各画面の遷移は基本「相手管理（`admin.html`）」がユーザーのハブ。そこから設定系（予約設定・プロフィール・AIアシスト）へ分岐する。
+
+## 6. 認証の実装（Edge Function ミドルウェア）
+
+上記マトリクスは `netlify/edge-functions/auth-gate.js`（Netlify Edge Function）で実装する。
+
+- **ルート保護**：マトリクスで「無登録=−」の画面はログイン必須。未ログイン（`kimaru_session` Cookie 無）でアクセスすると `/login.html` へリダイレクト。
+  - 対象: `/admin.html` `/booking-settings.html` `/profile.html` `/ai-assist.html` `/cat-key-admin.html` `/square.html`
+- **公開ページ**（無登録=✅）：`/` `/signup.html` `/booking.html` `/pro.html` `/login.html` はそのまま表示。
+- **ナビ出し分け**：全HTMLの `<body>` に `data-auth="authed|guest"` を注入し、CSS（`[data-auth] .app-only / .guest-only`）で表示制御（JSトグル廃止・チラつき無し）。
+- 判定はCookie存在ベースの前段ゲート。**厳密な認可は各APIの署名検証**（`_lib/crypto.js` / `requireOwner`）＋運営キー（`CAT_KEY_ADMIN_SECRET`）が担保。
+- プラン差（△の中身：無料2ヶ月/2問・有料の高度機能等）はページ内＋API側で制御。
