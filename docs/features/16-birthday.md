@@ -21,7 +21,7 @@
 - **生年月日インサイト**: `app.js` の `buildRelationshipProfile` が四柱推命/星座/季節/世代の簡易ロジックでヒントを生成し、予約時に `bookings.relationship_profile` 等へ保存。相手管理一覧に表示。
   - ※LLM ではなくルールベースの簡易分析。生年月日非公開時はマスク。
 - **誕生日メール**: `birthday-mails.js` が本日（Asia/Tokyo）誕生日かつ opt-in の予約（Pro オーナー分）を抽出し、Resend でメール送信。`birthday_message_deliveries` で重複送信防止。`?dry_run=1` で送信せず確認可。
-- 実行: Vercel `POST /api/book?job=birthday-mails`、または関数を直接スケジュール実行。認証は `BIRTHDAY_CRON_SECRET`（or `CRON_SECRET`）。
+- 実行: Netlify Scheduled Functions / 外部cron で `POST /api/birthday-mails`。認証は `BIRTHDAY_CRON_SECRET`（or `CRON_SECRET`）。
 
 ## 関連ファイル
 
@@ -31,6 +31,6 @@
 
 ## 残タスク
 
-- 送信スケジューラ（cron）の設定（Vercel Cron / 外部トリガ）。
+- 送信スケジューラ（Netlify Scheduled Functions / 外部cron）の設定。
 - `RESEND_API_KEY` / `BIRTHDAY_EMAIL_FROM` 未設定時は送信スキップ（dry run 扱い）。
 - 「AI」分析の高度化（将来、LLM 連携など）。

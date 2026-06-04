@@ -8,10 +8,11 @@
 
 ## ✅ 決定事項（2026-06-03）
 
-### 1. ホスティング・本番ドメイン（お任せ → 決定）
-- **当面の本番は Netlify**（Vercel への移行はしない。既存実装＝`netlify/functions/` に合わせる）。Vercel 対応は将来用に維持。
-- **独自ドメインを取得**し `APP_BASE_URL` に設定（ドメイン名は別途取得・確定）。
-- スケジュール実行（誕生日メール等）は Netlify Scheduled Functions を利用。
+### 1. ホスティング・本番ドメイン（決定 / 2026-06 更新：Netlify一本化）
+- **本番は Netlify に一本化**（承認済み）。**Vercel 対応は廃止**＝`vercel.json` / `api/*` アダプタ / `lib/vercel-adapter.js` を削除。サーバー処理は `netlify/functions/` のみ。
+- `netlify.toml` が `/api/*`→`/.netlify/functions/`、`/b/*`→`booking.html` をルーティング。Edge Function（`netlify/edge-functions/auth-gate.js`）が認証ゲート＋共通ヘッダー注入。
+- スケジュール実行（誕生日メール／22分前リマインダー）は **Netlify Scheduled Functions / 外部cron**（後回し中・#29）。
+- 独自ドメインは当面 `*.netlify.app` で代替可（後付け #26）。`APP_BASE_URL` に設定。
 - → 影響: Google OAuth リダイレクトURI＝`{APP_BASE_URL}/api/google-auth-callback`。
 
 ### 2. Google OAuth 審査（了解）

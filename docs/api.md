@@ -5,7 +5,7 @@
 ## 共通仕様
 
 - **ベースパス**: `/api/*`
-- **実体**: ロジックは `netlify/functions/<name>.js`。`api/<name>.js` は Vercel 用の薄いアダプタ（`lib/vercel-adapter.js` で Netlify ハンドラ形式を変換）。Netlify では `netlify.toml` の rewrite で `/api/*` → `/.netlify/functions/:splat`。
+- **実体**: ロジックは `netlify/functions/<name>.js`。`netlify.toml` の rewrite で `/api/*` → `/.netlify/functions/:splat`（**Netlify一本化**。旧 Vercel アダプタ `api/`・`lib/vercel-adapter.js`・`vercel.json` は削除済み）。
 - **データ形式**: リクエスト/レスポンスとも JSON。
 - **認証**: セッション Cookie `kimaru_session`（HMAC 署名・HttpOnly・30日）。`/api/me` 等の「要」エンドポイントは Cookie 必須。ブラウザ側は `fetch(..., { credentials: "include" })`。
 - **エラー形式**: `{ "error": "<message>" }`。HTTP ステータスは 400（入力不正）/401（未認証）/403（権限・プラン制限）/405（メソッド不正）/500（サーバ）/503（未設定）。
@@ -60,7 +60,7 @@ OAuth コールバック。`code` をトークン交換し、`owners` を upsert
 - 応答: `{ ok: true, booking, google }`
 - DB: `bookings`
 - 外部: Google Calendar events
-- 補足: `POST /api/book?job=birthday-mails` は誕生日メール処理（下記 birthday-mails）に分岐（Vercel 側ルーティング）。
+- 補足: 誕生日メールは `/api/birthday-mails`（`birthday-mails.js`）を Netlify Scheduled Functions / 外部cron から呼ぶ。
 
 ---
 
@@ -122,7 +122,7 @@ Square 決済イベントを受信し、該当オーナーを Pro 昇格。
 - DB: `owners`, `payment_events`
 
 ### 誕生日メール（バッチ）— シークレット
-`netlify/functions/birthday-mails.js`。HTTP では `POST /api/book?job=birthday-mails`（Vercel）または関数 URL 経由。Netlify では別途スケジュール/呼び出しが必要。
+`netlify/functions/birthday-mails.js`。`POST /api/birthday-mails` を Netlify Scheduled Functions / 外部cron から呼ぶ（認証は `BIRTHDAY_CRON_SECRET` / `CRON_SECRET`）。
 - メソッド: GET / POST。`BIRTHDAY_CRON_SECRET`（or `CRON_SECRET`）設定時は Bearer / `?secret=` 必須。
 - クエリ: `?dry_run=1` で送信せず対象のみ返す。
 - 処理: Pro オーナーの `bookings` から本日（Asia/Tokyo）が誕生日かつ opt-in の予約を抽出 → Resend（`RESEND_API_KEY`/`BIRTHDAY_EMAIL_FROM`）でメール送信 → `birthday_message_deliveries` で重複送信防止。

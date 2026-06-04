@@ -19,14 +19,17 @@ npm run deploy   # netlify deploy --prod
 
 ## Architecture (the non-obvious parts)
 
-### Dual deploy, one set of handlers
-Endpoint logic lives **once** in `netlify/functions/<name>.js` as a Netlify-style handler:
+### Netlify only — functions
+Endpoint logic lives in `netlify/functions/<name>.js` as a Netlify-style handler:
 ```js
 exports.handler = async (event) => { /* event.httpMethod, event.headers, readJson(event) */ return json(200, {...}); }
 ```
-`api/<name>.js` are thin Vercel adapters — each is ~3 lines that `require` the same Netlify handler and wrap it with `lib/vercel-adapter.js` (which converts a Vercel `req/res` into the Netlify `event` shape).
+`netlify.toml` routes `/api/*` → `/.netlify/functions/:splat`, so `/api/me` calls `netlify/functions/me.js`.
 
-**To add an endpoint:** write the handler in `netlify/functions/`, then create the matching `api/<name>.js` adapter. Keep the handler framework-agnostic (use the `_lib` helpers, not Netlify/Vercel-specific APIs).
+**To add an endpoint:** just create `netlify/functions/<name>.js`. (The project is Netlify-only — the old Vercel adapters `api/*` + `lib/vercel-adapter.js` + `vercel.json` were removed.)
+
+### Edge middleware
+`netlify/edge-functions/auth-gate.js` runs on HTML requests: (1) redirects unauthenticated users away from protected app pages to `/login.html`; (2) injects `<body data-auth="authed|guest">` for CSS-based nav show/hide (no flash); (3) injects the shared header (`SITE_HEADER`) into pages that contain the `<!-- site-header -->` placeholder. Protected paths & the access matrix are documented in `docs/screen-flow.md`.
 
 ### Shared helpers — always use these (`netlify/functions/_lib/`)
 - `response.js` — `json(status, body)`, `redirect(location)`, `readJson(event)`. Return these from handlers.
@@ -43,15 +46,10 @@ Google OAuth (`google-auth-start` → `google-auth-callback`) upserts into the *
 Vanilla JS, no framework. i18n is attribute-driven: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` resolved by `i18n.js` (`window.KimaruI18n`, languages ja/en/zh-TW, persisted in localStorage). `app.js` drives the admin/booking-settings screens; `booking-week.js` drives the guest booking grid. Pages call `/api/*` with `fetch`. Booking-page plan limits are enforced both client-side (`app.js`) and server-side (`booking-page-save.js`).
 
 ### Scheduled jobs
-`birthday-mails.js` runs daily (Vercel Cron via `vercel.json`; Netlify Scheduled Functions on Netlify). On Vercel it is reached through a rewrite `/api/birthday-mails` → `/api/book?job=birthday-mails`. Email send uses Resend and stays in dry-run unless `RESEND_API_KEY` + `BIRTHDAY_EMAIL_FROM` are set.
+`birthday-mails.js`（日次）と `reminder-mails.js`（~5分間隔・予約22分前）は **Netlify Scheduled Functions / 外部cron** で起動する想定。`/api/reminder-mails`・`/api/birthday-mails` を叩く（認証は `REMINDER_CRON_SECRET` / `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`）。メール送信は Resend で、`RESEND_API_KEY` + `*_EMAIL_FROM` 未設定時は dry-run（送信スキップ）。
 
-## Hosting — read this before changing deploy config
-
-The codebase supports **both** Netlify and Vercel, but the two sources disagree on which is primary:
-- `README.md` states **Vercel** is primary (`kimaru-alpha.vercel.app`).
-- `docs/open-decisions.md` (team decision, 2026-06-03) sets **Netlify as the current production target** (do not migrate to Vercel yet); Vercel kept for the future.
-
-Treat `docs/open-decisions.md` as the current intent. `npm run dev`/`deploy` use Netlify. `netlify.toml` maps `/api/*` → `/.netlify/functions/`; `vercel.json` provides clean-URL rewrites + the cron.
+## Hosting — Netlify only
+本番ホストは **Netlify 一本化**（2026-06 決定。Vercel対応は廃止＝`vercel.json`/`api/`/`lib/vercel-adapter.js` を削除済み）。`npm run dev`(=`netlify dev`)/`npm run deploy`。`netlify.toml` が `/api/*`→`/.netlify/functions/`、`/b/*`→`booking.html` をルーティング。Edge Function（`netlify/edge-functions/`）が認証ゲート＋ヘッダー注入を担う。
 
 ## Required env vars
 `APP_BASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`, `TOKEN_ENCRYPTION_KEY`. Optional: `SQUARE_WEBHOOK_SHARED_SECRET`, and birthday-mail vars (`RESEND_API_KEY`, `BIRTHDAY_EMAIL_FROM`, `BIRTHDAY_EMAIL_REPLY_TO`, `BIRTHDAY_CRON_SECRET`/`CRON_SECRET`). Missing a required var makes the relevant function throw at request time. See `.env.example`.
@@ -62,4 +60,4 @@ Treat `docs/open-decisions.md` as the current intent. `npm run dev`/`deploy` use
 ## Conventions
 - CommonJS (`require`/`module.exports`); handlers export `{ handler }`.
 - UI/copy is Japanese and must avoid poker-specific wording (general-audience product).
-- Don't migrate Netlify→Vercel or rewrite the DB schema without explicit instruction.
+- Don't re-introduce Vercel or rewrite the DB schema without explicit instruction.
