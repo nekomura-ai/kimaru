@@ -31,7 +31,8 @@
       <p class="lead">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
       <p class="lead">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
       <div class="actions">
-        <a class="button primary" href="/square.html">Square決済へ進む</a>
+        <a class="button primary guest-only" href="/signup.html">無料で始める</a>
+        <a class="button primary app-only hidden" href="/square.html">1ヶ月無料でPro版を始める</a>
         <a class="button secondary" href="#cat-key">Cat Keyを入力する</a>
       </div>
     </section>
@@ -56,7 +57,8 @@
         <p class="plan-note">Square決済ページで支払い後、確認でき次第Pro機能を有効化します。Cat Keyを持っている方は、このページで入力すると無料でPro機能を利用できます。</p>
       </div>
       <div class="actions">
-        <a class="button primary" href="/square.html">Square決済へ進む</a>
+        <a class="button primary guest-only" href="/signup.html">無料で始める</a>
+        <a class="button primary app-only hidden" href="/square.html">1ヶ月無料でPro版を始める</a>
         <a class="button secondary" href="#cat-key">Cat Keyを入力する</a>
       </div>
     </section>
@@ -106,6 +108,17 @@
         setCatKeyMessage(message, 'error');
       }
     });
+  </script>
+  <script>
+    (async () => {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        const loggedIn = Boolean(data.owner);
+        document.querySelectorAll('.app-only').forEach((el) => el.classList.toggle('hidden', !loggedIn));
+        document.querySelectorAll('.guest-only').forEach((el) => el.classList.toggle('hidden', loggedIn));
+      } catch (_) {}
+    })();
   </script>
 </body>
 </html>

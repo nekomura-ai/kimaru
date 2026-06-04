@@ -13,13 +13,10 @@
   <header class="site-header">
     <a class="brand" href="/">キマル</a>
     <nav>
-      <a href="/booking.html">予約ページ</a>
-      <a href="/booking-settings.html">予約設定</a>
-      <a href="/admin.html">相手管理</a>
-      <a href="/profile.html">プロフィール</a>
-      <a href="/ai-assist.html">AIアシスト</a>
       <a href="/pro.html">Pro版</a>
-      <a href="/signup.html">無料登録</a>
+      <a class="guest-only" href="/signup.html">無料登録</a>
+      <a class="guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
+      <a class="app-only hidden" href="/admin.html">相手管理</a>
     </nav>
   </header>
 
@@ -27,13 +24,50 @@
     <section class="panel profile-card">
       <p class="eyebrow">Square Checkout</p>
       <h1>Pro版（1ヶ月無料お試し）を始める</h1>
-      <p class="lead">登録時にカード登録のうえ <strong>1ヶ月無料</strong> でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。決済完了後、確認のうえPro版機能を有効化します。猫の鍵 / Cat Keyをお持ちの方は、決済せず管理画面から入力してください。</p>
-      <div class="actions">
+      <p class="lead">登録時にカード登録のうえ <strong>1ヶ月無料</strong> でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。猫の鍵 / Cat Keyをお持ちの方は、決済せず管理画面から入力してください。</p>
+
+      <p id="square-status" class="message">ログイン状態を確認しています...</p>
+
+      <!-- 未ログイン：まず登録/ログイン -->
+      <div class="actions guest-only hidden">
+        <a class="button primary" href="/signup.html">まず無料登録する</a>
+        <a class="button secondary" href="/login.html" data-i18n="nav.signin">ログイン</a>
+      </div>
+      <p class="message guest-only hidden">Pro版のお申し込みには<strong>ログインが必要</strong>です。先に無料登録（またはログイン）してから、同じメールアドレスでお支払いください。</p>
+
+      <!-- ログイン後：決済へ -->
+      <div class="actions app-only hidden">
         <a id="square-payment-link" class="button primary" href="https://square.link/u/sKdZIsyS?src=embed" target="_blank" rel="noopener noreferrer">1ヶ月無料で始める（Square）</a>
         <a class="button secondary" href="/admin.html">Cat Keyを入力する</a>
       </div>
-      <p id="square-payment-note" class="message">Squareの外部決済ページを新しいタブで開きます。サブスク・トライアルの設定はSquare側で行います。</p>
+      <p class="message app-only hidden">お支払いは登録メール <strong id="pay-email">（確認中）</strong> で行ってください。このメールとSquareの支払者メールが一致すると、Pro版が自動で有効化されます。決済は新しいタブで開きます。</p>
     </section>
   </main>
+
+  <script src="/i18n.js" defer></script>
+  <script>
+    (async () => {
+      const status = document.getElementById('square-status');
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        const owner = data.owner;
+        const loggedIn = Boolean(owner);
+        document.querySelectorAll('.app-only').forEach((el) => el.classList.toggle('hidden', !loggedIn));
+        document.querySelectorAll('.guest-only').forEach((el) => el.classList.toggle('hidden', loggedIn));
+        if (loggedIn) {
+          const emailEl = document.getElementById('pay-email');
+          if (emailEl) emailEl.textContent = owner.email || '登録メール';
+          status.textContent = owner.plan === 'pro' ? 'すでにPro版をご利用中です。' : 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。';
+          status.className = 'message ' + (owner.plan === 'pro' ? 'success' : '');
+        } else {
+          status.textContent = '';
+        }
+      } catch (_) {
+        document.querySelectorAll('.guest-only').forEach((el) => el.classList.remove('hidden'));
+        status.textContent = '';
+      }
+    })();
+  </script>
 </body>
 </html>
