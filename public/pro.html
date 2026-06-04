@@ -68,7 +68,8 @@
         <p class="eyebrow">猫の鍵 / Cat Key</p>
         <h2>Cat KeyでPro版を解放する</h2>
         <p class="muted">猫の集会メンバーさんは、Cat Keyを入力するとPro版を無料で利用できます。入力内容は公開ページには表示されません。</p>
-        <form id="pro-cat-key-form" class="inline-form">
+        <p class="message guest-only hidden">Cat Keyの入力には<strong>ログインが必要</strong>です。<a href="/signup.html">無料登録</a>または<a href="/login.html">ログイン</a>後に、こちらで入力してください。</p>
+        <form id="pro-cat-key-form" class="inline-form app-only hidden">
           <input name="code" placeholder="Neko20240222" autocomplete="off" />
           <button class="primary" type="submit">適用</button>
         </form>
@@ -100,7 +101,7 @@
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || 'Cat Keyを適用できませんでした。');
         catKeyForm.reset();
-        setCatKeyMessage('Pro版機能が解放されました。', 'success');
+        setCatKeyMessage(data.pending ? '申請を受け付けました。運営の承認後にPro版が解放されます。' : 'Pro版機能が解放されました。', 'success');
       } catch (error) {
         const message = /login|owner|unauthorized/i.test(error.message)
           ? 'Google連携後にCat Keyを入力してください。'
