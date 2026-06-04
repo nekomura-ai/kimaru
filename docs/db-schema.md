@@ -30,7 +30,11 @@ erDiagram
   questionnaire_questions ||--o{ questionnaire_answers : "回答"
 
   invite_codes }o..o{ owners : "コード適用(論理)"
+
+  operators }o..o{ cat_key_events : "運営操作(論理)"
 ```
+
+> `operators`（運営者）は `owners`（ユーザー）と完全に独立したテーブル。リレーションは監査ログ上の実行者表示など論理的なものに留める。
 
 ---
 
@@ -51,6 +55,7 @@ erDiagram
 | **invite_codes** | 招待コード（Cat Key）マスタ | `code`(uniq), `plan_grant`(free/pro), `is_active`。初期値 `NEKO20240222`=pro |
 | **cat_key_events** | Cat Key 適用・取消・無効の監査 | `owner_id`, `email`, `action`, `code`, `ip_address`, `user_agent`, `metadata`(jsonb) |
 | **payment_events** | Square 等の決済イベント記録 | `owner_id`, `provider`, `provider_event_id`, `event_type`, `raw_payload`(jsonb) |
+| **operators** | 運営者アカウント（**`owners` とは別管理**）。運営者管理画面（`/operators.html`）で追加・削除・一覧 | `id`, `email`(uniq), `name`, `is_active`, `created_at`、（将来）`password_hash`。※ ログインは `/operator-login.html` → 運営セッション `kimaru_admin_session`（ユーザーと別系統）。認証は当面 共有管理キー `CAT_KEY_ADMIN_SECRET`、本表は運営者ロスター・監査の実行者表示用。将来は運営者ごとのメール+パスワード認証へ |
 | **free_signups** | 無料登録フォームの申請 | `name`, `email`, `purpose`, `invite_code`, `language` |
 | **users** | ⚠️ レガシーのアカウント表（旧設計） | `email`(uniq), `name`, `plan`, `invite_code` |
 | **google_calendar_tokens** | ⚠️ レガシーのトークン表（旧設計） | `user_id`/`owner_id`, `access_token`, `refresh_token`, `expiry_date` |
@@ -61,7 +66,7 @@ erDiagram
 
 - **発行者ユーザー**: `owners`（自分）, `profiles`, `google_connections`, `booking_pages`, `availability_settings`, `questionnaire_questions`, `bookings`(自分宛), `appointment_logs`。
 - **ゲスト**: `bookings`（作成）, `questionnaire_answers`（作成）。ログイン不要なので自身のレコードは持たない。
-- **運営者**: `owners`（一覧・plan操作）, `invite_codes`, `cat_key_events`, `payment_events`。
+- **運営者**: `operators`（自身の運営アカウント・運営者管理）, `owners`（一覧・plan操作）, `invite_codes`, `cat_key_events`, `payment_events`。運営者は `owners`（ユーザー）とは別アカウントとして `operators` に持つ。
 
 ---
 
@@ -86,3 +91,4 @@ erDiagram
 - **議事録連携**（[features/23](./features/23-meeting-minutes.md)）: 議事録保存テーブルと `bookings` への紐付け。
 - **お試し期間**（[features/13](./features/13-plans.md)）: `owners` にトライアル状態・期限カラム。
 - **印象スコア構造化**（[features/14](./features/14-customer-management.md)）: 現状メモ本文に文字列追記 → 専用カラム/表へ。
+- **運営者の分離**（[features/22](./features/22-admin-console.md)、決定 2026-06-04）: 運営者を `owners` と別テーブル `operators`（`email` uniq, `name`, `is_active`、将来 `password_hash`）で管理。運営ログイン `/operator-login.html` ＋ **運営専用セッション `kimaru_admin_session`**（ユーザーの `kimaru_session` と別系統）を新設。運営者管理（一覧/追加/削除）UI・API を追加。認証は共有管理キー `CAT_KEY_ADMIN_SECRET` を継続（将来 運営者ごとのメール+パスワードへ）。
