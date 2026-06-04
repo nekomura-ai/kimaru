@@ -11,7 +11,10 @@
   <link rel="stylesheet" href="/booking-redesign.css" />
 </head>
 <body data-page="booking" data-i18n-title="booking.pageTitle">
-  <!-- site-header -->
+  <header class="site-header booking-header">
+    <a class="brand" href="/" data-i18n="common.brand">キマル</a>
+    <select class="lang-select" data-language-select aria-label="Language"></select>
+  </header>
 
   <main class="shell two-column">
     <section class="panel profile-card">
@@ -47,6 +50,17 @@
       <p id="booking-message" class="message" role="status"></p>
     </section>
   </main>
+
+  <section class="shell">
+    <div class="panel cta-banner">
+      <p class="eyebrow" data-i18n="booking.cta.eyebrow">キマルとは</p>
+      <h2 data-i18n="booking.cta.heading">あなたも無料で予約ページを作れます</h2>
+      <p class="muted" data-i18n="booking.cta.desc">キマルは無料で使える1on1の日程調整ツール。事前アンケート・面談メモ・プロフィール付きリマインドまで、会う前の準備をまるごとひとつに。</p>
+      <a class="button primary" href="/signup.html" data-i18n="booking.cta.button">無料で予約ページを作る</a>
+    </div>
+  </section>
+
+  <!-- site-footer -->
 
   <script src="/i18n.js" defer></script>
   <script src="/booking-week.js" defer></script>

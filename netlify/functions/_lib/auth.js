@@ -1,4 +1,4 @@
-const { verifySession } = require("./crypto");
+const { verifySession, verifyAdminSession } = require("./crypto");
 const { findOwnerById } = require("./supabase");
 
 async function currentOwner(event) {
@@ -17,4 +17,19 @@ async function requireOwner(event) {
   return owner;
 }
 
-module.exports = { currentOwner, requireOwner };
+// 運営セッション（kimaru_admin_session）。ユーザー認証とは独立。
+function currentOperator(event) {
+  return verifyAdminSession(event);
+}
+
+function requireOperator(event) {
+  const operator = currentOperator(event);
+  if (!operator) {
+    const error = new Error("Operator login required");
+    error.statusCode = 401;
+    throw error;
+  }
+  return operator;
+}
+
+module.exports = { currentOwner, requireOwner, currentOperator, requireOperator };

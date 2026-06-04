@@ -18,6 +18,16 @@ function clearSessionCookie() {
   return "kimaru_session=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0";
 }
 
+// 運営セッション（ユーザーの kimaru_session とは完全に別系統の Cookie）。
+function adminSessionCookie(operatorId) {
+  const payload = base64url(JSON.stringify({ admin: true, operatorId: operatorId || "shared", ts: Date.now() }));
+  return `kimaru_admin_session=${payload}.${sign(payload)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`;
+}
+
+function clearAdminSessionCookie() {
+  return "kimaru_admin_session=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0";
+}
+
 function parseCookies(header = "") {
   return Object.fromEntries(header.split(";").map((part) => {
     const index = part.indexOf("=");
@@ -26,9 +36,9 @@ function parseCookies(header = "") {
   }).filter(([key]) => key));
 }
 
-function verifySession(event) {
+function verifyCookieToken(event, cookieName) {
   const cookies = parseCookies(event.headers.cookie || event.headers.Cookie || "");
-  const raw = cookies.kimaru_session;
+  const raw = cookies[cookieName];
   if (!raw || !raw.includes(".")) return null;
   const [payload, signature] = raw.split(".");
   const expected = sign(payload);
@@ -40,6 +50,15 @@ function verifySession(event) {
   } catch (error) {
     return null;
   }
+}
+
+function verifySession(event) {
+  return verifyCookieToken(event, "kimaru_session");
+}
+
+function verifyAdminSession(event) {
+  const session = verifyCookieToken(event, "kimaru_admin_session");
+  return session && session.admin ? session : null;
 }
 
 function encryptionKey() {
@@ -83,4 +102,4 @@ function verifyPassword(password, stored) {
   return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
 }
 
-module.exports = { sessionCookie, clearSessionCookie, verifySession, encrypt, decrypt, hashPassword, verifyPassword };
+module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword };

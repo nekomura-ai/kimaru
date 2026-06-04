@@ -3,34 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - Cat Key Admin</title>
+  <title>キマル - 運営コンソール</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-page="cat-key-admin">
   <header class="site-header">
-    <a class="brand" href="/">キマル</a>
+    <a class="brand" href="/cat-key-admin.html">キマル<span class="brand-tag">運営</span></a>
     <nav>
-      <a href="/booking.html">予約ページ</a>
-      <a href="/dashboard.html">ホーム</a>
-      <a href="/contacts.html">相手管理</a>
-      <a href="/pro.html">Pro版</a>
-      <a href="/pro-apply.html">Pro申し込み</a>
-      <a href="/signup.html">無料登録</a>
+      <a href="/cat-key-admin.html">運営コンソール</a>
+      <a href="/operators.html">運営者管理</a>
+      <button id="operator-logout" class="link-button" type="button">ログアウト</button>
+      <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>
 
   <main class="shell narrow">
     <section class="panel">
       <p class="eyebrow">Admin / Cat Key</p>
-      <h1>猫の鍵 管理</h1>
-      <p class="lead">Cat Keyの不正利用があった場合に、対象ユーザーを無料プランへ戻し、そのユーザーの管理画面からCat Key入力欄を非表示にします。適用・失敗・停止のログも確認できます。</p>
-      <form id="secret-form" class="form-grid">
-        <label>管理者キー<input id="admin-secret" type="password" autocomplete="off" placeholder="CAT_KEY_ADMIN_SECRET" required /></label>
-        <button class="primary" type="submit">ユーザーとログを表示</button>
-      </form>
+      <h1>運営コンソール</h1>
+      <p class="lead">Cat Keyの承認・却下や、不正利用時の無料プランへの降格（Cat Key欄の非表示）を行います。適用・失敗・停止のログも確認できます。</p>
       <p id="admin-message" class="message"></p>
     </section>
 
@@ -48,11 +42,13 @@
     </section>
   </main>
 
+  <!-- site-footer -->
+
+  <script src="/i18n.js" defer></script>
   <script>
     const list = document.querySelector('#owner-admin-list');
     const eventList = document.querySelector('#cat-key-event-list');
     const message = document.querySelector('#admin-message');
-    const secretInput = document.querySelector('#admin-secret');
 
     function setMessage(text, kind = '') {
       message.textContent = text;
@@ -75,12 +71,12 @@
     }
 
     async function adminApi(options = {}) {
-      const secret = secretInput.value.trim();
       const response = await fetch('/api/invite-apply?admin=cat-key', {
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` },
+        headers: { 'Content-Type': 'application/json' },
         ...options,
       });
+      if (response.status === 401) { location.href = '/operator-login.html?next=/cat-key-admin.html'; throw new Error('運営ログインが必要です。'); }
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || '管理者操作に失敗しました。');
       return data;
@@ -153,11 +149,6 @@
       setMessage('読み込みました。', 'success');
     }
 
-    document.querySelector('#secret-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      try { await loadOwners(); } catch (error) { setMessage(error.message, 'error'); }
-    });
-
     list.addEventListener('click', async (event) => {
       const button = event.target.closest('button[data-action]');
       if (!button) return;
@@ -180,6 +171,13 @@
         setMessage(error.message, 'error');
       }
     });
+
+    document.querySelector('#operator-logout').addEventListener('click', async () => {
+      await fetch('/api/operator-login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }).catch(() => {});
+      location.href = '/operator-login.html';
+    });
+
+    loadOwners().catch((error) => setMessage(error.message, 'error'));
   </script>
 </body>
 </html>

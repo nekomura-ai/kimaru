@@ -2,6 +2,7 @@ const { json, readJson } = require("./_lib/response");
 const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 const { optional } = require("./_lib/config");
+const { verifyAdminSession } = require("./_lib/crypto");
 
 const proCodes = new Set([
   "JF7YAIN40EQL",
@@ -15,6 +16,9 @@ function clientIp(event) {
 }
 
 function isCatKeyAdmin(event, body = {}) {
+  // 運営セッション（/operator-login で発行）があれば許可。
+  if (verifyAdminSession(event)) return true;
+  // 後方互換: 共有管理キーの Bearer / クエリ / body 直送も許可。
   const secret = optional("CAT_KEY_ADMIN_SECRET", optional("ADMIN_SECRET", ""));
   if (!secret) return false;
   const headers = event.headers || {};
