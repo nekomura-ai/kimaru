@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キマル - 運営ログイン</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="operator-login">
+  <header class="site-header">
+    <a class="brand" href="/">キマル<span class="brand-tag">運営</span></a>
+    <nav>
+      <select class="lang-select" data-language-select aria-label="Language"></select>
+    </nav>
+  </header>
+
+  <main class="shell narrow">
+    <section class="panel">
+      <p class="eyebrow">Operator Login</p>
+      <h1>運営ログイン</h1>
+      <p class="lead">運営者専用ページです。管理者キーでログインします。一般ユーザーのログイン（/login.html）とは別系統です。</p>
+      <form id="operator-login-form" class="form-grid">
+        <label>管理者キー<input id="operator-key" name="key" type="password" autocomplete="off" placeholder="CAT_KEY_ADMIN_SECRET" required /></label>
+        <button class="primary" type="submit">ログイン</button>
+      </form>
+      <p id="operator-login-message" class="message" role="status"></p>
+    </section>
+  </main>
+
+  <!-- site-footer -->
+
+  <script src="/i18n.js" defer></script>
+  <script>
+    const form = document.getElementById('operator-login-form');
+    const msg = document.getElementById('operator-login-message');
+    const params = new URLSearchParams(location.search);
+    const nextRaw = params.get('next') || '/cat-key-admin.html';
+    const next = nextRaw.startsWith('/') && !nextRaw.startsWith('//') ? nextRaw : '/cat-key-admin.html';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      msg.textContent = 'ログインしています...';
+      msg.className = 'message';
+      try {
+        const res = await fetch('/api/operator-login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: document.getElementById('operator-key').value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'ログインに失敗しました。');
+        msg.textContent = 'ログインしました。移動します...';
+        msg.className = 'message success';
+        location.href = next;
+      } catch (error) {
+        msg.textContent = error.message;
+        msg.className = 'message error';
+      }
+    });
+  </script>
+</body>
+</html>

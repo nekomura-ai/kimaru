@@ -53,7 +53,9 @@
 |---|---|---|
 | 無料サインアップ | ✅ | `signup.js`, `signup.html` |
 | 招待コード Cat Key（`NEKO20240222`） | ✅ | `invite-apply.js`, `dashboard.html` |
-| Cat Key 管理（運営・取消/復元） | ✅ | `cat-key-admin.html`, `invite-apply.js?admin=cat-key` |
+| 運営ログイン（共有キー→運営セッション・ユーザーと分離） | ✅ | `operator-login.html`, `operator-login.js`, `_lib/crypto.js`（`kimaru_admin_session`） |
+| 運営コンソール（Cat Key 承認/却下/取消/復元・監査） | ✅ | `cat-key-admin.html`, `invite-apply.js?admin=cat-key`（運営セッション認可） |
+| 運営者管理（operators 一覧/追加/削除・ユーザーと別テーブル） | ✅ | `operators.html`, `operators.js`, `operators` テーブル |
 | プラン制限（受付期間・問数） | ✅ | `booking-page-save.js` |
 | Square 決済での Pro 昇格 | ✅（Webhook） | `square-webhook.js` |
 | 相手管理（予約一覧・検索・面談メモ・印象スコア） | ✅ | `contacts.html`, `owner-bookings.js`, `appointment-log.js` |
@@ -68,10 +70,14 @@
 | 多言語対応（日/英/繁中・全ページセレクタ） | ✅（4画面） | `i18n.js`, `app.js` |
 | レスポンシブ CSS（フレームワーク不使用） | ✅ | `styles.css`, `booking-redesign.css` |
 | ビルド工程なし（静的配信） | ✅ | `netlify.toml` |
+| 認証ミドルウェア（ルート保護・data-auth 注入・ヘッダー/フッター注入） | ✅ | `edge-functions/auth-gate.js` |
+| 共通ヘッダー一本化（手動ナビ廃止）／共通フッター（法務リンク） | ✅ | Edge `<!-- site-header -->` / `<!-- site-footer -->` |
+| 予約ページ：軽量ヘッダー＋下部に製品説明/CTA | ✅ | `booking.html` |
+| 法務ページ（利用規約/プライバシー/特商法・枠） | ✅（本文ドラフト別） | `terms.html`, `privacy.html`, `tokushoho.html` |
 
 ## DB（現状の主なテーブル）
 
-`owners`, `google_connections`, `booking_pages`, `availability_settings`, `bookings`, `questionnaire_questions`(設定のみ), `appointment_logs`, `free_signups`, `payment_events`, `cat_key_events`, `birthday_message_deliveries` ほか。詳細は `supabase-schema.sql` と各機能ドキュメント。
+`owners`, `operators`(運営者・ユーザーと分離), `google_connections`, `booking_pages`, `availability_settings`, `bookings`, `questionnaire_questions`(設定のみ), `appointment_logs`, `free_signups`, `payment_events`, `cat_key_events`, `birthday_message_deliveries` ほか。詳細は `supabase-schema.sql` と各機能ドキュメント。
 
 ---
 

@@ -1,19 +1,25 @@
 // 認証ミドルウェア（Netlify Edge Function）
-// 1) 未ログインでアプリページにアクセス → /login.html へリダイレクト（ルート保護）
+// 1) 未ログインでアプリページ → /login.html、未ログインで運営ページ → /operator-login.html（ルート保護）
 // 2) すべてのHTMLの <body> に data-auth="authed|guest" を注入 → CSSでナビ等を出し分け（チラつき無し）
+// 3) 共通ヘッダー <!-- site-header --> / 共通フッター <!-- site-footer --> を注入
 //
-// 判定はセッションCookie `kimaru_session` の存在で行う（presenceベース）。
-// 厳密な署名検証は各API/関数側（_lib/crypto.js）で実施しており、ここはUX用の前段ゲート。
+// 判定はCookie存在ベースの前段ゲート（UX用）。厳密な署名検証は各API/関数側（_lib/crypto.js）で実施。
+// ユーザー用 kimaru_session と 運営用 kimaru_admin_session は完全に別系統。
 
-// docs/screen-flow.md のアクセス権マトリクスで「無登録=−（不可）」の画面＝ログイン必須
+// ユーザー向け要ログイン画面（docs/screen-flow.md：無登録=−）
 const PROTECTED_PATHS = [
   "/dashboard.html",
   "/contacts.html",
   "/booking-settings.html",
   "/profile.html",
   "/ai-assist.html",
-  "/cat-key-admin.html",
   "/square.html",
+];
+
+// 運営向け画面：運営セッション（kimaru_admin_session）が必須。ユーザーログインとは無関係。
+const OPERATOR_PATHS = [
+  "/cat-key-admin.html",
+  "/operators.html",
 ];
 
 // 共通ヘッダー（単一ソース）。各ページの目印 <!-- site-header --> をこれで置換する。
@@ -33,33 +39,58 @@ const SITE_HEADER = `<header class="site-header">
     </nav>
   </header>`;
 
+// 共通フッター（法務リンク・全ページ共通）。目印 <!-- site-footer --> を置換。
+const SITE_FOOTER = `<footer class="footer">
+    <nav class="footer-nav">
+      <a href="/terms.html" data-i18n="footer.terms">利用規約</a>
+      <a href="/privacy.html" data-i18n="footer.privacy">プライバシーポリシー</a>
+      <a href="/tokushoho.html" data-i18n="footer.tokushoho">特定商取引法に基づく表記</a>
+    </nav>
+    <p class="footer-copy" data-i18n="footer.copy">© 2026 キマル</p>
+  </footer>`;
+
 function hasSession(request) {
   const cookie = request.headers.get("cookie") || "";
   return /(?:^|;\s*)kimaru_session=[^;]+/.test(cookie);
+}
+
+function hasAdminSession(request) {
+  const cookie = request.headers.get("cookie") || "";
+  return /(?:^|;\s*)kimaru_admin_session=[^;]+/.test(cookie);
 }
 
 export default async (request, context) => {
   const url = new URL(request.url);
   const path = url.pathname;
   const authed = hasSession(request);
+  const operator = hasAdminSession(request);
 
-  // ① ルート保護
-  if (!authed && PROTECTED_PATHS.includes(path)) {
+  // ① 運営ページの保護（ユーザーログインではなく運営セッションを要求）
+  if (OPERATOR_PATHS.includes(path) && !operator) {
+    const loginUrl = new URL("/operator-login.html", url.origin);
+    loginUrl.searchParams.set("next", path);
+    return Response.redirect(loginUrl.toString(), 302);
+  }
+
+  // ② ユーザーアプリページの保護
+  if (PROTECTED_PATHS.includes(path) && !authed) {
     const loginUrl = new URL("/login.html", url.origin);
     loginUrl.searchParams.set("next", path);
     return Response.redirect(loginUrl.toString(), 302);
   }
 
-  // ② HTMLに認証状態を注入
+  // ③ HTMLに認証状態・共通ヘッダー・共通フッターを注入
   const response = await context.next();
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("text/html")) return response;
 
   const original = await response.text();
   let html = original.replace(/<body(?=[\s>])/i, `<body data-auth="${authed ? "authed" : "guest"}"`);
-  // 共通ヘッダーを注入（目印があるページのみ置換）
   if (html.includes("<!-- site-header -->")) {
     html = html.replace("<!-- site-header -->", SITE_HEADER);
+  }
+  if (html.includes("<!-- site-footer -->")) {
+    html = html.replace("<!-- site-footer -->", SITE_FOOTER);
   }
   const headers = new Headers(response.headers);
   headers.delete("content-length");
