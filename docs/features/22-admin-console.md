@@ -11,7 +11,7 @@
 運営（サービス提供側）が利用者全体を把握・管理するための画面。**発行者ユーザーが使う「相手管理（[14](./14-customer-management.md)）」とは別物**で、運営だけがアクセスする。
 
 > 打ち合わせ（2026-06-03）で管理画面は2系統あると整理:
-> - **ユーザー向け管理**: プロフィール編集（[17](./17-profile.md)）・質問設定（[10](./10-questionnaire.md)）・相手管理（[14](./14-customer-management.md)）。`admin.html` / `profile.html` / `booking-settings.html`。
+> - **ユーザー向け管理**: プロフィール編集（[17](./17-profile.md)）・質問設定（[10](./10-questionnaire.md)）・相手管理（[14](./14-customer-management.md)）。`dashboard.html`（ハブ）/ `contacts.html`（相手管理）/ `profile.html` / `booking-settings.html`。
 > - **運営者向け管理**（＝本ドキュメント）: 全ユーザー一覧と、Cat Key の承認・強制降格など。
 
 ## 仕様詳細（運営が触る機能）
@@ -30,7 +30,12 @@
    - （将来）Square 決済など Cat Key 以外で Pro になったユーザーの降格にも広げる場合は、課金（サブスク解約）との整合を考慮する。**現時点では不要**。
 4. **監査ログ**
    - 適用・取消・無効コードなどを記録（`cat_key_events`）。
-5. **将来**
+5. **運営者管理**（決定 2026-06-04・独立画面 `/operators.html`）
+   - 運営者アカウントの **一覧・追加・削除** を専用画面（`/operators.html`）で行う。
+   - 運営者は **ユーザー（`owners`）とは別テーブル `operators`** で管理する（メール・名前・有効フラグ）。一般ユーザー登録を持つ必要はない。
+   - **認証は共有管理キー（`CAT_KEY_ADMIN_SECRET`）を継続**するが、入力は **専用ログイン画面 `/operator-login.html`（画面#11）** で行い、**運営専用セッション `kimaru_admin_session`** を発行する。`operators` は運営者の登録情報・監査ログの実行者表示に用いる（将来、運営者ごとのメール+パスワード `operators.password_hash` ログインへ拡張）。
+   - **ユーザー認証（`/login.html`・`kimaru_session`）とは完全分離**。運営画面は `kimaru_admin_session` で保護し、無ければ `/operator-login.html` へ（[screen-flow.md](../screen-flow.md) §6）。
+6. **将来**
    - Cat Key の定期更新（自動ローテーション）と猫の集会グループチャット連携。
    - AI 検索 / 顧客検索（[14](./14-customer-management.md) 将来構想）、質問傾向などビッグデータの参照。
 
@@ -45,18 +50,23 @@
 - ~~**全ユーザー一覧**~~ ✅ 実装済（`invite-apply?admin=cat-key` GET が全 owners を返却、`cat-key-admin.html` で検索・件数・プラン・登録日付きで一覧表示）。
 - ~~**Cat Key 承認制**~~ ✅ 実装済（入力で `cat_key_pending=true`、運営コンソールで承認/却下→承認で pro 付与）。
 - 運営コンソールとしての統合 UI（現状は Cat Key 専用ページのみ）。
+- **運営者管理**（`operators` テーブル＋一覧/追加/削除 UI・API）。運営者を `owners` と分離して保持する。
 
 > Cat Key 利用者の降格は実装済みで、**当面はこれで十分**（2026-06-03 方針）。任意の有料ユーザー（Square 等）の降格は将来対応・現時点では不要。
 
 ## 関連ファイル
 
-- `public/cat-key-admin.html` — 運営 UI（現状 Cat Key のみ）
+- `public/operator-login.html` — 運営ログイン UI（共有管理キー入力 → 運営セッション発行。新規）
+- `public/cat-key-admin.html` — 運営 UI（Cat Key・ユーザー管理）
+- `public/operators.html` — 運営者管理 UI（運営アカウントの一覧/追加/削除。新規）
 - `netlify/functions/invite-apply.js` — 管理モード（`?admin=cat-key`）
-- DB: `owners`（`plan` / `cat_key_disabled` 等）、`cat_key_events`
+- DB: `owners`（`plan` / `cat_key_disabled` 等）、`cat_key_events`、`operators`（運営者アカウント・`owners` と分離）
 
 ## 残タスク
 
 - ~~全ユーザー一覧の取得 API と画面~~ ✅ 完了（検索・件数・プラン・登録日表示）。
 - ~~Cat Key 承認制（申請 → 承認/却下 → 付与）の導線と状態管理~~ ✅ 完了（`owners.cat_key_pending` ＋ 承認/却下UI・API）。
 - 運営コンソールとしての画面統合（ユーザー一覧＋Cat Key＋プラン操作）。
+- **運営ログイン**: `/operator-login.html` ＋ 運営専用セッション `kimaru_admin_session`（ユーザーの `kimaru_session` と別系統）。共有管理キーで認証。
+- **運営者管理**: `operators` テーブル新設＋運営者の一覧/追加/削除 UI・API（`/operators.html`）。
 - 将来: 任意の有料ユーザー（Square 等）の降格（サブスク解約との整合）／ Cat Key 自動更新／ AI 検索・データ参照。**いずれも現時点では不要**。

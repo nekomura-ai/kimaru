@@ -9,54 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body data-page="admin" data-i18n-title="admin.pageTitle">
-  <header class="site-header">
-    <a class="brand" href="/" data-i18n="common.brand">キマル</a>
-    <nav>
-      <a href="/booking.html" data-i18n="nav.booking">予約ページ</a>
-      <a href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
-      <a href="/admin.html" data-i18n="nav.admin">相手管理</a>
-      <a href="/profile.html" data-i18n="nav.profile">プロフィール</a>
-      <a href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
-      <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
-      <a href="/pro-apply.html">Pro申し込み</a>
-      <a id="login-link" href="/api/google-auth-start" data-i18n="nav.login">Google連携</a>
-      <button id="logout-button" class="link-button" type="button" data-i18n="nav.logout">ログアウト</button>
-      <select class="lang-select" data-language-select aria-label="Language"></select>
-    </nav>
-  </header>
+<body data-page="contacts" data-i18n-title="admin.pageTitle">
+  <!-- site-header -->
 
-  <main class="shell admin-grid">
-    <section class="panel">
-      <p class="eyebrow" data-i18n="admin.account.eyebrow">アカウント</p>
-      <h1 data-i18n="admin.account.heading">相手管理</h1>
-      <p class="muted" data-i18n="admin.account.desc">日程調整した相手の情報、面談メモ、印象スコアをまとめて確認できます。</p>
-      <p id="owner-status" class="message" data-i18n="admin.account.checking">ログイン状態を確認しています...</p>
-      <div id="owner-card" class="soft-box"></div>
-    </section>
-
-    <section id="cat-key-panel" class="panel">
-      <p class="eyebrow" data-i18n="admin.catkey.eyebrow">猫の鍵 / Cat Key</p>
-      <h2 data-i18n="admin.catkey.heading">有料版を解放する</h2>
-      <p class="muted" data-i18n="admin.catkey.desc">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます。入力内容は公開ページには表示されません。</p>
-      <form id="invite-form" class="inline-form">
-        <input name="code" placeholder="Neko20240222" />
-        <button class="primary" type="submit" data-i18n="admin.catkey.apply">適用</button>
-      </form>
-      <p id="invite-message" class="message"></p>
-    </section>
-
-    <section class="panel wide">
-      <p class="eyebrow" data-i18n="admin.settings.eyebrow">予約設定</p>
-      <h2 data-i18n="admin.settings.heading">受付時間や公開範囲を変更する</h2>
-      <p class="muted" data-i18n="admin.settings.desc">予約ページのタイトル、開催方法、曜日ごとの受付時間、事前アンケートは専用ページで設定できます。</p>
-      <p><a class="button primary" href="/booking-settings.html" data-i18n="admin.settings.open">予約設定を開く</a></p>
-    </section>
-
+  <main class="shell">
     <section class="panel wide">
       <p class="eyebrow" data-i18n="admin.contacts.eyebrow">相手管理</p>
-      <h2 data-i18n="admin.contacts.heading">日程調整した相手</h2>
+      <h1 data-i18n="admin.contacts.heading">日程調整した相手</h1>
       <p class="muted" data-i18n="admin.contacts.desc">予約した人の情報を一覧で確認し、名前・メール・話題・目標・誕生日メモから探せます。</p>
+      <p id="owner-status" class="message" data-i18n="admin.account.checking">ログイン状態を確認しています...</p>
       <label class="search-field"><span data-i18n="admin.contacts.search">検索キーワード</span><input id="booking-search" type="search" data-i18n-placeholder="admin.contacts.searchPlaceholder" placeholder="名前、メール、話題、目標、誕生日メモで検索" /></label>
       <p id="booking-search-count" class="message"></p>
       <div id="booking-list" class="list searchable-list"></div>
@@ -96,13 +57,6 @@
   </main>
 
   <script>
-    fetch('/api/me', { credentials: 'include' })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.owner?.cat_key_disabled) document.getElementById('cat-key-panel')?.remove();
-      })
-      .catch(() => null);
-
     function setupSearch(inputId, listId, countId, label) {
       const input = document.getElementById(inputId);
       const list = document.getElementById(listId);

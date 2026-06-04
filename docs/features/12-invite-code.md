@@ -17,7 +17,7 @@
 
 ## 現状の実装
 
-- `admin.html` の Cat Key パネルにコード入力 UI。`invite-apply` が大文字化して照合。
+- `dashboard.html` の Cat Key パネルにコード入力 UI。`invite-apply` が大文字化して照合。
 - 有効コード: `JF7YAIN40EQL`, `NEKO20240222`（= Cat Key `Neko20240222`、大文字化して比較）。
 - 適用で `owners.plan='pro'` ＋ `invite_code` 更新。`cat_key_events` に監査ログ（成功/無効/形式不正/ブロック）。
 - `cat_key_disabled` のアカウントは適用不可（403）。
@@ -26,7 +26,7 @@
 ## 関連ファイル
 
 - `netlify/functions/invite-apply.js` — コード適用・監査・管理モード
-- `public/admin.html` — 入力 UI（`#cat-key-panel`）
+- `public/dashboard.html` — 入力 UI（`#cat-key-panel`）
 - DB: `owners.invite_code` / `owners.plan` / `owners.cat_key_disabled`、`cat_key_events`
 
 ## 残タスク

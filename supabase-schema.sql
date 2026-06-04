@@ -209,6 +209,18 @@ create table if not exists payment_events (
   created_at timestamptz not null default now()
 );
 
+-- 運営者アカウント（owners=ユーザーとは完全に分離）。運営者管理画面（/operators.html）で一覧・追加・削除。
+-- 認証は当面 共有管理キー CAT_KEY_ADMIN_SECRET。password_hash は将来の運営者ごとログイン用（現状は未使用・NULL可）。
+create table if not exists operators (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  name text not null default '',
+  is_active boolean not null default true,
+  password_hash text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table owners add column if not exists invite_code text;
 alter table owners add column if not exists cat_key_disabled boolean not null default false;
 alter table owners add column if not exists cat_key_pending boolean not null default false;

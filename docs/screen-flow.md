@@ -1,8 +1,8 @@
 # キマル 画面一覧・アクター別アクセス権
 
-最終更新: 2026-06-03
+最終更新: 2026-06-04
 
-画面・URL の詳細は [`screens.md`](./screens.md)、API は [`api.md`](./api.md)、DB は [`db-schema.md`](./db-schema.md)。
+画面・URL の詳細・**4アクター別の番号付き一覧とヘッダー戦略**は [`screens.md`](./screens.md)、API は [`api.md`](./api.md)、DB は [`db-schema.md`](./db-schema.md)。本書はアクセス権マトリクスと主要フローに焦点を当てる。
 
 ---
 
@@ -25,15 +25,22 @@
 | # | URL | 画面名 | 認証 | 区分 |
 |---|---|---|---|---|
 | 1 | `/` | トップ / ランディング | 不要 | 公開 |
-| 2 | `/signup.html` | 無料登録 | 不要 | 公開 |
-| 3 | `/booking.html` | 予約ページ（ゲスト用） | 不要 | 公開 |
-| 4 | `/pro.html` | Pro版紹介 | 不要 | 公開 |
-| 5 | `/square.html` | Pro版決済（Square） | 要ログイン | ユーザー |
-| 6 | `/admin.html` | 相手管理ダッシュボード | 要ログイン | ユーザー |
+| 2 | `/pro.html` | Pro版紹介 | 不要 | 公開 |
+| 3 | `/signup.html` | 無料登録 | 不要 | 公開 |
+| 4 | `/login.html` | ログイン（メール+PW / Google） | 不要 | 公開 |
+| 5 | `/dashboard.html` | ホーム（ログイン後ハブ） | 要ログイン | ユーザー |
+| 6 | `/contacts.html` | 相手管理（予約一覧・面談メモ） | 要ログイン | ユーザー |
 | 7 | `/booking-settings.html` | 予約設定 | 要ログイン | ユーザー |
 | 8 | `/profile.html` | プロフィールシート | 要ログイン | ユーザー |
 | 9 | `/ai-assist.html` | AIアシスト | 要ログイン | ユーザー（有料） |
-| 10 | `/cat-key-admin.html` | 運営コンソール（Cat Key管理） | 管理キー | 運営 |
+| 10 | `/square.html` | Pro版決済（Square） | 要ログイン | ユーザー |
+| 11 | `/operator-login.html` | 運営ログイン（共有キー → 運営セッション発行） | 共有管理キー | 運営 |
+| 12 | `/cat-key-admin.html` | 運営コンソール（Cat Key・ユーザー管理） | 運営セッション | 運営 |
+| 13 | `/operators.html` | 運営者管理（運営アカウントの一覧・追加・削除） | 運営セッション | 運営 |
+| 14 | `/booking.html`（`/b/{slug}`） | 予約ページ（ゲスト用） | 不要 | 公開 |
+| 15 | `/terms.html` | 利用規約 | 不要 | 公開（法務） |
+| 16 | `/privacy.html` | プライバシーポリシー | 不要 | 公開（法務） |
+| 17 | `/tokushoho.html` | 特定商取引法に基づく表記 | 不要 | 公開（法務） |
 
 ---
 
@@ -48,11 +55,12 @@
 | 3. 予約ページ `/booking.html` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 4. Pro紹介 `/pro.html` | ✅ | ✅ | △ 不要 | △ 不要 | ✅ |
 | 5. 決済 `/square.html` | − | ✅ | △ 契約済 | △ 不要 | − |
-| 6. 相手管理 `/admin.html` | − | △ 基本のみ | ✅ | ✅ | − |
-| 7. 予約設定 `/booking-settings.html` | − | △ 無料制限 | ✅ | ✅ | − |
-| 8. プロフィール `/profile.html` | − | △ 基本のみ | ✅ 高度版 | ✅ 高度版 | − |
-| 9. AIアシスト `/ai-assist.html` | − | − | ✅ | ✅ | − |
-| 10. 運営コンソール `/cat-key-admin.html` | − | − | − | − | ✅ |
+| 6. ホーム `/dashboard.html` | − | ✅ | ✅ | ✅ | − |
+| 7. 相手管理 `/contacts.html` | − | △ 基本のみ | ✅ | ✅ | − |
+| 8. 予約設定 `/booking-settings.html` | − | △ 無料制限 | ✅ | ✅ | − |
+| 9. プロフィール `/profile.html` | − | △ 基本のみ | ✅ 高度版 | ✅ 高度版 | − |
+| 10. AIアシスト `/ai-assist.html` | − | − | ✅ | ✅ | − |
+| 11. 運営コンソール `/cat-key-admin.html` | − | − | − | − | ✅ |
 
 ### △（制限）の中身
 
@@ -77,21 +85,25 @@
 
 ## 5. 主要フロー（テキスト）
 
-- **無登録 → 登録**: トップ → 無料登録 or Googleログイン → 相手管理（ホーム）
-- **無課金 → 課金者**: 相手管理/ Pro紹介 → 決済（Square）→ 有料機能が解放
-- **無課金 → 猫メンバー**: 相手管理で Cat Key 入力 →（運営承認 ※将来）→ 有料機能が無料で解放
+- **無登録 → 登録**: トップ → 無料登録 or Googleログイン → ホーム（`/dashboard.html`）
+- **無課金 → 課金者**: ホーム/ Pro紹介 → 決済（Square）→ 有料機能が解放
+- **無課金 → 猫メンバー**: ホームで Cat Key 入力 →（運営承認 ※将来）→ 有料機能が無料で解放
 - **ゲスト予約**: 予約URL受領 → 予約ページ → 空き枠選択 → アンケート/生年月日入力 → 予約確定 → Googleカレンダー＋Meet 発行
-- **運営**: 運営コンソール（管理キー）→ Cat Key 利用者一覧 → 取消(revoke)/復元(restore) → 監査ログ
+- **運営**: 運営ログイン（`/operator-login.html` で共有管理キー → 運営セッション発行）→ 運営コンソール → Cat Key 利用者一覧 → 承認/却下/取消(revoke)/復元(restore) → 監査ログ ＋ **運営者管理**（`/operators.html`：運営者アカウントの一覧・追加・削除。運営者は `owners` と別テーブル `operators`）
 
-> 各画面の遷移は基本「相手管理（`admin.html`）」がユーザーのハブ。そこから設定系（予約設定・プロフィール・AIアシスト）へ分岐する。
+> 各画面の遷移は基本「ホーム（`/dashboard.html`）」がユーザーのハブ。そこから相手管理（`/contacts.html`）・設定系（予約設定・プロフィール・AIアシスト）へ分岐する。
 
 ## 6. 認証の実装（Edge Function ミドルウェア）
 
 上記マトリクスは `netlify/edge-functions/auth-gate.js`（Netlify Edge Function）で実装する。
 
-- **ルート保護**：マトリクスで「無登録=−」の画面はログイン必須。未ログイン（`kimaru_session` Cookie 無）でアクセスすると `/login.html` へリダイレクト。
-  - 対象: `/admin.html` `/booking-settings.html` `/profile.html` `/ai-assist.html` `/cat-key-admin.html` `/square.html`
-- **公開ページ**（無登録=✅）：`/` `/signup.html` `/booking.html` `/pro.html` `/login.html` はそのまま表示。
+- **ルート保護（ユーザー）**：マトリクスで「無登録=−」のユーザー画面はログイン必須。未ログイン（`kimaru_session` Cookie 無）でアクセスすると `/login.html` へリダイレクト。
+  - 対象: `/dashboard.html` `/contacts.html` `/booking-settings.html` `/profile.html` `/ai-assist.html` `/square.html`
+- **運営の認証（ユーザーと完全分離）**：運営は専用ログイン `/operator-login.html` で共有管理キー（`CAT_KEY_ADMIN_SECRET`）を入力し、**運営専用セッション `kimaru_admin_session`**（ユーザーの `kimaru_session` とは別Cookie・別署名）を発行する。
+  - 運営画面（`/cat-key-admin.html` / `/operators.html`）は **`kimaru_admin_session` で保護**。無ければ `/operator-login.html` へリダイレクト（ユーザーの `/login.html` には送らない）。
+  - 各運営APIも運営セッション（または互換のため Bearer 管理キー）で認可。運営者は `owners` ではなく `operators` テーブルで管理（一般ユーザー登録は不要）。
+  - 将来: 共有キー → 運営者ごとのメール+パスワード（`operators.password_hash`）ログインへ拡張。
+- **公開ページ**（無登録=✅）：`/` `/signup.html` `/booking.html` `/pro.html` `/login.html`、法務（`/terms.html` `/privacy.html` `/tokushoho.html`）はそのまま表示。
 - **ナビ出し分け**：全HTMLの `<body>` に `data-auth="authed|guest"` を注入し、CSS（`[data-auth] .app-only / .guest-only`）で表示制御（JSトグル廃止・チラつき無し）。
 - 判定はCookie存在ベースの前段ゲート。**厳密な認可は各APIの署名検証**（`_lib/crypto.js` / `requireOwner`）＋運営キー（`CAT_KEY_ADMIN_SECRET`）が担保。
 - プラン差（△の中身：無料2ヶ月/2問・有料の高度機能等）はページ内＋API側で制御。

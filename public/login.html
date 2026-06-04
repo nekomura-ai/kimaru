@@ -71,7 +71,7 @@
         if (!res.ok) throw new Error(result.error || "失敗しました");
         $("#auth-message").textContent = "完了しました。相手管理へ移動します...";
         $("#auth-message").className = "message success";
-        location.href = "/admin.html";
+        location.href = "/dashboard.html";
       } catch (error) {
         $("#auth-message").textContent = error.message;
         $("#auth-message").className = "message error";

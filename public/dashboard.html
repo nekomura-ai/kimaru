@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キマル - ホーム</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="dashboard">
+  <!-- site-header -->
+
+  <main class="shell admin-grid">
+    <section class="panel wide">
+      <p class="eyebrow">マイページ</p>
+      <h1>ホーム</h1>
+      <p class="muted">キマルの設定・相手管理はここから。各機能へのショートカットです。</p>
+      <p id="owner-status" class="message">ログイン状態を確認しています...</p>
+      <div id="owner-card" class="soft-box"></div>
+      <div class="actions">
+        <a class="button secondary" href="/booking.html">公開予約ページを見る</a>
+        <button id="logout-button" class="button secondary" type="button">ログアウト</button>
+      </div>
+    </section>
+
+    <section class="wide">
+      <div class="feature-grid">
+        <a class="panel" href="/booking-settings.html">
+          <p class="eyebrow">予約設定</p>
+          <h3>予約ページを設定</h3>
+          <p class="muted">時間・開催方法・受付時間・事前アンケート・複数の予約URL。</p>
+        </a>
+        <a class="panel" href="/contacts.html">
+          <p class="eyebrow">相手管理</p>
+          <h3>相手・面談メモ</h3>
+          <p class="muted">予約した相手の一覧、面談メモ、印象スコア。</p>
+        </a>
+        <a class="panel" href="/profile.html">
+          <p class="eyebrow">プロフィール</p>
+          <h3>プロフィール</h3>
+          <p class="muted">リマインドやAIアシストに渡す自己紹介。</p>
+        </a>
+        <a class="panel" href="/ai-assist.html">
+          <p class="eyebrow">AIアシスト</p>
+          <h3>AIアシスト</h3>
+          <p class="muted">相手に合わせた関係構築のヒント。</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="cat-key-panel" class="panel">
+      <p class="eyebrow">猫の鍵 / Cat Key</p>
+      <h2>有料版を解放する</h2>
+      <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます（運営の承認後に有効化）。入力内容は公開ページには表示されません。</p>
+      <form id="invite-form" class="inline-form">
+        <input name="code" placeholder="Neko20240222" />
+        <button class="primary" type="submit">適用</button>
+      </form>
+      <p id="invite-message" class="message"></p>
+    </section>
+
+    <section id="upgrade-panel" class="panel">
+      <p class="eyebrow">Pro版</p>
+      <h2>Proにアップグレード</h2>
+      <p class="muted">登録時にカード登録のうえ1ヶ月無料。期間終了後に自動で月額¥980（期間中の解約で課金なし）。</p>
+      <p><a class="button primary" href="/square.html">1ヶ月無料で始める</a></p>
+    </section>
+  </main>
+
+  <script>
+    // Pro/Cat Key 状態に応じて Cat Key・アップグレード導線を出し分け
+    fetch('/api/me', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) => {
+        const owner = d && d.owner;
+        if (owner && owner.cat_key_disabled) document.getElementById('cat-key-panel')?.remove();
+        if (owner && owner.plan === 'pro') {
+          document.getElementById('cat-key-panel')?.remove();
+          document.getElementById('upgrade-panel')?.remove();
+        }
+      })
+      .catch(() => {});
+  </script>
+  <script src="/i18n.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

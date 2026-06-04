@@ -52,11 +52,11 @@
 | 機能 | 状態 | 実装場所 |
 |---|---|---|
 | 無料サインアップ | ✅ | `signup.js`, `signup.html` |
-| 招待コード Cat Key（`NEKO20240222`） | ✅ | `invite-apply.js`, `admin.html` |
+| 招待コード Cat Key（`NEKO20240222`） | ✅ | `invite-apply.js`, `dashboard.html` |
 | Cat Key 管理（運営・取消/復元） | ✅ | `cat-key-admin.html`, `invite-apply.js?admin=cat-key` |
 | プラン制限（受付期間・問数） | ✅ | `booking-page-save.js` |
 | Square 決済での Pro 昇格 | ✅（Webhook） | `square-webhook.js` |
-| 相手管理（予約一覧・検索・面談メモ・印象スコア） | ✅ | `admin.html`, `owner-bookings.js`, `appointment-log.js` |
+| 相手管理（予約一覧・検索・面談メモ・印象スコア） | ✅ | `contacts.html`, `owner-bookings.js`, `appointment-log.js` |
 | 生年月日インサイト（簡易・ルールベース） | ⚠️ | `app.js` `buildRelationshipProfile` |
 | プロフィールシート | ⚠️ | `profile.html`（localStorage のみ） |
 | AIアシスト | ⚠️ | `ai-assist.html`（簡易ロジック・クライアント側） |
