@@ -8,43 +8,28 @@ Kimaru is a free-first scheduling tool for meetings that should feel easier befo
 
 ## Production
 
-Primary production deployment:
-
-```text
-https://kimaru-alpha.vercel.app
-```
-
-The project is deployed on Vercel as `kimaru` under Fumio Uchiyama's projects.
-Supabase production project: `kimaru`.
+Host: **Netlify**（2026-06 に Netlify 一本化。Vercel 対応は廃止）。Database: **Supabase**。
 
 ## Architecture
 
-Primary deployment is now Vercel + Supabase.
+- Frontend: static files in `public/`（ビルド工程なし）
+- API: Netlify Functions in `netlify/functions/`（`/api/*` → `/.netlify/functions/`）
+- Middleware: Netlify Edge Function `netlify/edge-functions/auth-gate.js`（認証ゲート＋`<body data-auth>`＋共通ヘッダー注入）
+- Database: Supabase（REST/PostgREST を `fetch` で利用）
+- Auth: Google ログイン ＋ メール+パスワード
+- Calendar: Google Calendar API / Meeting: Google Meet 自動発行（Zoom は将来）
+- Scheduled jobs: Netlify Scheduled Functions / 外部cron（誕生日メール・22分前リマインダー）
+- Email delivery: Resend（環境変数未設定時は dry-run で送信スキップ）
 
-- Frontend: Vercel free tier, static files in `public/`
-- API: Vercel Functions in `api/`
-- Database: Supabase
-- Auth: Google login now, Supabase Auth-ready schema
-- Calendar: Google Calendar API
-- Meeting: Google Meet auto creation first
-- Future meeting provider: Zoom-ready design
-- Scheduled jobs: Vercel Cron
-- Email delivery: Resend-ready, disabled until environment variables are set
+## Deploy（Netlify）
 
-The legacy Netlify Functions remain in `netlify/functions/` as reusable handlers. Vercel routes in `api/` call those handlers through a small adapter so the app can move to Vercel without rewriting every endpoint at once.
+このリポジトリから Netlify サイトを作成（`netlify.toml` 同梱のため設定はほぼ自動）：
 
-## Vercel Deploy
+- Publish directory: `public`
+- Functions directory: `netlify/functions`
+- Build command: 空
 
-Create a Vercel project from this repository.
-
-Settings:
-
-- Framework preset: Other
-- Build command: empty
-- Output directory: empty
-- Install command: empty
-
-`vercel.json` handles clean URLs, keeps `/api/*` as Vercel Functions, and runs `/api/birthday-mails` once a day with Vercel Cron.
+ローカル開発: `npm run dev`（= `netlify dev`、http://localhost:8888）。本番: `npm run deploy`。
 
 Required environment variables:
 
@@ -68,13 +53,13 @@ If `RESEND_API_KEY` and `BIRTHDAY_EMAIL_FROM` are not set, the birthday job stay
 Set `APP_BASE_URL` to:
 
 ```text
-https://kimaru-alpha.vercel.app
+{APP_BASE_URL}   # 当面は https://<サイト名>.netlify.app（独自ドメイン取得後に切替）
 ```
 
 Google OAuth redirect URI:
 
 ```text
-https://kimaru-alpha.vercel.app/api/google-auth-callback
+{APP_BASE_URL}/api/google-auth-callback
 ```
 
 ## Supabase
@@ -113,7 +98,7 @@ Birthday email automation is implemented as a Pro feature.
 Manual dry-run check:
 
 ```text
-https://kimaru-alpha.vercel.app/api/birthday-mails?dry_run=1
+{APP_BASE_URL}/api/birthday-mails?dry_run=1
 ```
 
 ## Phase 1
@@ -164,6 +149,6 @@ NEKO20240222
 
 Users who apply it receive pro capabilities without payment.
 
-## Legacy Netlify
+## Hosting note
 
-Netlify support is now secondary. `netlify.toml` and `netlify/functions/` remain so the current Netlify deployment can keep running during transition, but new production deployments should use Vercel.
+本番は **Netlify 一本化**。`netlify.toml` / `netlify/functions/` / `netlify/edge-functions/` を使う。旧 Vercel 対応（`vercel.json` / `api/*` / `lib/vercel-adapter.js`）は 2026-06 に削除済み。

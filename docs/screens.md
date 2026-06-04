@@ -37,7 +37,7 @@
 
 詳細（リクエスト/レスポンス・DB・認証・環境変数）は [`api.md`](./api.md) を参照。以下は概要。
 
-`/api/*` は配信先で関数にルーティングされる（Netlify: `netlify/functions/`、Vercel: `api/`）。
+`/api/*` は配信先で関数にルーティングされる（`netlify.toml` で `/api/*` → `/.netlify/functions/:splat`）。
 
 | URL | メソッド | 役割 | 認証 |
 |---|---|---|---|

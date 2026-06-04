@@ -5,7 +5,7 @@
 このドキュメントは、現在のコードベースに**実装済みの機能**を棚卸ししたもの。
 「やりたいこと（仕様）」は [`spec.md`](./spec.md)、機能ごとの詳細は [`features/README.md`](./features/README.md)、画面/URLは [`screens.md`](./screens.md)、画面アクセス権は [`screen-flow.md`](./screen-flow.md)、API は [`api.md`](./api.md)、DB構成は [`db-schema.md`](./db-schema.md)、プラン比較は [`plan-comparison.md`](./plan-comparison.md)。
 
-技術構成: 静的 HTML / CSS / バニラ JS（`public/`）＋ サーバレス関数（`netlify/functions/`、Vercel は `api/` アダプタ）＋ Supabase。ビルド工程なし。
+技術構成: 静的 HTML / CSS / バニラ JS（`public/`）＋ サーバレス関数（`netlify/functions/`）＋ Supabase。ビルド工程なし。
 
 凡例: ✅ 実装済 / ⚠️ 部分実装 / ❌ 未実装
 
@@ -67,7 +67,7 @@
 |---|---|---|
 | 多言語対応（日/英/繁中・全ページセレクタ） | ✅（4画面） | `i18n.js`, `app.js` |
 | レスポンシブ CSS（フレームワーク不使用） | ✅ | `styles.css`, `booking-redesign.css` |
-| ビルド工程なし（静的配信） | ✅ | `netlify.toml` / `vercel.json` |
+| ビルド工程なし（静的配信） | ✅ | `netlify.toml` |
 
 ## DB（現状の主なテーブル）
 
