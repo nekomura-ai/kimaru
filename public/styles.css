@@ -33,7 +33,18 @@ body{
   font-family:var(--jp);
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
+  /* 日本語の自然な折り返し：禁則処理（行頭の 。、）等を防ぐ） */
+  line-break:strict;
+  word-break:normal;
+  overflow-wrap:anywhere;
+  font-feature-settings:"palt" 1; /* 約物の詰め（自然な字間） */
+  text-spacing-trim:trim-start;
 }
+/* 見出し・本文の改行最適化（balance=行を均等化 / pretty=末尾の孤立語を防ぐ / auto-phrase=文節で折り返す※対応ブラウザ） */
+h1,h2,h3{text-wrap:balance;word-break:auto-phrase}
+p,.lead,li,.muted,.form-note,.plan-note,.message{text-wrap:pretty;word-break:auto-phrase}
+/* ボタン・ナビ・ラベル等の短い要素は語中・文中で改行しない */
+.brand,.site-header a,.link-button,.button,.primary,.eyebrow,.badge,.schedule-steps span{word-break:keep-all;overflow-wrap:normal}
 a{color:inherit;text-decoration:none}
 .site-header{
   position:sticky;
@@ -73,7 +84,7 @@ body[data-page="admin"]:not([data-booking-settings]) .admin-grid>section:nth-of-
 .availability-row.disabled{opacity:.58;background:var(--surface-subtle)}
 .eyebrow{margin:0 0 12px;color:var(--blue);font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
 h1,h2,h3,p{margin-top:0}
-h1{margin-bottom:18px;font-family:var(--sans);font-weight:900;font-size:clamp(40px,6vw,84px);line-height:.96;letter-spacing:-.03em}
+h1{margin-bottom:18px;font-family:var(--sans);font-weight:900;font-size:clamp(38px,5.5vw,80px);line-height:1.1;letter-spacing:-.02em}
 h2{margin-bottom:14px;font-family:var(--sans);font-weight:800;font-size:clamp(24px,3vw,34px);line-height:1.18;letter-spacing:-.02em}
 h3{margin-bottom:8px;font-family:var(--sans);font-weight:800;font-size:19px;letter-spacing:-.01em}
 .lead{color:var(--muted);font-size:17px;line-height:1.85}
