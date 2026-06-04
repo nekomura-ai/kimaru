@@ -1,0 +1,220 @@
+/* ============================================================
+   operator.css — 運営コンソール専用テーマ（コントロールルーム / ダーク）
+   公開・ユーザー画面（styles.css）とは別世界であることを視覚的に明示する。
+   すべて body.operator-console 配下にスコープし、他画面へ影響させない。
+   ブランド青・Archivo・直角1pxラインは踏襲し、ダーク反転＋等幅で「管制画面」化。
+   ============================================================ */
+
+.operator-console {
+  --op-bg: #0a0c11;
+  --op-panel: #11151e;
+  --op-panel-2: #141a25;
+  --op-line: #222a39;
+  --op-line-bright: #313b4f;
+  --op-ink: #eef1f7;
+  --op-soft: #99a3b7;
+  --op-dim: #5d6678;
+  --op-blue: #5b7cff;
+  --op-blue-2: #7d97ff;
+  --op-blue-soft: rgba(91, 124, 255, 0.14);
+  --op-green: #38d39a;
+  --op-red: #ff6b6b;
+  --op-amber: #ffc861;
+  --op-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  min-height: 100vh;
+  color: var(--op-ink);
+  background-color: var(--op-bg);
+  background-image:
+    radial-gradient(1100px 460px at 50% -8%, rgba(91, 124, 255, 0.12), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: auto, 38px 38px, 38px 38px;
+  background-attachment: fixed;
+}
+
+/* ---- ヘッダー（管制バー） ---- */
+.operator-console .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(10, 12, 17, 0.82);
+  border-bottom: 1px solid var(--op-line-bright);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.operator-console .brand {
+  color: var(--op-ink);
+}
+
+.operator-console .brand-tag {
+  background: var(--op-blue);
+  box-shadow: 0 0 0 1px rgba(91, 124, 255, 0.5), 0 0 14px rgba(91, 124, 255, 0.55);
+  animation: opPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes opPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(91, 124, 255, 0.5), 0 0 10px rgba(91, 124, 255, 0.35); }
+  50% { box-shadow: 0 0 0 1px rgba(91, 124, 255, 0.6), 0 0 18px rgba(91, 124, 255, 0.7); }
+}
+
+.operator-console .site-header a,
+.operator-console .link-button {
+  color: var(--op-soft);
+  font-family: var(--op-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.operator-console .site-header a:hover,
+.operator-console .link-button:hover { color: var(--op-blue-2); }
+
+.operator-console .lang-select {
+  color: var(--op-ink);
+  background: #0c0f16;
+  border: 1px solid var(--op-line-bright);
+}
+
+/* ---- パネル（モジュール） ---- */
+.operator-console .panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, var(--op-panel-2), var(--op-panel));
+  border: 1px solid var(--op-line);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 18px 40px -28px rgba(0, 0, 0, 0.9);
+  animation: opReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.operator-console main .panel::before {
+  content: "";
+  position: absolute;
+  left: -1px; top: -1px;
+  width: 36px; height: 2px;
+  background: var(--op-blue);
+  box-shadow: 0 0 12px rgba(91, 124, 255, 0.7);
+}
+.operator-console main .panel:nth-of-type(1) { animation-delay: 0.02s; }
+.operator-console main .panel:nth-of-type(2) { animation-delay: 0.10s; }
+.operator-console main .panel:nth-of-type(3) { animation-delay: 0.18s; }
+
+@keyframes opReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- 見出し・テキスト ---- */
+.operator-console h1,
+.operator-console h2,
+.operator-console h3 { color: var(--op-ink); }
+
+.operator-console .eyebrow {
+  font-family: var(--op-mono);
+  color: var(--op-blue-2);
+  letter-spacing: 0.18em;
+}
+.operator-console .eyebrow::before { content: "▍ "; color: var(--op-blue); }
+
+.operator-console .lead,
+.operator-console p { color: var(--op-soft); }
+.operator-console .muted { color: var(--op-dim); }
+
+/* ---- フォーム ---- */
+.operator-console label { color: var(--op-soft); font-size: 13px; }
+.operator-console input,
+.operator-console select,
+.operator-console textarea {
+  color: var(--op-ink);
+  background: #0c0f16;
+  border: 1px solid var(--op-line-bright);
+  border-radius: 0;
+}
+.operator-console input::placeholder { color: var(--op-dim); }
+.operator-console input:focus,
+.operator-console select:focus,
+.operator-console textarea:focus {
+  outline: none;
+  border-color: var(--op-blue);
+  box-shadow: 0 0 0 3px var(--op-blue-soft);
+}
+
+/* ---- ボタン ---- */
+.operator-console .button,
+.operator-console .primary,
+.operator-console button.primary {
+  border-radius: 0;
+  font-family: var(--op-mono);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.operator-console .primary,
+.operator-console button.primary {
+  color: #06080d;
+  background: var(--op-blue);
+  border: 1px solid var(--op-blue);
+}
+.operator-console .primary:hover,
+.operator-console button.primary:hover {
+  background: var(--op-blue-2);
+  box-shadow: 0 0 18px rgba(91, 124, 255, 0.5);
+}
+.operator-console .button.secondary {
+  color: var(--op-soft);
+  background: transparent;
+  border: 1px solid var(--op-line-bright);
+}
+.operator-console .button.secondary:hover {
+  color: var(--op-ink);
+  border-color: var(--op-blue);
+  background: var(--op-blue-soft);
+}
+
+/* ---- リスト（ユーザー一覧・運営者一覧・監査ログ） ---- */
+.operator-console .list-item {
+  position: relative;
+  background: #0d111a;
+  border: 1px solid var(--op-line);
+  border-left: 3px solid var(--op-line-bright);
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+.operator-console .list-item:hover {
+  border-left-color: var(--op-blue);
+  background: #0f1422;
+  transform: translateX(2px);
+}
+.operator-console .list-item strong { color: var(--op-ink); }
+.operator-console .list-item span { color: var(--op-soft); font-family: var(--op-mono); font-size: 13px; }
+.operator-console .list-item p { color: var(--op-soft); }
+.operator-console .list-item small { color: var(--op-dim); font-family: var(--op-mono); }
+
+/* 件数カウント・コード・IDは等幅で「データ」らしく */
+.operator-console #owner-count,
+.operator-console #operator-count { font-family: var(--op-mono); color: var(--op-blue-2); }
+
+/* ---- メッセージ状態 ---- */
+.operator-console .message { color: var(--op-soft); font-family: var(--op-mono); font-size: 13px; }
+.operator-console .message.success { color: var(--op-green); }
+.operator-console .message.error { color: var(--op-red); }
+
+/* ---- フッター（ダーク） ---- */
+.operator-console .footer { border-top: 1px solid var(--op-line); color: var(--op-dim); }
+.operator-console .footer-nav a { color: var(--op-soft); }
+.operator-console .footer-nav a:hover { color: var(--op-blue-2); }
+.operator-console .footer-copy { color: var(--op-dim); }
+
+/* ---- 運営ログイン専用：セキュア端末風の演出 ---- */
+.operator-console[data-page="operator-login"] main { padding-top: 64px; }
+.operator-console[data-page="operator-login"] .panel { overflow: hidden; }
+.operator-console[data-page="operator-login"] .panel::after {
+  content: "RESTRICTED · OPERATORS ONLY";
+  position: absolute;
+  right: 14px; top: 12px;
+  font-family: var(--op-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--op-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .operator-console .panel,
+  .operator-console .brand-tag { animation: none; }
+  .operator-console .list-item { transition: none; }
+}
