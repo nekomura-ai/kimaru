@@ -497,6 +497,23 @@
     document.dispatchEvent(new CustomEvent("kimaru:languagechange", { detail: { language: activeLanguage } }));
   }
 
+  // ログイン状態でナビ等を出し分け（.app-only=ログイン時のみ / .guest-only=未ログイン時のみ）
+  async function applyAuthNav() {
+    const appEls = document.querySelectorAll(".app-only");
+    const guestEls = document.querySelectorAll(".guest-only");
+    if (!appEls.length && !guestEls.length) return;
+    let loggedIn = false;
+    try {
+      const res = await fetch("/api/me", { credentials: "include" });
+      const data = await res.json().catch(() => ({}));
+      loggedIn = Boolean(data.owner);
+    } catch (_) {
+      loggedIn = false; // 取得失敗時は未ログイン扱い（訪問者向け表示）
+    }
+    appEls.forEach((el) => el.classList.toggle("hidden", !loggedIn));
+    guestEls.forEach((el) => el.classList.toggle("hidden", loggedIn));
+  }
+
   function init() {
     if (initialized) return;
     initialized = true;
@@ -506,6 +523,7 @@
     document.addEventListener("change", (event) => {
       if (event.target.matches("[data-language-select]")) setLanguage(event.target.value);
     });
+    applyAuthNav();
   }
 
   window.KimaruI18n = {
