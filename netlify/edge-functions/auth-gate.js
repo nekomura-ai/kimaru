@@ -7,7 +7,8 @@
 
 // docs/screen-flow.md のアクセス権マトリクスで「無登録=−（不可）」の画面＝ログイン必須
 const PROTECTED_PATHS = [
-  "/admin.html",
+  "/dashboard.html",
+  "/contacts.html",
   "/booking-settings.html",
   "/profile.html",
   "/ai-assist.html",
@@ -23,7 +24,8 @@ const SITE_HEADER = `<header class="site-header">
       <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
       <a class="guest-only" href="/signup.html" data-i18n="nav.signup">無料登録</a>
       <a class="guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
-      <a class="app-only" href="/admin.html" data-i18n="nav.admin">相手管理</a>
+      <a class="app-only" href="/dashboard.html" data-i18n="nav.dashboard">ホーム</a>
+      <a class="app-only" href="/contacts.html" data-i18n="nav.admin">相手管理</a>
       <a class="app-only" href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
       <a class="app-only" href="/profile.html" data-i18n="nav.profile">プロフィール</a>
       <a class="app-only" href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>

@@ -16,6 +16,7 @@
 
       "nav.booking": "予約ページ",
       "nav.bookingSettings": "予約設定",
+      "nav.dashboard": "ホーム",
       "nav.admin": "相手管理",
       "nav.profile": "プロフィール",
       "nav.aiAssist": "AIアシスト",
@@ -156,6 +157,7 @@
 
       "nav.booking": "Booking",
       "nav.bookingSettings": "Booking settings",
+      "nav.dashboard": "Home",
       "nav.admin": "Contacts",
       "nav.profile": "Profile",
       "nav.aiAssist": "AI assist",
@@ -296,6 +298,7 @@
 
       "nav.booking": "預約頁面",
       "nav.bookingSettings": "預約設定",
+      "nav.dashboard": "首頁",
       "nav.admin": "對象管理",
       "nav.profile": "個人檔案",
       "nav.aiAssist": "AI 助手",

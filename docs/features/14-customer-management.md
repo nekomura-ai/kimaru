@@ -17,15 +17,15 @@
 
 ## 現状の実装
 
-- `admin.html`（相手管理）に実装:
+- `contacts.html`（相手管理）に実装:
   - 予約一覧（`owner-bookings`、最新50件、生年月日非公開はマスク）＋キーワード検索。
   - 面談メモフォーム（メール/キーワード/メモ/次のアクション）＝ `appointment-log`（保存・一覧）。
-  - 印象スコア（第一印象・話し上手・聞き上手・積極性・ギバー度・前向きさ・論理性・共感力・決断力・紹介しやすさ）を5段階で記録。送信時にメモ末尾へ「【印象スコア】」として自動追記（`admin.html` インラインスクリプト）。
+  - 印象スコア（第一印象・話し上手・聞き上手・積極性・ギバー度・前向きさ・論理性・共感力・決断力・紹介しやすさ）を5段階で記録。送信時にメモ末尾へ「【印象スコア】」として自動追記（`contacts.html` インラインスクリプト）。
   - 予約に紐づく「生年月日インサイト」を一覧表示（[16](./16-birthday.md)）。
 
 ## 関連ファイル
 
-- `public/admin.html` — 相手管理 UI・検索・印象スコア
+- `public/contacts.html` — 相手管理 UI・検索・印象スコア
 - `netlify/functions/owner-bookings.js` — 予約一覧
 - `netlify/functions/appointment-log.js` — 面談メモ
 - DB: `bookings`, `appointment_logs`

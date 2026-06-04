@@ -22,7 +22,7 @@
 Google OAuth 認可画面へ 302 リダイレクト。スコープ: `openid email profile https://www.googleapis.com/auth/calendar`。
 
 ### `GET /api/google-auth-callback?code=...` — 認証不要
-OAuth コールバック。`code` をトークン交換し、`owners` を upsert・デフォルト `booking_pages` 作成・`google_connections` にトークン暗号化保存。`kimaru_session` Cookie を発行し `/admin.html` へリダイレクト。
+OAuth コールバック。`code` をトークン交換し、`owners` を upsert・デフォルト `booking_pages` 作成・`google_connections` にトークン暗号化保存。`kimaru_session` Cookie を発行し `/dashboard.html` へリダイレクト。
 - 触る DB: `owners`, `booking_pages`, `google_connections`
 - 外部: Google OAuth token / userinfo
 

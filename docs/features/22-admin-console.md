@@ -11,7 +11,7 @@
 運営（サービス提供側）が利用者全体を把握・管理するための画面。**発行者ユーザーが使う「相手管理（[14](./14-customer-management.md)）」とは別物**で、運営だけがアクセスする。
 
 > 打ち合わせ（2026-06-03）で管理画面は2系統あると整理:
-> - **ユーザー向け管理**: プロフィール編集（[17](./17-profile.md)）・質問設定（[10](./10-questionnaire.md)）・相手管理（[14](./14-customer-management.md)）。`admin.html` / `profile.html` / `booking-settings.html`。
+> - **ユーザー向け管理**: プロフィール編集（[17](./17-profile.md)）・質問設定（[10](./10-questionnaire.md)）・相手管理（[14](./14-customer-management.md)）。`dashboard.html`（ハブ）/ `contacts.html`（相手管理）/ `profile.html` / `booking-settings.html`。
 > - **運営者向け管理**（＝本ドキュメント）: 全ユーザー一覧と、Cat Key の承認・強制降格など。
 
 ## 仕様詳細（運営が触る機能）

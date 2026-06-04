@@ -13,7 +13,8 @@
 | `/` (`index.html`) | トップ / ランディング | サービス紹介・無料/Pro比較・各画面への導線 | ✅ 日/英/繁中 | `i18n.js` |
 | `/signup.html` | 無料登録 | 無料アカウント申請フォーム | ✅ 日/英/繁中 | `i18n.js`, `app.js` |
 | `/booking.html` | 予約ページ（ゲスト） | 1週間の空き枠表示＋予約フォーム（事前アンケート・生年月日） | ✅ 日/英/繁中（枠表は日本語） | `i18n.js`, `booking-week.js` |
-| `/admin.html` | 相手管理（ダッシュボード） | ログイン状態・Cat Key適用・予約一覧・面談メモ・印象スコア | ✅ 日/英/繁中（動的は一部日本語） | `i18n.js`, `app.js` ＋インライン |
+| `/dashboard.html` | ホーム（ログイン後ハブ） | ログイン状態・各機能へのショートカット・Cat Key適用・Proアップグレード導線 | ✅ 日/英/繁中（動的は一部日本語） | `i18n.js`, `app.js` ＋インライン |
+| `/contacts.html` | 相手管理 | 予約一覧・検索・面談メモ・印象スコア | ✅ 日/英/繁中（動的は一部日本語） | `i18n.js`, `app.js` ＋インライン |
 | `/booking-settings.html` | 予約設定 | 受付時間・公開範囲・開催方法・事前アンケートの設定 | ⏳ 日本語のみ | （要確認） |
 | `/profile.html` | プロフィールシート | 発行者プロフィールの整備 | ⏳ 日本語のみ | （要確認） |
 | `/ai-assist.html` | AIアシスト | プロフィールと相手データ照合の支援（Pro想定） | ⏳ 日本語のみ | （要確認） |
@@ -25,12 +26,12 @@
 
 ### 管理画面は2系統
 
-- **ユーザー向け管理**（発行者が使う）: `/admin.html`（相手管理）・`/profile.html`（プロフィール）・`/booking-settings.html`（予約設定）。
+- **ユーザー向け管理**（発行者が使う）: `/dashboard.html`（ホーム/ハブ）・`/contacts.html`（相手管理）・`/profile.html`（プロフィール）・`/booking-settings.html`（予約設定）。
 - **運営者向け管理**（運営だけが使う）: `/cat-key-admin.html`。現状は Cat Key のみ。全ユーザー一覧・Cat Key 承認制は未実装（[features/22](./features/22-admin-console.md)）。
 
 ### 注意
 
-- `/pro-apply.html`（「Pro申し込み」）は `admin.html` のナビから参照されているが **ファイルが存在しない**。現状は `styles.css` の `.site-header a[href="/pro-apply.html"]{display:none}` で**リンク自体を非表示**にしている。ページを作るかリンクを削除するか要判断。
+- `/pro-apply.html`（「Pro申し込み」）は旧ナビから参照されていたが **ファイルが存在しない**。現状は `styles.css` の `.site-header a[href="/pro-apply.html"]{display:none}` で**リンク自体を非表示**にしている。ページを作るかリンクを削除するか要判断。
 - 3言語対応は今回トップ/登録/予約/相手管理の4画面が対象。残りページとJS動的生成テキスト（スケジュールグリッドの曜日・ステップ、AI誕生日分析、印象スコアの保存文字列など）は日本語のまま。
 
 ## API エンドポイント

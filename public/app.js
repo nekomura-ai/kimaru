@@ -484,8 +484,10 @@ async function refreshAdmin() {
   try {
     const me = await api("me");
     currentOwner = me.owner || null;
-    $("#owner-status").textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
-    $("#owner-card").innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>Plan: ${escapeHtml(me.owner.plan)}</p><p>Slug: ${escapeHtml(me.owner.slug)}</p>` : "";
+    const ownerStatus = $("#owner-status");
+    if (ownerStatus) ownerStatus.textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
+    const ownerCard = $("#owner-card");
+    if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>プラン: ${escapeHtml(me.owner.plan === "pro" ? "Pro" : "無料")}</p>` : "";
     updateBookingPageControls();
     if (me.owner) {
       const bookings = await api("owner-bookings");
@@ -571,4 +573,4 @@ async function initAdmin() {
 window.KimaruI18n?.init();
 if (page === "signup") initSignup();
 if (page === "booking") initBooking();
-if (page === "admin") initAdmin();
+if (["dashboard", "contacts", "booking-settings", "admin"].includes(page)) initAdmin();
