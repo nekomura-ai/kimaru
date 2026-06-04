@@ -22,6 +22,7 @@
       "nav.pro": "Pro版",
       "nav.signup": "無料登録",
       "nav.login": "Google連携",
+      "nav.signin": "ログイン",
       "nav.logout": "ログアウト",
 
       "home.pageTitle": "キマル | 日程調整と面談前準備",
@@ -161,6 +162,7 @@
       "nav.pro": "Pro",
       "nav.signup": "Free signup",
       "nav.login": "Google login",
+      "nav.signin": "Sign in",
       "nav.logout": "Logout",
 
       "home.pageTitle": "Kimaru | Scheduling and pre-meeting prep",
@@ -300,6 +302,7 @@
       "nav.pro": "Pro 版",
       "nav.signup": "免費註冊",
       "nav.login": "Google 連結",
+      "nav.signin": "登入",
       "nav.logout": "登出",
 
       "home.pageTitle": "Kimaru | 日程安排與會前準備",

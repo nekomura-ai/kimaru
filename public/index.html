@@ -13,13 +13,13 @@
 <header class="site-header">
   <a class="brand" href="/" data-i18n="common.brand">キマル</a>
   <nav>
-    <a href="/booking.html" data-i18n="nav.booking">予約ページ</a>
-    <a href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
-    <a href="/admin.html" data-i18n="nav.admin">相手管理</a>
-    <a href="/profile.html" data-i18n="nav.profile">プロフィール</a>
-    <a href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
     <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
-    <a href="/signup.html" data-i18n="nav.signup">無料登録</a>
+    <a class="guest-only" href="/signup.html" data-i18n="nav.signup">無料登録</a>
+    <a class="guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
+    <a class="app-only hidden" href="/admin.html" data-i18n="nav.admin">相手管理</a>
+    <a class="app-only hidden" href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
+    <a class="app-only hidden" href="/profile.html" data-i18n="nav.profile">プロフィール</a>
+    <a class="app-only hidden" href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
     <select class="lang-select" data-language-select aria-label="Language"></select>
   </nav>
 </header>
@@ -32,8 +32,8 @@
       <p class="lead" data-i18n="home.lead2">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
       <p class="lead" data-i18n="home.lead3">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
       <div class="actions">
-        <a class="button primary" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
-        <a class="button secondary" href="/booking.html" data-i18n="home.hero.viewBooking">予約ページを見る</a>
+        <a class="button primary guest-only" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
+        <a class="button primary app-only hidden" href="/admin.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
         <a class="button secondary" href="/pro.html" data-i18n="home.hero.viewPro">Pro版を見る</a>
       </div>
     </div>
@@ -42,8 +42,10 @@
       <h2 data-i18n="home.panel.heading">会う前の準備まで、ひとつに。</h2>
       <p data-i18n="home.panel.desc">事前アンケート、プロフィール付きリマインド、面談メモ、印象スコアを組み合わせて、日程調整を「会う前の関係づくり」まで広げます。</p>
       <div class="actions">
-        <a class="button primary" href="/booking.html" data-i18n="home.panel.openBooking">予約ページを開く</a>
-        <a class="button secondary" href="/admin.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
+        <a class="button primary guest-only" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
+        <a class="button secondary guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
+        <a class="button primary app-only hidden" href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
+        <a class="button secondary app-only hidden" href="/admin.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
       </div>
     </div>
   </section>
@@ -75,5 +77,19 @@
 </main>
 <footer class="footer" data-i18n="home.footer">キマル | 日程がキマル。会う前の準備で、関係が進む。</footer>
 <script src="/i18n.js" defer></script>
+<script>
+  // ログイン状態でナビ/ボタンを出し分け（未ログイン=訪問者向けのみ、ログイン後=アプリ機能を表示）
+  (async () => {
+    try {
+      const res = await fetch('/api/me', { credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      const loggedIn = Boolean(data.owner);
+      document.querySelectorAll('.app-only').forEach((el) => el.classList.toggle('hidden', !loggedIn));
+      document.querySelectorAll('.guest-only').forEach((el) => el.classList.toggle('hidden', loggedIn));
+    } catch (_) {
+      /* 失敗時は訪問者向け表示のまま（app-onlyは hidden のまま） */
+    }
+  })();
+</script>
 </body>
 </html>
