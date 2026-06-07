@@ -469,6 +469,9 @@ function fillBookingPageForm(page) {
   updateBookingPageControls();
   const editing = $("#booking-page-editing");
   if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;
+  // 編集中のみ「別の新規ページを作成（＝フォームをクリア）」を表示
+  const newButton = $("#booking-page-new");
+  if (newButton) newButton.style.display = "";
   $("#booking-settings-form-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -479,6 +482,8 @@ function clearBookingPageForm() {
   if (form.elements.slug) form.elements.slug.value = "";
   const editing = $("#booking-page-editing");
   if (editing) editing.textContent = "新規作成モード";
+  const newButton = $("#booking-page-new");
+  if (newButton) newButton.style.display = "none";
 }
 
 async function refreshAdmin() {
