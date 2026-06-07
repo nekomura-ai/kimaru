@@ -13,6 +13,7 @@ const PROTECTED_PATHS = [
   "/booking-settings.html",
   "/profile.html",
   "/ai-assist.html",
+  "/settings.html",
   "/square.html",
 ];
 
@@ -35,6 +36,7 @@ const SITE_HEADER = `<header class="site-header">
       <a class="app-only" href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
       <a class="app-only" href="/profile.html" data-i18n="nav.profile">プロフィール</a>
       <a class="app-only" href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
+      <a class="app-only" href="/settings.html" data-i18n="nav.settings">設定</a>
       <select class="lang-select" data-language-select aria-label="Language"></select>
     </nav>
   </header>`;

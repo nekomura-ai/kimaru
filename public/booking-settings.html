@@ -25,16 +25,17 @@
       </div>
     </section>
 
-    <!-- STEP 1: Googleカレンダー連携 -->
+    <!-- STEP 1: Googleカレンダー連携（連携の管理は「設定 > 外部連携」） -->
     <section class="panel settings-section">
-      <h2><span class="step-chip">1</span>Googleカレンダーと連携</h2>
-      <p class="muted">カレンダーの予定と重ならない空き枠だけを公開し、予約時に予定＋Google Meet を自動で作成します。ログイン方法に関わらず、ここから追加・解除できます。</p>
+      <h2><span class="step-chip">1</span>Googleカレンダー連携</h2>
+      <p class="muted">予約の空き枠判定・予定作成・Meet発行に必要です。連携の追加・解除は「設定 ＞ 外部連携」で行います。</p>
       <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
-      <div class="actions">
-        <a id="calendar-connect" class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
-        <a id="calendar-reconnect" class="button secondary" href="/api/google-auth-start">別アカウントで再連携</a>
-        <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
-      </div>
+      <p id="calendar-connect-cta" class="actions" style="display:none">
+        <a class="button primary" href="/settings.html#integrations">外部連携でカレンダーを連携する</a>
+      </p>
+      <p id="calendar-manage-cta" class="actions" style="display:none">
+        <a class="button secondary" href="/settings.html#integrations">外部連携の設定を開く</a>
+      </p>
     </section>
 
     <!-- STEP 2: 予約ページ一覧 -->
@@ -124,39 +125,25 @@
   <script>
     (async () => {
       const statusEl = document.getElementById('calendar-connect-status');
-      const connectBtn = document.getElementById('calendar-connect');
-      const reconnectBtn = document.getElementById('calendar-reconnect');
-      const disconnectBtn = document.getElementById('calendar-disconnect');
+      const connectCta = document.getElementById('calendar-connect-cta');
+      const manageCta = document.getElementById('calendar-manage-cta');
       if (!statusEl) return;
       const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
-      // 判定が出るまではボタンを隠してチラつき・誤操作を防ぐ
-      show(connectBtn, false); show(reconnectBtn, false); show(disconnectBtn, false);
-      async function refresh() {
-        try {
-          const res = await fetch('/api/me', { credentials: 'include' });
-          const data = await res.json().catch(() => ({}));
-          const connected = Boolean(data.calendar_connected);
-          statusEl.textContent = connected
-            ? '✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
-            : '未連携です。連携すると空き枠判定・予定作成が有効になります。';
-          statusEl.className = 'message ' + (connected ? 'success' : '');
-          // 連携済み：再連携・解除のみ。未連携：連携するボタンのみ。
-          show(connectBtn, !connected);
-          show(reconnectBtn, connected);
-          show(disconnectBtn, connected);
-        } catch (_) {
-          statusEl.textContent = '連携状態を確認できませんでした。';
-          show(connectBtn, true);
-        }
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        const connected = Boolean(data.calendar_connected);
+        statusEl.textContent = connected
+          ? '✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
+          : '未連携です。予約を受け付けるには、先に外部連携でGoogleカレンダーを連携してください。';
+        statusEl.className = 'message ' + (connected ? 'success' : 'error');
+        // 未連携 → 外部連携（設定）へ誘導。連携済み → 管理リンクのみ。
+        show(connectCta, !connected);
+        show(manageCta, connected);
+      } catch (_) {
+        statusEl.textContent = '連携状態を確認できませんでした。';
+        show(connectCta, true);
       }
-      disconnectBtn?.addEventListener('click', async () => {
-        if (!confirm('Googleカレンダー連携を解除します。よろしいですか？')) return;
-        try {
-          await fetch('/api/google-disconnect', { method: 'POST', credentials: 'include' });
-          await refresh();
-        } catch (_) {}
-      });
-      refresh();
     })();
   </script>
 </body>
