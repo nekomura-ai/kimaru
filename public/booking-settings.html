@@ -12,56 +12,48 @@
 <body data-page="admin" data-booking-settings="true">
   <!-- site-header -->
 
-  <main class="shell admin-grid">
-    <section class="panel">
-      <p class="eyebrow">アカウント</p>
-      <h1>予約設定</h1>
-      <p class="muted">予約ページに表示する内容、受付時間、開催方法、事前アンケートをここで設定します。</p>
-      <p id="owner-status" class="message">ログイン状態を確認しています...</p>
-      <div id="owner-card" class="soft-box"></div>
+  <main class="shell booking-settings">
+    <!-- ヘッダー -->
+    <section class="dash-hero">
+      <div class="dash-hero-text">
+        <p class="eyebrow">予約設定</p>
+        <h1>予約を受け付ける準備</h1>
+        <p id="owner-status" class="muted">ログイン状態を確認しています...</p>
+      </div>
+      <div class="dash-account">
+        <div id="owner-card" class="plan-chip"></div>
+      </div>
     </section>
 
-    <section class="panel">
-      <p class="eyebrow">Google連携</p>
-      <h2>Googleカレンダー連携</h2>
+    <!-- STEP 1: Googleカレンダー連携 -->
+    <section class="panel settings-section">
+      <h2><span class="step-chip">1</span>Googleカレンダーと連携</h2>
+      <p class="muted">カレンダーの予定と重ならない空き枠だけを公開し、予約時に予定＋Google Meet を自動で作成します。ログイン方法に関わらず、ここから追加・解除できます。</p>
       <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
       <div class="actions">
         <a class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
         <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
       </div>
-      <p class="form-note muted">ログイン方法に関わらず、ここからカレンダー連携を追加・解除できます。</p>
     </section>
 
-    <section class="panel">
-      <p class="eyebrow">公開ページ</p>
-      <h2>相手に見える予約枠</h2>
-      <p class="muted">曜日ごとの受付時間とGoogleカレンダーの予定をもとに、空いている枠だけが予約ページに表示されます。</p>
-      <p><a class="button secondary" href="/booking.html">予約ページを確認する</a></p>
-    </section>
-
-    <section class="panel wide booking-settings-guide">
-      <p class="eyebrow">予定設定</p>
-      <h2>受付時間や公開範囲を変更する</h2>
-      <p class="muted">予約ページのタイトル、開催方法、曜日ごとの受付時間、事前アンケートはこのページで設定できます。</p>
-      <p><a class="button primary" href="#booking-settings-form-panel">予約設定を開く</a></p>
-    </section>
-
-    <section class="panel wide">
-      <p class="eyebrow">予約ページ一覧</p>
-      <h2>保存済みの予約ページ</h2>
-      <p class="muted">設定違いの予約ページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの公開URLを相手に共有してください。</p>
+    <!-- STEP 2: 予約ページ一覧 -->
+    <section class="panel settings-section">
+      <div class="section-head">
+        <div>
+          <h2><span class="step-chip">2</span>予約ページ</h2>
+          <p class="muted">設定違いのページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの「開く / URLをコピー」で相手に共有してください。曜日ごとの受付時間とカレンダーの予定から、空いている枠だけが表示されます。</p>
+        </div>
+        <button type="button" id="booking-page-new" class="button secondary">＋ 新規ページを作成</button>
+      </div>
       <div id="booking-pages-list" class="list"></div>
     </section>
 
-    <section id="booking-settings-form-panel" class="panel wide">
-      <p class="eyebrow">予約ページ設定</p>
-      <h2>予約受付を設定する</h2>
+    <!-- STEP 3: ページの内容を設定 -->
+    <section id="booking-settings-form-panel" class="panel settings-section">
+      <h2><span class="step-chip">3</span>ページの内容を設定</h2>
+      <p id="booking-page-editing" class="muted">新規作成モード</p>
       <form id="booking-page-form" class="form-grid">
         <input type="hidden" name="page_id" id="booking-page-id" />
-        <div class="wide actions">
-          <button type="button" id="booking-page-new" class="button secondary">＋ 新規ページを作成</button>
-          <span id="booking-page-editing" class="muted" style="align-self:center;font-size:13px;"></span>
-        </div>
         <label>ページタイトル<input name="title" value="〇〇との面談" required /></label>
         <p class="form-note muted">※◯◯の所はご自身の名前を入力して下さい。</p>
         <label>公開URL（slug）<input name="slug" id="booking-page-slug" placeholder="例: taro-1on1（空欄なら自動生成）" pattern="[a-z0-9-]{3,40}" /></label>
@@ -119,7 +111,6 @@
       <p id="booking-page-message" class="message"></p>
     </section>
   </main>
-
 
   <!-- site-footer -->
 
