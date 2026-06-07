@@ -31,7 +31,8 @@
       <p class="muted">カレンダーの予定と重ならない空き枠だけを公開し、予約時に予定＋Google Meet を自動で作成します。ログイン方法に関わらず、ここから追加・解除できます。</p>
       <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
       <div class="actions">
-        <a class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
+        <a id="calendar-connect" class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
+        <a id="calendar-reconnect" class="button secondary" href="/api/google-auth-start">別アカウントで再連携</a>
         <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
       </div>
     </section>
@@ -118,20 +119,29 @@
   <script>
     (async () => {
       const statusEl = document.getElementById('calendar-connect-status');
+      const connectBtn = document.getElementById('calendar-connect');
+      const reconnectBtn = document.getElementById('calendar-reconnect');
       const disconnectBtn = document.getElementById('calendar-disconnect');
       if (!statusEl) return;
+      const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
+      // 判定が出るまではボタンを隠してチラつき・誤操作を防ぐ
+      show(connectBtn, false); show(reconnectBtn, false); show(disconnectBtn, false);
       async function refresh() {
         try {
           const res = await fetch('/api/me', { credentials: 'include' });
           const data = await res.json().catch(() => ({}));
           const connected = Boolean(data.calendar_connected);
           statusEl.textContent = connected
-            ? 'Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
+            ? '✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
             : '未連携です。連携すると空き枠判定・予定作成が有効になります。';
           statusEl.className = 'message ' + (connected ? 'success' : '');
-          if (disconnectBtn) disconnectBtn.style.display = connected ? '' : 'none';
+          // 連携済み：再連携・解除のみ。未連携：連携するボタンのみ。
+          show(connectBtn, !connected);
+          show(reconnectBtn, connected);
+          show(disconnectBtn, connected);
         } catch (_) {
           statusEl.textContent = '連携状態を確認できませんでした。';
+          show(connectBtn, true);
         }
       }
       disconnectBtn?.addEventListener('click', async () => {
