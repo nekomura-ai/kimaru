@@ -1,6 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const page = document.body.dataset.page;
 let currentOwner = null;
+let ownerAvailability = [];
 
 function t(key) {
   return window.KimaruI18n?.t(key) || key;
@@ -451,10 +452,26 @@ function renderBookingPages(pages) {
 async function loadBookingPages() {
   try {
     const data = await api("booking-pages");
+    ownerAvailability = data.availability || [];
     renderBookingPages(data.pages || []);
   } catch (_) {
     /* 一覧取得は失敗しても致命的ではない */
   }
+}
+
+// 受付時間（オーナー単位）をフォームに反映
+function applyAvailability(form, settings) {
+  const byDay = {};
+  (settings || []).forEach((s) => { byDay[s.day_of_week] = s; });
+  [0, 1, 2, 3, 4, 5, 6].forEach((day) => {
+    const cb = form.elements[`availability_enabled_${day}`];
+    const start = form.elements[`availability_start_${day}`];
+    const end = form.elements[`availability_end_${day}`];
+    const s = byDay[day];
+    if (cb) cb.checked = Boolean(s);
+    if (s && start && s.start_time) start.value = String(s.start_time).slice(0, 5);
+    if (s && end && s.end_time) end.value = String(s.end_time).slice(0, 5);
+  });
 }
 
 function openPageEditor() {
@@ -475,12 +492,22 @@ function closePageEditor() {
 function fillBookingPageForm(page) {
   const form = $("#booking-page-form");
   if (!form || !page) return;
-  if (form.elements.page_id) form.elements.page_id.value = page.id || "";
-  if (form.elements.slug) form.elements.slug.value = page.slug || "";
-  if (page.title != null && form.elements.title) form.elements.title.value = page.title;
-  if (page.duration_minutes && form.elements.duration_minutes) form.elements.duration_minutes.value = String(page.duration_minutes);
-  if (page.booking_range_months && form.elements.booking_range_months) form.elements.booking_range_months.value = String(page.booking_range_months);
-  if (page.location_type && form.elements.location_type) form.elements.location_type.value = page.location_type;
+  const set = (name, value) => { if (form.elements[name] != null && value != null) form.elements[name].value = value; };
+  set("page_id", page.id || "");
+  set("slug", page.slug || "");
+  set("title", page.title != null ? page.title : "");
+  set("description", page.description != null ? page.description : "");
+  set("duration_minutes", String(page.duration_minutes || 30));
+  set("buffer_before_minutes", String(page.buffer_before_minutes != null ? page.buffer_before_minutes : 0));
+  set("buffer_after_minutes", String(page.buffer_after_minutes != null ? page.buffer_after_minutes : 0));
+  set("booking_range_months", String(page.booking_range_months || 2));
+  set("location_type", page.location_type || "google_meet");
+  set("location_value", page.location_value || "");
+  // 事前アンケート（ページ単位・sort_order 順）
+  const questions = [...(page.questionnaire_questions || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  [1, 2, 3, 4, 5].forEach((i) => { if (form.elements[`question_${i}`]) form.elements[`question_${i}`].value = questions[i - 1]?.question_text || ""; });
+  // 受付時間（オーナー単位）
+  applyAvailability(form, ownerAvailability);
   updateBookingPageControls();
   const editing = $("#booking-page-editing");
   if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;

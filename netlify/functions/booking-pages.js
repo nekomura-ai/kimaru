@@ -8,10 +8,14 @@ exports.handler = async (event) => {
     const owner = await requireOwner(event);
 
     if (event.httpMethod === "GET") {
+      // 編集時のプレフィル用に全列＋事前アンケート（ページ単位）を返す。受付時間はオーナー単位なので別途。
       const pages = await sb(
-        `booking_pages?owner_id=${eq(owner.id)}&select=id,slug,title,duration_minutes,location_type,booking_range_months,is_active,created_at&order=created_at.asc`
+        `booking_pages?owner_id=${eq(owner.id)}&select=id,slug,title,description,duration_minutes,buffer_before_minutes,buffer_after_minutes,location_type,location_value,booking_range_months,is_active,created_at,questionnaire_questions(question_text,is_required,sort_order)&order=created_at.asc`
       );
-      return json(200, { pages: pages || [] });
+      const availability = await sb(
+        `availability_settings?owner_id=${eq(owner.id)}&select=day_of_week,start_time,end_time&order=day_of_week.asc`
+      ).catch(() => []);
+      return json(200, { pages: pages || [], availability: availability || [] });
     }
 
     if (event.httpMethod === "POST") {
