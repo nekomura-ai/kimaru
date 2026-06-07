@@ -56,7 +56,7 @@
 | 4. Pro紹介 `/pro.html` | ✅ | ✅ | △ 不要 | △ 不要 | ✅ |
 | 5. 決済 `/square.html` | − | ✅ | △ 契約済 | △ 不要 | − |
 | 6. ホーム `/dashboard.html` | − | ✅ | ✅ | ✅ | − |
-| 7. 相手管理 `/contacts.html` | − | △ 基本のみ | ✅ | ✅ | − |
+| 7. 相手管理 `/contacts.html` | − | − Pro専用 | ✅ | ✅ | − |
 | 8. 予約設定 `/booking-settings.html` | − | △ 無料制限 | ✅ | ✅ | − |
 | 9. プロフィール `/profile.html` | − | △ 基本のみ | ✅ 高度版 | ✅ 高度版 | − |
 | 10. AIアシスト `/ai-assist.html` | − | − | ✅ | ✅ | − |
@@ -65,8 +65,9 @@
 ### △（制限）の中身
 
 - **予約設定（無料制限）**: 予約ページ（日程調整URL）の保存数は無料2つ／有料・猫5つ（[24](./features/24-multiple-booking-pages.md)）、受付期間は無料2ヶ月／有料6ヶ月（[05](./features/05-booking-range.md)）、事前アンケートは無料2問／有料5問（[10](./features/10-questionnaire.md)）。
-- **相手管理（基本のみ）**: 予約一覧は共通。顧客管理・面談メモ・印象スコア・占い的インサイトは有料中心（[14](./features/14-customer-management.md) / [16](./features/16-birthday.md)）。
-- **プロフィール（基本／高度版）**: 基本入力は共通。色・太字・見出し・画像など高度版は有料（[17](./features/17-profile.md)）。
+- **相手管理（Pro専用）**: 予約一覧・検索・面談メモ・印象スコア・予約履歴は **有料(Pro)のみ**（[plan-comparison.md](./plan-comparison.md) / [14](./features/14-customer-management.md)）。無料会員はロック表示＋アップグレード導線。サーバー側も `requireProOwner` で 403（`owner-bookings` / `appointment-log`）。
+- **AIアシスト（Pro専用）**: 同上で有料(Pro)のみ。無料会員はロック表示。
+- **プロフィール（基本／高度版）**: 基本入力は無料も可。色・太字・見出し・画像など高度版は有料（🔜 [17](./features/17-profile.md)）。
 - **Pro紹介・決済（不要）**: 課金者・猫メンバーは契約/特典済みのため利用不要（アクセス自体は可）。
 
 ---
