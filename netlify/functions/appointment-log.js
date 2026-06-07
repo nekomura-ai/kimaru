@@ -1,10 +1,10 @@
 const { json, readJson } = require("./_lib/response");
-const { requireOwner } = require("./_lib/auth");
+const { requireProOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 
 exports.handler = async (event) => {
   try {
-    const owner = await requireOwner(event);
+    const owner = await requireProOwner(event);
     if (event.httpMethod === "GET") {
       const logs = await sb(`appointment_logs?owner_id=${eq(owner.id)}&order=created_at.desc&limit=50`);
       return json(200, { logs });

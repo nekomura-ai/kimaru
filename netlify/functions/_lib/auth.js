@@ -17,6 +17,17 @@ async function requireOwner(event) {
   return owner;
 }
 
+// 有料(Pro)限定の機能・APIで使う。無料ユーザーは 403。Cat Key 承認済みは plan='pro' になるため通る。
+async function requireProOwner(event) {
+  const owner = await requireOwner(event);
+  if (owner.plan !== "pro") {
+    const error = new Error("この機能はPro版でご利用いただけます。");
+    error.statusCode = 403;
+    throw error;
+  }
+  return owner;
+}
+
 // 運営セッション（kimaru_admin_session）。ユーザー認証とは独立。
 function currentOperator(event) {
   return verifyAdminSession(event);
@@ -32,4 +43,4 @@ function requireOperator(event) {
   return operator;
 }
 
-module.exports = { currentOwner, requireOwner, currentOperator, requireOperator };
+module.exports = { currentOwner, requireOwner, requireProOwner, currentOperator, requireOperator };

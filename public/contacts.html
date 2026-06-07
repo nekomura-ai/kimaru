@@ -13,7 +13,14 @@
   <!-- site-header -->
 
   <main class="shell">
-    <section class="panel wide">
+    <section id="contacts-pro-lock" class="panel wide hidden">
+      <p class="eyebrow">Pro限定</p>
+      <h1>相手管理はPro版の機能です</h1>
+      <p class="muted">予約した相手の一覧・検索、面談メモ、印象スコアなどの顧客管理は、Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
+    </section>
+
+    <section class="panel wide pro-feature">
       <p class="eyebrow" data-i18n="admin.contacts.eyebrow">相手管理</p>
       <h1 data-i18n="admin.contacts.heading">日程調整した相手</h1>
       <p class="muted" data-i18n="admin.contacts.desc">予約した人の情報を一覧で確認し、名前・メール・話題・目標・誕生日メモから探せます。</p>
@@ -23,7 +30,7 @@
       <div id="booking-list" class="list searchable-list"></div>
     </section>
 
-    <section class="panel wide">
+    <section class="panel wide pro-feature">
       <p class="eyebrow" data-i18n="admin.memo.eyebrow">相手メモ</p>
       <h2 data-i18n="admin.memo.heading">会った後に、関係を育てる</h2>
       <p class="muted" data-i18n="admin.memo.desc">話した内容、次のアクション、相手の印象スコアを残して、次の連絡につなげます。</p>
@@ -100,6 +107,19 @@
       setupSearch('log-search', 'log-list', 'log-search-count', '表示中');
       setupConversationRatings();
     });
+  </script>
+  <script>
+    // Pro専用ゲート（plan-comparison: 相手管理は有料のみ）。無料会員はロック表示＋アップグレード導線。
+    fetch('/api/me', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) => {
+        const owner = d && d.owner;
+        if (owner && owner.plan !== 'pro') {
+          document.getElementById('contacts-pro-lock')?.classList.remove('hidden');
+          document.querySelectorAll('.pro-feature').forEach((el) => el.classList.add('hidden'));
+        }
+      })
+      .catch(() => {});
   </script>
   <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
