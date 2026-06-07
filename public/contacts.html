@@ -13,10 +13,17 @@
   <!-- site-header -->
 
   <main class="shell">
-    <section id="contacts-pro-lock" class="panel wide hidden">
+    <section id="contacts-pro-lock" class="panel wide">
       <p class="eyebrow">Pro限定</p>
       <h1>相手管理はPro版の機能です</h1>
-      <p class="muted">予約した相手の一覧・検索、面談メモ、印象スコアなどの顧客管理は、Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p class="muted">会った相手を「資産」として管理し、関係を続けていくための機能です。Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <ul class="feature-list">
+        <li><strong>相手一覧・検索</strong>：名前・メール・話題・目標・誕生日メモから素早く探せます。</li>
+        <li><strong>面談メモ</strong>：話した内容・次のアクションを記録し、次の連絡につなげます。</li>
+        <li><strong>印象スコア</strong>：第一印象・話し上手・ギバー度など10項目を5段階で記録。</li>
+        <li><strong>予約履歴</strong>：これまでの予約をまとめて振り返れます。</li>
+      </ul>
+      <p class="muted">無料版は「予約が決まる」までを担当。相手管理は会った後の関係づくり（Pro）です。</p>
       <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
     </section>
 
@@ -109,17 +116,15 @@
     });
   </script>
   <script>
-    // Pro専用ゲート（plan-comparison: 相手管理は有料のみ）。無料会員はロック表示＋アップグレード導線。
+    // Pro専用ゲート（plan-comparison: 相手管理は有料のみ）。
+    // チラ見え防止のため Pro機能は CSS で既定非表示。判定後に body クラスで出し分ける。
     fetch('/api/me', { credentials: 'include' })
       .then((r) => r.json())
       .then((d) => {
         const owner = d && d.owner;
-        if (owner && owner.plan !== 'pro') {
-          document.getElementById('contacts-pro-lock')?.classList.remove('hidden');
-          document.querySelectorAll('.pro-feature').forEach((el) => el.classList.add('hidden'));
-        }
+        document.body.classList.add(owner && owner.plan === 'pro' ? 'plan-pro' : 'plan-free');
       })
-      .catch(() => {});
+      .catch(() => { document.body.classList.add('plan-free'); });
   </script>
   <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
