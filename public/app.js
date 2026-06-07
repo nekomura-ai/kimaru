@@ -457,6 +457,21 @@ async function loadBookingPages() {
   }
 }
 
+function openPageEditor() {
+  const modal = $("#page-editor-modal");
+  if (!modal) return;
+  setMessage("#booking-page-message", "");
+  modal.classList.add("open");
+  document.body.classList.add("modal-open");
+}
+
+function closePageEditor() {
+  const modal = $("#page-editor-modal");
+  if (!modal) return;
+  modal.classList.remove("open");
+  document.body.classList.remove("modal-open");
+}
+
 function fillBookingPageForm(page) {
   const form = $("#booking-page-form");
   if (!form || !page) return;
@@ -469,21 +484,22 @@ function fillBookingPageForm(page) {
   updateBookingPageControls();
   const editing = $("#booking-page-editing");
   if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;
-  // 編集中のみ「別の新規ページを作成（＝フォームをクリア）」を表示
-  const newButton = $("#booking-page-new");
-  if (newButton) newButton.style.display = "";
-  $("#booking-settings-form-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const title = $("#page-editor-title");
+  if (title) title.textContent = "予約ページを編集";
+  openPageEditor();
 }
 
 function clearBookingPageForm() {
   const form = $("#booking-page-form");
   if (!form) return;
+  form.reset();
   if (form.elements.page_id) form.elements.page_id.value = "";
-  if (form.elements.slug) form.elements.slug.value = "";
   const editing = $("#booking-page-editing");
-  if (editing) editing.textContent = "新規作成モード";
-  const newButton = $("#booking-page-new");
-  if (newButton) newButton.style.display = "none";
+  if (editing) editing.textContent = "新規ページを作成";
+  const title = $("#page-editor-title");
+  if (title) title.textContent = "新規予約ページを作成";
+  updateBookingPageControls();
+  openPageEditor();
 }
 
 async function refreshAdmin() {
@@ -519,6 +535,9 @@ async function initAdmin() {
   $("#location-type-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-range-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-page-new")?.addEventListener("click", clearBookingPageForm);
+  $("#page-editor-close")?.addEventListener("click", closePageEditor);
+  $("#page-editor-modal")?.addEventListener("click", (event) => { if (event.target.id === "page-editor-modal") closePageEditor(); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closePageEditor(); });
   $("#booking-pages-list")?.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-page-action]");
     if (!button) return;
@@ -547,8 +566,8 @@ async function initAdmin() {
     setMessage("#booking-page-message", "予約ページを保存しています...");
     try {
       await api("booking-page-save", { method: "POST", body: JSON.stringify(collectBookingPagePayload(event.currentTarget)) });
-      setMessage("#booking-page-message", "予約ページ設定を保存しました。", "success");
       await refreshAdmin();
+      closePageEditor();
     } catch (error) {
       setMessage("#booking-page-message", error.message, "error");
     }
