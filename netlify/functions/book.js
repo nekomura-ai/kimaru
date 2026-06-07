@@ -175,6 +175,6 @@ exports.handler = async (event) => {
 
     return json(200, { ok: true, booking, google: eventResult });
   } catch (error) {
-    return json(500, { error: error.message });
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

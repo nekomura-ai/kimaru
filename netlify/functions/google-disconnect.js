@@ -11,6 +11,6 @@ exports.handler = async (event) => {
     await sb(`google_calendar_tokens?owner_id=${eq(owner.id)}`, { method: "DELETE" }).catch(() => {});
     return json(200, { ok: true });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

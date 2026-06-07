@@ -134,6 +134,6 @@ exports.handler = async (event) => {
 
     return json(200, { ok: true, booking_page: bookingPage, availability_settings: availability, question_limit: questionLimit });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

@@ -16,6 +16,6 @@ exports.handler = async (event) => {
     await saveGoogleConnection(owner, tokens);
     return redirect(`${appBaseUrl()}/dashboard.html`, { "Set-Cookie": sessionCookie(owner.id) });
   } catch (error) {
-    return json(500, { error: error.message });
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

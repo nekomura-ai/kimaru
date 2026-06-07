@@ -112,6 +112,6 @@ exports.handler = async (event) => {
     const busy = await freebusy(owner.id, timeMin, timeMax).catch(() => []);
     return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)), questions });
   } catch (error) {
-    return json(500, { error: error.message });
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };
