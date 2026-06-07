@@ -66,12 +66,12 @@ exports.handler = async (event) => {
     const availability = normalizeAvailability(body.availability_settings);
     const questionLimit = isPro ? 5 : 2;
 
-    if (!allowedDurations.has(duration)) return json(400, { error: "Duration must be 30, 45, or 60 minutes" });
-    if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "Buffer must be 0, 15, or 30 minutes" });
-    if (!allowedRanges.has(requestedRange)) return json(400, { error: "Booking range must be 1, 2, 3, or 6 months" });
-    if (!isPro && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "Free plan can publish up to 2 months ahead" });
+    if (!allowedDurations.has(duration)) return json(400, { error: "予約時間は30・45・60分のいずれかを選択してください" });
+    if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "前後バッファは0・15・30分のいずれかを選択してください" });
+    if (!allowedRanges.has(requestedRange)) return json(400, { error: "予約枠の公開範囲は1・2・3・6ヶ月のいずれかを選択してください" });
+    if (!isPro && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "無料版で公開できるのは2ヶ月先までです。6ヶ月先まで公開するにはPro版が必要です" });
     if (questions.length > questionLimit) return json(403, { error: `Your plan supports up to ${questionLimit} questionnaire questions` });
-    if (!availability.length) return json(400, { error: "At least one booking reception time is required" });
+    if (!availability.length) return json(400, { error: "受付可能な曜日・時間帯を1つ以上設定してください" });
 
     // 複数予約ページ対応: id 指定で編集、無ければ新規作成（slug はグローバル一意）。
     const requestedId = String(body.id || "").trim();
@@ -79,17 +79,17 @@ exports.handler = async (event) => {
     if (requestedId) {
       const rows = await sb(`booking_pages?id=${eq(requestedId)}&owner_id=${eq(owner.id)}&limit=1`);
       existing = rows[0] || null;
-      if (!existing) return json(404, { error: "Booking page not found" });
+      if (!existing) return json(404, { error: "対象の予約ページが見つかりません" });
     }
     let slug = String(body.slug || "").trim().toLowerCase();
     if (!slug) slug = existing?.slug || `${owner.slug || "demo"}-${Math.random().toString(36).slice(2, 7)}`;
-    if (!SLUG_RE.test(slug)) return json(400, { error: "Slug must be 3-40 chars (a-z, 0-9, -)" });
+    if (!SLUG_RE.test(slug)) return json(400, { error: "公開URL（slug）は半角英小文字・数字・ハイフン3〜40文字で入力してください" });
 
     // 新規作成時の保存数上限（無料2 / 有料・猫5）
     if (!existing) {
       const owned = await sb(`booking_pages?owner_id=${eq(owner.id)}&select=id`);
       const limit = isPro ? PAGE_LIMIT.pro : PAGE_LIMIT.free;
-      if ((owned || []).length >= limit) return json(403, { error: `Your plan can save up to ${limit} booking pages` });
+      if ((owned || []).length >= limit) return json(403, { error: `現在のプランで保存できる予約ページは${limit}個までです（無料2つ／Pro5つ）` });
     }
 
     const payload = {

@@ -7,7 +7,7 @@ const { upsertOwner, ensureDefaultBookingPage } = require("./_lib/supabase");
 exports.handler = async (event) => {
   try {
     const code = event.queryStringParameters?.code;
-    if (!code) return json(400, { error: "Missing code" });
+    if (!code) return json(400, { error: "認証コードがありません" });
     const tokens = await exchangeCode(code);
     const profile = await userInfo(tokens.access_token);
     const slug = (profile.email || "demo").split("@")[0].toLowerCase().replace(/[^a-z0-9-]/g, "-");

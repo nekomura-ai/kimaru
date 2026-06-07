@@ -11,7 +11,7 @@ exports.handler = async (event) => {
     }
     if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
     const body = readJson(event);
-    if (!body.visitor_email || !body.notes) return json(400, { error: "Visitor email and notes are required" });
+    if (!body.visitor_email || !body.notes) return json(400, { error: "相手のメールアドレスとメモは必須です" });
     const rows = await sb("appointment_logs", {
       method: "POST",
       body: JSON.stringify({ owner_id: owner.id, visitor_email: body.visitor_email, notes: body.notes, keywords: body.keywords || "", next_action: body.next_action || "" }),

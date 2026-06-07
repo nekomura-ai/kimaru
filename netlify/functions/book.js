@@ -98,13 +98,13 @@ exports.handler = async (event) => {
     const visitorEmail = clean(body.visitor_email, 254).toLowerCase();
     const start = parseDate(body.start);
     const end = parseDate(body.end);
-    if (!start || !end || !visitorEmail || !visitorName) return json(400, { error: "Missing booking fields" });
-    if (!EMAIL_RE.test(visitorEmail)) return json(400, { error: "Invalid email address" });
-    if (start >= end) return json(400, { error: "Invalid booking time" });
+    if (!start || !end || !visitorEmail || !visitorName) return json(400, { error: "必須項目が未入力です（時間枠・お名前・メールアドレスをご確認ください）" });
+    if (!EMAIL_RE.test(visitorEmail)) return json(400, { error: "メールアドレスの形式が正しくありません" });
+    if (start >= end) return json(400, { error: "予約時間が正しくありません" });
     const now = new Date();
     const maxFuture = new Date(now);
     maxFuture.setMonth(maxFuture.getMonth() + 6);
-    if (start < now || start > maxFuture) return json(400, { error: "Booking time is outside the allowed range" });
+    if (start < now || start > maxFuture) return json(400, { error: "予約できる期間外の日時です" });
 
     // owner_slug で予約ページ＋オーナーを解決（無ければ既定オーナー）。
     const slug = String(body.owner_slug || "").trim().toLowerCase();
@@ -116,7 +116,7 @@ exports.handler = async (event) => {
       if (bookingPage) owner = await findOwnerById(bookingPage.owner_id);
     }
     if (!owner) owner = await defaultOwner();
-    if (!owner) return json(400, { error: "Owner is not set. Please login with Google first." });
+    if (!owner) return json(400, { error: "予約先が設定されていません。発行者がGoogleでログインしているかご確認ください" });
     const relationshipContext = parseRelationshipContext(body.filter_request);
     const birthDatePrivate = body.birth_date_private === "yes" || body.birth_date_private === true;
     const storedRelationshipContext = sanitizePrivateBirthDate(relationshipContext, birthDatePrivate);

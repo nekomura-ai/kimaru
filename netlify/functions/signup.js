@@ -15,9 +15,9 @@ exports.handler = async (event) => {
     const name = clean(body.name, 100);
     const email = clean(body.email, 254).toLowerCase();
     const language = clean(body.language || "ja", 20);
-    if (!name || !email) return json(400, { error: "Name and email are required" });
-    if (!EMAIL_RE.test(email)) return json(400, { error: "Invalid email address" });
-    if (!LANGUAGE_RE.test(language)) return json(400, { error: "Invalid language" });
+    if (!name || !email) return json(400, { error: "お名前とメールアドレスは必須です" });
+    if (!EMAIL_RE.test(email)) return json(400, { error: "メールアドレスの形式が正しくありません" });
+    if (!LANGUAGE_RE.test(language)) return json(400, { error: "言語の指定が正しくありません" });
 
     const rows = await sb("free_signups", {
       method: "POST",

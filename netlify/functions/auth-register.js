@@ -21,7 +21,7 @@ exports.handler = async (event) => {
     const name = clean(body.name, 100);
     const email = clean(body.email).toLowerCase();
     const password = String(body.password || "");
-    if (!email || !EMAIL_RE.test(email)) return json(400, { error: "Invalid email address" });
+    if (!email || !EMAIL_RE.test(email)) return json(400, { error: "メールアドレスの形式が正しくありません" });
     if (password.length < 8) return json(400, { error: "パスワードは8文字以上にしてください" });
 
     const existing = await findOwnerByEmail(email);

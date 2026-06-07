@@ -47,7 +47,7 @@ exports.handler = async (event) => {
         return json(200, { ok: true });
       }
 
-      return json(400, { error: "Invalid action" });
+      return json(400, { error: "操作が不正です" });
     }
 
     return json(405, { error: "Method not allowed" });
