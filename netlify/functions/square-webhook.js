@@ -12,11 +12,11 @@ function eventId(body) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   const secret = optional("SQUARE_WEBHOOK_SHARED_SECRET");
   if (!secret) return json(503, { error: "Square Webhookが設定されていません" });
   const received = header(event, "x-kimaru-webhook-secret");
-  if (received !== secret) return json(401, { error: "Unauthorized" });
+  if (received !== secret) return json(401, { error: "認証が必要です" });
 
   try {
     const body = readJson(event);

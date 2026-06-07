@@ -15,7 +15,7 @@ function makeSlug(email) {
 
 // メール+パスワードでアカウント登録（決定3）。ログインとカレンダー連携は分離（[features/25]）。
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   try {
     const body = readJson(event);
     const name = clean(body.name, 100);

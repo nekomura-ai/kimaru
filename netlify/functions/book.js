@@ -49,7 +49,7 @@ async function sendBookingConfirmation({ to, owner, booking, meetingUrl, locatio
     body: JSON.stringify({ from, to, subject: `予約が確定しました（${when}）`, text: lines.join("\n"), ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.message || "Confirmation email send failed");
+  if (!response.ok) throw new Error(data?.message || "確認メールの送信に失敗しました");
   return { id: data.id || "" };
 }
 
@@ -91,7 +91,7 @@ async function createBooking(payload) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   try {
     const body = readJson(event);
     const visitorName = clean(body.visitor_name, 100);

@@ -101,13 +101,13 @@ async function sendViaResend({ to, subject, text }) {
     body: JSON.stringify({ from, to, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.message || "Reminder email send failed");
+  if (!response.ok) throw new Error(data?.message || "リマインドメールの送信に失敗しました");
   return { id: data.id || "" };
 }
 
 exports.handler = async (event) => {
-  if (!["GET", "POST"].includes(event.httpMethod)) return json(405, { error: "Method not allowed" });
-  if (!isAuthorized(event)) return json(401, { error: "Unauthorized" });
+  if (!["GET", "POST"].includes(event.httpMethod)) return json(405, { error: "許可されていない操作です" });
+  if (!isAuthorized(event)) return json(401, { error: "認証が必要です" });
 
   const dryRun = event.queryStringParameters?.dry_run === "1" || event.queryStringParameters?.dry_run === "true";
   const now = new Date();

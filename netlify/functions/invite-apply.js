@@ -47,7 +47,7 @@ async function auditCatKey(event, payload) {
 }
 
 async function listOwners(event) {
-  if (!isCatKeyAdmin(event)) return json(401, { error: "Unauthorized" });
+  if (!isCatKeyAdmin(event)) return json(401, { error: "認証が必要です" });
   const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,cat_key_pending,created_at&order=created_at.desc&limit=200").catch(() =>
     sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200"));
   const events = await sb("cat_key_events?select=id,owner_id,email,action,code,ip_address,user_agent,metadata,created_at&order=created_at.desc&limit=50").catch(() => []);
@@ -56,7 +56,7 @@ async function listOwners(event) {
 
 async function updateOwnerCatKey(event) {
   const body = readJson(event);
-  if (!isCatKeyAdmin(event, body)) return json(401, { error: "Unauthorized" });
+  if (!isCatKeyAdmin(event, body)) return json(401, { error: "認証が必要です" });
   const ownerId = String(body.owner_id || "").trim();
   const action = String(body.action || "revoke");
   if (!ownerId) return json(400, { error: "owner_id が指定されていません" });
@@ -78,10 +78,10 @@ exports.handler = async (event) => {
     if (event.queryStringParameters?.admin === "cat-key") {
       if (event.httpMethod === "GET") return listOwners(event);
       if (event.httpMethod === "POST") return updateOwnerCatKey(event);
-      return json(405, { error: "Method not allowed" });
+      return json(405, { error: "許可されていない操作です" });
     }
 
-    if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+    if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
     const owner = await requireOwner(event);
     if (owner.cat_key_disabled) {
       await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "blocked_apply" });

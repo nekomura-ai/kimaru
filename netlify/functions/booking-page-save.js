@@ -50,7 +50,7 @@ function normalizeAvailability(settings) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   try {
     const owner = await requireOwner(event);
     const body = readJson(event);

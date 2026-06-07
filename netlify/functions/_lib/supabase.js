@@ -10,7 +10,7 @@ async function sb(path, options = {}) {
   const response = await fetch(url, { headers: { ...headers(), Prefer: "return=representation", ...(options.headers || {}) }, ...options });
   const text = await response.text();
   const data = text ? JSON.parse(text) : null;
-  if (!response.ok) throw new Error(data?.message || data?.hint || "Supabase request failed");
+  if (!response.ok) throw new Error(data?.message || data?.hint || "データの取得・保存に失敗しました");
   return data;
 }
 
