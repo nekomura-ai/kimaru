@@ -157,6 +157,32 @@ textarea{resize:vertical}
 .badge{display:inline-flex;margin-bottom:14px;padding:8px 12px;color:var(--blue);background:var(--primary-soft);border:1px solid var(--blue);border-radius:0;font-family:var(--sans);font-size:13px;font-weight:700}
 .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:28px}
 .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+/* ===== ダッシュボード（ホーム）動線 ===== */
+.dashboard{display:block}
+.dash-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:22px;border-bottom:1px solid var(--ink)}
+.dash-hero h1{margin:6px 0 8px}
+.dash-hero-text .muted{margin:0}
+.dash-account{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.plan-chip{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink-soft)}
+.dash-section{margin-top:44px}
+.dash-section>.eyebrow{margin-bottom:6px}
+.dash-section>h2{margin-bottom:20px}
+.dashboard .feature-grid{grid-template-columns:repeat(2,1fr)}
+.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.step-card,.feature-card{position:relative;display:flex;flex-direction:column;gap:8px;padding:22px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:0;opacity:0;transform:translateY(12px);animation:dashUp .5s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc(var(--i,0)*.08s + .05s);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.step-card:hover,.feature-card:hover{transform:translateY(-3px);border-color:var(--blue);box-shadow:0 18px 40px -28px rgba(10,10,10,.55)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;font-family:var(--sans);font-weight:900;font-size:18px;color:#fff;background:var(--ink)}
+.step-card:hover .step-num{background:var(--blue)}
+.step-card h3,.feature-card h3{margin:6px 0 0}
+.step-go{margin-top:auto;padding-top:10px;color:var(--blue);font-family:var(--sans);font-weight:800;font-size:14px}
+.step-go::after{content:" →"}
+.upgrade-banner{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:44px;padding:24px;background:var(--primary-soft);border:1px solid var(--blue);border-radius:0}
+.upgrade-banner h2{margin:6px 0 8px}
+.upgrade-banner-text{max-width:64ch}
+.upgrade-banner-text .muted{margin:0}
+@keyframes dashUp{to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.step-grid,.dashboard .feature-grid{grid-template-columns:1fr}.dash-hero{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.step-card,.feature-card{opacity:1;transform:none;animation:none}}
 .plan-lead{max-width:760px}
 .plan-table-card{padding:0;overflow:hidden}
 .comparison-table-wrap{width:100%;overflow-x:auto}

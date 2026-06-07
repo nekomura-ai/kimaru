@@ -12,51 +12,74 @@
 <body data-page="dashboard">
   <!-- site-header -->
 
-  <main class="shell admin-grid">
-    <section class="panel wide">
-      <p class="eyebrow">マイページ</p>
-      <h1>ホーム</h1>
-      <p class="muted">キマルの設定・相手管理はここから。各機能へのショートカットです。</p>
-      <p id="owner-status" class="message">ログイン状態を確認しています...</p>
-      <div id="owner-card" class="soft-box"></div>
-      <div class="actions">
+  <main class="shell dashboard">
+    <!-- 上部: 挨拶・プラン状態・ログアウト -->
+    <section class="dash-hero">
+      <div class="dash-hero-text">
+        <p class="eyebrow">マイページ</p>
+        <h1>ホーム</h1>
+        <p id="owner-status" class="muted">ログイン状態を確認しています...</p>
+      </div>
+      <div class="dash-account">
+        <div id="owner-card" class="plan-chip"></div>
         <button id="logout-button" class="button secondary" type="button">ログアウト</button>
       </div>
     </section>
 
-    <section class="wide">
-      <div class="feature-grid">
-        <a class="panel" href="/booking-settings.html">
-          <p class="eyebrow">予約設定</p>
+    <!-- STEP 1-3: 予約を受け付けるまで（無料でできる核） -->
+    <section class="dash-section">
+      <p class="eyebrow">はじめかた</p>
+      <h2>3ステップで予約を受け付ける</h2>
+      <div class="step-grid">
+        <a class="step-card" href="/booking-settings.html" style="--i:0">
+          <span class="step-num">1</span>
           <h3>予約ページを設定</h3>
-          <p class="muted">時間・開催方法・受付時間・事前アンケート・複数の予約URL。</p>
+          <p class="muted">時間・開催方法・受付時間・事前アンケートを設定します。</p>
+          <span class="step-go">設定する</span>
         </a>
-        <a class="panel" href="/contacts.html">
-          <p class="eyebrow">相手管理 <span class="pro-badge">Pro</span></p>
-          <h3>相手・面談メモ</h3>
-          <p class="muted">予約した相手の一覧、面談メモ、印象スコア。Pro版の機能です。</p>
+        <a class="step-card" href="/profile.html" style="--i:1">
+          <span class="step-num">2</span>
+          <h3>プロフィールを整える</h3>
+          <p class="muted">リマインドやAIアシストに渡す自己紹介を用意します。</p>
+          <span class="step-go">編集する</span>
         </a>
-        <a class="panel" href="/profile.html">
-          <p class="eyebrow">プロフィール</p>
-          <h3>プロフィール</h3>
-          <p class="muted">リマインドやAIアシストに渡す自己紹介。</p>
-        </a>
-        <a class="panel" href="/ai-assist.html">
-          <p class="eyebrow">AIアシスト <span class="pro-badge">Pro</span></p>
-          <h3>AIアシスト</h3>
-          <p class="muted">相手に合わせた関係構築のヒント。Pro版の機能です。</p>
+        <a class="step-card" href="/booking-settings.html" style="--i:2">
+          <span class="step-num">3</span>
+          <h3>URLを共有して予約を受ける</h3>
+          <p class="muted">予約設定で各ページの「開く / URLをコピー」から共有します。</p>
+          <span class="step-go">予約ページへ</span>
         </a>
       </div>
     </section>
 
-    <section id="upgrade-panel" class="panel">
-      <p class="eyebrow">Pro版</p>
-      <h2>Proにアップグレード</h2>
-      <p class="muted">登録時にカード登録のうえ1ヶ月無料。期間終了後に自動で月額¥980（期間中の解約で課金なし）。猫の鍵 / Cat Key もこちらから入力できます。</p>
-      <p><a class="button primary" href="/square.html">1ヶ月無料で始める / Cat Key</a></p>
+    <!-- 会ったあとに活かす（Pro） -->
+    <section class="dash-section">
+      <p class="eyebrow">会ったあとに活かす <span class="pro-badge">Pro</span></p>
+      <h2>関係を続ける・成果につなげる</h2>
+      <div class="feature-grid">
+        <a class="feature-card" href="/contacts.html" style="--i:0">
+          <h3>相手管理 <span class="pro-badge">Pro</span></h3>
+          <p class="muted">予約した相手の一覧・検索、面談メモ、印象スコア。</p>
+          <span class="step-go">ひらく</span>
+        </a>
+        <a class="feature-card" href="/ai-assist.html" style="--i:1">
+          <h3>AIアシスト <span class="pro-badge">Pro</span></h3>
+          <p class="muted">プロフィールと相手データを照合し、関係構築のヒントを提案。</p>
+          <span class="step-go">ひらく</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- アップグレード（無料ユーザーのみ。Pro なら下のスクリプトで削除） -->
+    <section id="upgrade-panel" class="upgrade-banner">
+      <div class="upgrade-banner-text">
+        <p class="eyebrow">Pro版</p>
+        <h2>「会う前後」まで強くする</h2>
+        <p class="muted">1ヶ月無料お試し（カード登録・後に月額¥980、期間中の解約で課金なし）。猫の鍵 / Cat Key もこちらから入力できます。</p>
+      </div>
+      <a class="button primary" href="/square.html">1ヶ月無料で始める / Cat Key</a>
     </section>
   </main>
-
 
   <!-- site-footer -->
 
