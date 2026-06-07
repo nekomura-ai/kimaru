@@ -21,7 +21,14 @@
       <p id="ai-assist-status" class="message">データを読み込んでいます...</p>
     </section>
 
-    <section class="panel wide">
+    <section id="ai-pro-lock" class="panel wide hidden">
+      <p class="eyebrow">Pro限定</p>
+      <h2>AIアシストはPro版の機能です</h2>
+      <p class="muted">プロフィールと相手データを照合した提案は、Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
+    </section>
+
+    <section class="panel wide pro-feature">
       <p class="eyebrow">プロフィールシート</p>
       <h2>こちら側のプロフィールを反映する</h2>
       <p id="owner-profile-source" class="message">ログイン中のプロフィールを確認しています...</p>
@@ -55,7 +62,7 @@
       <p id="profile-sheet-message" class="message"></p>
     </section>
 
-    <section class="panel wide">
+    <section class="panel wide pro-feature">
       <p class="eyebrow">相手データ照合</p>
       <h2>相手を選んで提案を作る</h2>
       <form id="ai-assist-form" class="inline-form">
@@ -66,7 +73,7 @@
       <div id="ai-assist-candidates" class="list"></div>
     </section>
 
-    <section class="panel wide">
+    <section class="panel wide pro-feature">
       <p class="eyebrow">提案結果</p>
       <h2>関係構築の最適解</h2>
       <div id="ai-assist-result" class="soft-box">
@@ -310,6 +317,13 @@
         updateOwnerProfileSource(currentOwner);
         if (!currentOwner) {
           status.textContent = 'AIアシストを使うには、先にログインしてください。';
+          return;
+        }
+        // Pro専用ゲート（無料会員はロック表示＋アップグレード導線）。Cat Key承認済みは plan='pro' になる。
+        if (currentOwner.plan !== 'pro') {
+          document.getElementById('ai-pro-lock')?.classList.remove('hidden');
+          document.querySelectorAll('.pro-feature').forEach((el) => el.classList.add('hidden'));
+          status.textContent = 'この機能はPro版でご利用いただけます。';
           return;
         }
         const [bookingData, logData] = await Promise.allSettled([

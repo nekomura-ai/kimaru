@@ -440,6 +440,7 @@ function renderBookingPages(pages) {
       <span>${escapeHtml(bookingPageUrl(p.slug))}</span>
       <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.booking_range_months}ヶ月</small>
       <div class="actions">
+        <a class="button secondary" href="${escapeHtml(bookingPageUrl(p.slug))}" target="_blank" rel="noopener">開く</a>
         <button class="button secondary" type="button" data-page-action="copy" data-slug="${escapeHtml(p.slug)}">URLをコピー</button>
         <button class="button secondary" type="button" data-page-action="edit" data-id="${escapeHtml(p.id)}">編集</button>
         <button class="button secondary" type="button" data-page-action="delete" data-id="${escapeHtml(p.id)}">削除</button>

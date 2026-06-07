@@ -20,7 +20,6 @@
       <p id="owner-status" class="message">ログイン状態を確認しています...</p>
       <div id="owner-card" class="soft-box"></div>
       <div class="actions">
-        <a class="button secondary" href="/booking.html">公開予約ページを見る</a>
         <button id="logout-button" class="button secondary" type="button">ログアウト</button>
       </div>
     </section>
@@ -43,29 +42,18 @@
           <p class="muted">リマインドやAIアシストに渡す自己紹介。</p>
         </a>
         <a class="panel" href="/ai-assist.html">
-          <p class="eyebrow">AIアシスト</p>
+          <p class="eyebrow">AIアシスト <span class="pro-badge">Pro</span></p>
           <h3>AIアシスト</h3>
-          <p class="muted">相手に合わせた関係構築のヒント。</p>
+          <p class="muted">相手に合わせた関係構築のヒント。Pro版の機能です。</p>
         </a>
       </div>
-    </section>
-
-    <section id="cat-key-panel" class="panel">
-      <p class="eyebrow">猫の鍵 / Cat Key</p>
-      <h2>有料版を解放する</h2>
-      <p class="muted">猫の集会メンバーさんは、猫の鍵を入力すると有料版を無料で利用できます（運営の承認後に有効化）。入力内容は公開ページには表示されません。</p>
-      <form id="invite-form" class="inline-form">
-        <input name="code" placeholder="Neko20240222" />
-        <button class="primary" type="submit">適用</button>
-      </form>
-      <p id="invite-message" class="message"></p>
     </section>
 
     <section id="upgrade-panel" class="panel">
       <p class="eyebrow">Pro版</p>
       <h2>Proにアップグレード</h2>
-      <p class="muted">登録時にカード登録のうえ1ヶ月無料。期間終了後に自動で月額¥980（期間中の解約で課金なし）。</p>
-      <p><a class="button primary" href="/square.html">1ヶ月無料で始める</a></p>
+      <p class="muted">登録時にカード登録のうえ1ヶ月無料。期間終了後に自動で月額¥980（期間中の解約で課金なし）。猫の鍵 / Cat Key もこちらから入力できます。</p>
+      <p><a class="button primary" href="/square.html">1ヶ月無料で始める / Cat Key</a></p>
     </section>
   </main>
 
@@ -73,16 +61,12 @@
   <!-- site-footer -->
 
   <script>
-    // Pro/Cat Key 状態に応じて Cat Key・アップグレード導線を出し分け
+    // Pro なら「アップグレード」導線は不要なので隠す（Cat Key 入力は /square に集約）
     fetch('/api/me', { credentials: 'include' })
       .then((r) => r.json())
       .then((d) => {
         const owner = d && d.owner;
-        if (owner && owner.cat_key_disabled) document.getElementById('cat-key-panel')?.remove();
-        if (owner && owner.plan === 'pro') {
-          document.getElementById('cat-key-panel')?.remove();
-          document.getElementById('upgrade-panel')?.remove();
-        }
+        if (owner && owner.plan === 'pro') document.getElementById('upgrade-panel')?.remove();
       })
       .catch(() => {});
   </script>

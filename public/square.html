@@ -16,7 +16,7 @@
     <section class="panel profile-card">
       <p class="eyebrow">Square Checkout</p>
       <h1>Pro版（1ヶ月無料お試し）を始める</h1>
-      <p class="lead">登録時にカード登録のうえ <strong>1ヶ月無料</strong> でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。猫の鍵 / Cat Keyをお持ちの方は、決済せず管理画面から入力してください。</p>
+      <p class="lead">登録時にカード登録のうえ <strong>1ヶ月無料</strong> でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。猫の鍵 / Cat Keyをお持ちの方は、決済せず下の Cat Key 欄から入力してください。</p>
 
       <p id="square-status" class="message">ログイン状態を確認しています...</p>
 
@@ -30,9 +30,19 @@
       <!-- ログイン後：決済へ -->
       <div class="actions app-only">
         <a id="square-payment-link" class="button primary" href="https://square.link/u/sKdZIsyS?src=embed" target="_blank" rel="noopener noreferrer">1ヶ月無料で始める（Square）</a>
-        <a class="button secondary" href="/dashboard.html">Cat Keyを入力する</a>
       </div>
       <p class="message app-only">お支払いは登録メール <strong id="pay-email">（確認中）</strong> で行ってください。このメールとSquareの支払者メールが一致すると、Pro版が自動で有効化されます。決済は新しいタブで開きます。</p>
+    </section>
+
+    <section class="panel app-only" id="catkey-box">
+      <p class="eyebrow">猫の鍵 / Cat Key</p>
+      <h2>Cat Key で無料で解放する</h2>
+      <p class="muted">猫の集会メンバーさんは、決済せずに Cat Key を入力すると Pro版を無料で利用できます（運営の承認後に有効化）。入力内容は公開ページには表示されません。</p>
+      <form id="invite-form" class="inline-form">
+        <input name="code" placeholder="Neko20240222" />
+        <button class="primary" type="submit">適用</button>
+      </form>
+      <p id="invite-message" class="message"></p>
     </section>
   </main>
 
@@ -53,6 +63,8 @@
           if (emailEl) emailEl.textContent = owner.email || '登録メール';
           status.textContent = owner.plan === 'pro' ? 'すでにPro版をご利用中です。' : 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。';
           status.className = 'message ' + (owner.plan === 'pro' ? 'success' : '');
+          // すでにPro（またはCat Key承認済み）なら Cat Key 入力欄は不要
+          if (owner.plan === 'pro') document.getElementById('catkey-box')?.remove();
         } else {
           status.textContent = '';
         }
@@ -60,6 +72,34 @@
         status.textContent = '';
       }
     })();
+
+    // Cat Key 適用（/api/invite-apply）。承認制：即時付与せず承認待ちになる。
+    const inviteForm = document.getElementById('invite-form');
+    if (inviteForm) {
+      inviteForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const msg = document.getElementById('invite-message');
+        msg.textContent = '適用しています...';
+        msg.className = 'message';
+        try {
+          const res = await fetch('/api/invite-apply', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: inviteForm.elements.code.value }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || '適用に失敗しました。');
+          msg.textContent = data.pending
+            ? '申請を受け付けました。運営の承認後に有料版が解放されます。'
+            : '有料版機能が解放されました。';
+          msg.className = 'message success';
+        } catch (error) {
+          msg.textContent = error.message;
+          msg.className = 'message error';
+        }
+      });
+    }
   </script>
 </body>
 </html>
