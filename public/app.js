@@ -491,10 +491,12 @@ async function refreshAdmin() {
     if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>プラン: ${escapeHtml(me.owner.plan === "pro" ? "Pro" : "無料")}</p>` : "";
     updateBookingPageControls();
     if (me.owner) {
-      const bookings = await api("owner-bookings");
-      renderBookings(bookings.bookings || []);
-      const logs = await api("appointment-log");
-      renderLogs(logs.logs || []);
+      // 相手管理（owner-bookings / appointment-log）は Pro 限定 API（無料は 403）。
+      // 無料ユーザーでも予約設定などが壊れないよう、Pro のときだけ取得し、失敗しても致命にしない。
+      if (me.owner.plan === "pro") {
+        try { const bookings = await api("owner-bookings"); renderBookings(bookings.bookings || []); } catch (_) { /* 非致命 */ }
+        try { const logs = await api("appointment-log"); renderLogs(logs.logs || []); } catch (_) { /* 非致命 */ }
+      }
       await loadBookingPages();
     }
   } catch (error) {
