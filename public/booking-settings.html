@@ -25,24 +25,19 @@
       </div>
     </section>
 
-    <!-- STEP 1: Googleカレンダー連携（連携の管理は「設定 > 外部連携」） -->
-    <section class="panel settings-section">
-      <h2><span class="step-chip">1</span>Googleカレンダー連携</h2>
-      <p class="muted">予約の空き枠判定・予定作成・Meet発行に必要です。連携の追加・解除は「設定 ＞ 外部連携」で行います。</p>
-      <p id="calendar-connect-status" class="message">連携状態を確認しています...</p>
-      <p id="calendar-connect-cta" class="actions" style="display:none">
-        <a class="button primary" href="/settings.html#integrations">外部連携でカレンダーを連携する</a>
-      </p>
-      <p id="calendar-manage-cta" class="actions" style="display:none">
-        <a class="button secondary" href="/settings.html#integrations">外部連携の設定を開く</a>
-      </p>
+    <!-- 未連携アラート（連携済みなら非表示）。今後の外部連携追加も見据え常設STEPにはしない -->
+    <section id="calendar-alert" class="panel alert-panel" style="display:none">
+      <p class="eyebrow">要対応</p>
+      <h2>Googleカレンダーが未連携です</h2>
+      <p class="muted">予約の空き枠判定・予定の自動作成・Google Meet発行には連携が必要です。外部連携から連携してください。</p>
+      <p class="actions"><a class="button primary" href="/settings.html#integrations">外部連携でカレンダーを連携する</a></p>
     </section>
 
-    <!-- STEP 2: 予約ページ一覧 -->
+    <!-- 予約ページ一覧 -->
     <section class="panel settings-section">
       <div class="section-head">
         <div>
-          <h2><span class="step-chip">2</span>予約ページ</h2>
+          <h2>予約ページ</h2>
           <p class="muted">設定違いのページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの「開く / URLをコピー / 編集」で操作できます。曜日ごとの受付時間とカレンダーの予定から、空いている枠だけが表示されます。</p>
         </div>
         <button type="button" id="booking-page-new" class="button primary">＋ 新規ページを作成</button>
@@ -123,26 +118,16 @@
 
   <script src="/app.js" defer></script>
   <script>
+    // Googleカレンダー未連携のときだけ連携を促す（連携済みなら何も出さない）。
     (async () => {
-      const statusEl = document.getElementById('calendar-connect-status');
-      const connectCta = document.getElementById('calendar-connect-cta');
-      const manageCta = document.getElementById('calendar-manage-cta');
-      if (!statusEl) return;
-      const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
+      const alertEl = document.getElementById('calendar-alert');
+      if (!alertEl) return;
       try {
         const res = await fetch('/api/me', { credentials: 'include' });
         const data = await res.json().catch(() => ({}));
-        const connected = Boolean(data.calendar_connected);
-        statusEl.textContent = connected
-          ? '✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
-          : '未連携です。予約を受け付けるには、先に外部連携でGoogleカレンダーを連携してください。';
-        statusEl.className = 'message ' + (connected ? 'success' : 'error');
-        // 未連携 → 外部連携（設定）へ誘導。連携済み → 管理リンクのみ。
-        show(connectCta, !connected);
-        show(manageCta, connected);
+        if (!data.calendar_connected) alertEl.style.display = '';
       } catch (_) {
-        statusEl.textContent = '連携状態を確認できませんでした。';
-        show(connectCta, true);
+        alertEl.style.display = '';
       }
     })();
   </script>
