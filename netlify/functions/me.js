@@ -14,7 +14,13 @@ exports.handler = async (event) => {
         calendarConnected = false;
       }
     }
-    return json(200, { owner, calendar_connected: calendarConnected });
+    // password_hash はクライアントへ渡さない。代わりに「パスワード登録済みか」のフラグのみ返す。
+    let safeOwner = owner;
+    if (owner) {
+      const { password_hash, ...rest } = owner;
+      safeOwner = { ...rest, has_password: Boolean(password_hash) };
+    }
+    return json(200, { owner: safeOwner, calendar_connected: calendarConnected });
   } catch (error) {
     return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
