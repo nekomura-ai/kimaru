@@ -21,10 +21,16 @@
       <p id="ai-assist-status" class="message">データを読み込んでいます...</p>
     </section>
 
-    <section id="ai-pro-lock" class="panel wide hidden">
+    <section id="ai-pro-lock" class="panel wide">
       <p class="eyebrow">Pro限定</p>
       <h2>AIアシストはPro版の機能です</h2>
-      <p class="muted">プロフィールと相手データを照合した提案は、Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p class="muted">あなたのプロフィールと、相手管理に貯めたデータ（予約・面談メモ・印象スコア）を照合し、会う前後の打ち手を提案します。Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <ul class="feature-list">
+        <li><strong>最初の入り方</strong>：相手のタイプに合わせた会話の始め方を提案。</li>
+        <li><strong>刺さりやすい話題</strong>：目標・関心・印象スコアから話題を抽出。</li>
+        <li><strong>避けた方がいい入り方</strong>：相手に合わない進め方を回避。</li>
+        <li><strong>次の一手</strong>：次回日程・提案・紹介など、関係を進める行動を提示。</li>
+      </ul>
       <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
     </section>
 
@@ -316,16 +322,18 @@
         loadProfile(profileForm, currentOwner);
         updateOwnerProfileSource(currentOwner);
         if (!currentOwner) {
+          document.body.classList.add('plan-free');
           status.textContent = 'AIアシストを使うには、先にログインしてください。';
           return;
         }
         // Pro専用ゲート（無料会員はロック表示＋アップグレード導線）。Cat Key承認済みは plan='pro' になる。
+        // チラ見え防止：Pro機能は CSS で既定非表示。判定後に body クラスで出し分ける。
         if (currentOwner.plan !== 'pro') {
-          document.getElementById('ai-pro-lock')?.classList.remove('hidden');
-          document.querySelectorAll('.pro-feature').forEach((el) => el.classList.add('hidden'));
+          document.body.classList.add('plan-free');
           status.textContent = 'この機能はPro版でご利用いただけます。';
           return;
         }
+        document.body.classList.add('plan-pro');
         const [bookingData, logData] = await Promise.allSettled([
           api('owner-bookings'),
           api('appointment-log')
@@ -346,6 +354,7 @@
           if (!matched) $('#ai-assist-form input[name="target_keyword"]').value = decoded;
         }
       } catch (error) {
+        document.body.classList.add('plan-free');
         updateOwnerProfileSource(null);
         status.textContent = error.message || 'データを読み込めませんでした。';
       }
