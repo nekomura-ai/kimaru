@@ -70,7 +70,7 @@ exports.handler = async (event) => {
     if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "前後バッファは0・15・30分のいずれかを選択してください" });
     if (!allowedRanges.has(requestedRange)) return json(400, { error: "予約枠の公開範囲は1・2・3・6ヶ月のいずれかを選択してください" });
     if (!isPro && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "無料版で公開できるのは2ヶ月先までです。6ヶ月先まで公開するにはPro版が必要です" });
-    if (questions.length > questionLimit) return json(403, { error: `Your plan supports up to ${questionLimit} questionnaire questions` });
+    if (questions.length > questionLimit) return json(403, { error: `現在のプランで設定できる質問は${questionLimit}問までです（無料2問／Pro5問）` });
     if (!availability.length) return json(400, { error: "受付可能な曜日・時間帯を1つ以上設定してください" });
 
     // 複数予約ページ対応: id 指定で編集、無ければ新規作成（slug はグローバル一意）。
