@@ -137,7 +137,11 @@ exports.handler = async (event) => {
       status: "confirmed",
     };
     if (relationshipContext) {
-      bookingPayload.visitor_birth_date = relationshipContext.birth_date || null;
+      // visitor_birth_date は date 型。非公開や不正値（"非公開"等）は入れず null にする。
+      // 公開かつ YYYY-MM-DD 形式のときだけ日付を保存。非公開の旨は filter_request(JSON) と private フラグに保持。
+      const rawBirth = String(relationshipContext.birth_date || "");
+      const validBirth = !birthDatePrivate && /^\d{4}-\d{2}-\d{2}$/.test(rawBirth) ? rawBirth : null;
+      bookingPayload.visitor_birth_date = validBirth;
       bookingPayload.visitor_birth_date_private = birthDatePrivate;
       bookingPayload.birthday_message_opt_in = Boolean(relationshipContext.birthday_message_opt_in);
       bookingPayload.relationship_profile = relationshipContext.profile || {};
