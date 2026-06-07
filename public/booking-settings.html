@@ -39,18 +39,25 @@
 
     <!-- STEP 2: 予約ページ一覧 -->
     <section class="panel settings-section">
-      <h2><span class="step-chip">2</span>予約ページ</h2>
-      <p class="muted">設定違いのページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの「開く / URLをコピー」で相手に共有してください。曜日ごとの受付時間とカレンダーの予定から、空いている枠だけが表示されます。新しいページは下の「ページの内容を設定」から作成できます。</p>
+      <div class="section-head">
+        <div>
+          <h2><span class="step-chip">2</span>予約ページ</h2>
+          <p class="muted">設定違いのページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの「開く / URLをコピー / 編集」で操作できます。曜日ごとの受付時間とカレンダーの予定から、空いている枠だけが表示されます。</p>
+        </div>
+        <button type="button" id="booking-page-new" class="button primary">＋ 新規ページを作成</button>
+      </div>
       <div id="booking-pages-list" class="list"></div>
     </section>
+  </main>
 
-    <!-- STEP 3: ページの内容を設定 -->
-    <section id="booking-settings-form-panel" class="panel settings-section">
-      <h2><span class="step-chip">3</span>ページの内容を設定</h2>
-      <div class="section-head">
-        <p id="booking-page-editing" class="muted">新規作成モード</p>
-        <button type="button" id="booking-page-new" class="button secondary" style="display:none">＋ 別の新規ページを作成</button>
+  <!-- ページ設定エディタ（モーダル：新規作成・編集） -->
+  <div id="page-editor-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="page-editor-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="page-editor-title">ページの内容を設定</h2>
+        <button type="button" id="page-editor-close" class="button secondary">閉じる</button>
       </div>
+      <p id="booking-page-editing" class="muted">新規ページを作成</p>
       <form id="booking-page-form" class="form-grid">
         <input type="hidden" name="page_id" id="booking-page-id" />
         <label>ページタイトル<input name="title" value="〇〇との面談" required /></label>
@@ -108,8 +115,8 @@
         <button class="primary" type="submit">設定を保存する</button>
       </form>
       <p id="booking-page-message" class="message"></p>
-    </section>
-  </main>
+    </div>
+  </div>
 
   <!-- site-footer -->
 

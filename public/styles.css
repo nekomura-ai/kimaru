@@ -193,6 +193,16 @@ textarea{resize:vertical}
 .section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
 .section-head>div{flex:1;min-width:240px}
 .section-head .button{flex:none}
+/* ページ設定モーダル（編集・新規作成を別画面風に） */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;background:rgba(10,10,10,.55);overflow-y:auto;animation:modalFade .2s ease both}
+.modal.open{display:flex}
+.modal-card{width:min(680px,100%);padding:26px;background:var(--surface);border:1px solid var(--ink);border-radius:0;box-shadow:0 40px 90px -30px rgba(0,0,0,.6);animation:modalUp .24s cubic-bezier(.22,1,.36,1) both}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.modal-head h2{margin:0}
+body.modal-open{overflow:hidden}
+@keyframes modalFade{from{opacity:0}to{opacity:1}}
+@keyframes modalUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.modal,.modal-card{animation:none}}
 @media(max-width:760px){.step-grid,.dashboard .feature-grid{grid-template-columns:1fr}.dash-hero{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.step-card,.feature-card{opacity:1;transform:none;animation:none}}
 .plan-lead{max-width:760px}
