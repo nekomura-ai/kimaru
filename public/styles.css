@@ -186,6 +186,13 @@ textarea{resize:vertical}
 .upgrade-banner-text{max-width:64ch}
 .upgrade-banner-text .muted{margin:0}
 @keyframes dashUp{to{opacity:1;transform:translateY(0)}}
+/* 予約設定：3ステップの流れ */
+.settings-section{margin-top:22px}
+.settings-section>h2{display:flex;align-items:center;margin-bottom:10px}
+.step-chip{display:inline-flex;align-items:center;justify-content:center;flex:none;width:26px;height:26px;margin-right:10px;font-family:var(--sans);font-weight:900;font-size:14px;color:#fff;background:var(--ink)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.section-head>div{flex:1;min-width:240px}
+.section-head .button{flex:none}
 @media(max-width:760px){.step-grid,.dashboard .feature-grid{grid-template-columns:1fr}.dash-hero{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.step-card,.feature-card{opacity:1;transform:none;animation:none}}
 .plan-lead{max-width:760px}
