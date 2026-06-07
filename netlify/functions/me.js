@@ -16,6 +16,6 @@ exports.handler = async (event) => {
     }
     return json(200, { owner, calendar_connected: calendarConnected });
   } catch (error) {
-    return json(500, { error: error.message });
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

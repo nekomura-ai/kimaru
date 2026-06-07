@@ -15,13 +15,13 @@ function makeSlug(email) {
 
 // メール+パスワードでアカウント登録（決定3）。ログインとカレンダー連携は分離（[features/25]）。
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   try {
     const body = readJson(event);
     const name = clean(body.name, 100);
     const email = clean(body.email).toLowerCase();
     const password = String(body.password || "");
-    if (!email || !EMAIL_RE.test(email)) return json(400, { error: "Invalid email address" });
+    if (!email || !EMAIL_RE.test(email)) return json(400, { error: "メールアドレスの形式が正しくありません" });
     if (password.length < 8) return json(400, { error: "パスワードは8文字以上にしてください" });
 
     const existing = await findOwnerByEmail(email);
@@ -45,6 +45,6 @@ exports.handler = async (event) => {
     }
     return json(200, { ok: true, owner: { id: owner.id, email: owner.email, name: owner.name, plan: owner.plan } }, { "Set-Cookie": sessionCookie(owner.id) });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

@@ -24,7 +24,7 @@ async function tokenRequest(params) {
     body: new URLSearchParams({ client_id: required("GOOGLE_CLIENT_ID"), client_secret: required("GOOGLE_CLIENT_SECRET"), redirect_uri: googleRedirectUri(), ...params }),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error_description || data.error || "Google token request failed");
+  if (!response.ok) throw new Error(data.error_description || data.error || "Googleとの認証に失敗しました");
   return data;
 }
 
@@ -35,7 +35,7 @@ async function exchangeCode(code) {
 async function userInfo(accessToken) {
   const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", { headers: { Authorization: `Bearer ${accessToken}` } });
   const data = await response.json();
-  if (!response.ok) throw new Error("Failed to load Google profile");
+  if (!response.ok) throw new Error("Googleプロフィールの取得に失敗しました");
   return data;
 }
 
@@ -75,7 +75,7 @@ async function freebusy(ownerId, timeMin, timeMax) {
     body: JSON.stringify({ timeMin, timeMax, items: [{ id: "primary" }] }),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "Google freebusy failed");
+  if (!response.ok) throw new Error(data.error?.message || "Googleカレンダーの空き時間取得に失敗しました");
   return data.calendars?.primary?.busy || [];
 }
 
@@ -106,7 +106,7 @@ async function createCalendarEvent(ownerId, booking) {
     body: JSON.stringify(eventBody),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "Google event create failed");
+  if (!response.ok) throw new Error(data.error?.message || "Googleカレンダーへの予定作成に失敗しました");
   return data;
 }
 

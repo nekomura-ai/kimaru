@@ -10,7 +10,7 @@ async function currentOwner(event) {
 async function requireOwner(event) {
   const owner = await currentOwner(event);
   if (!owner) {
-    const error = new Error("Login required");
+    const error = new Error("ログインが必要です");
     error.statusCode = 401;
     throw error;
   }
@@ -36,7 +36,7 @@ function currentOperator(event) {
 function requireOperator(event) {
   const operator = currentOperator(event);
   if (!operator) {
-    const error = new Error("Operator login required");
+    const error = new Error("運営ログインが必要です");
     error.statusCode = 401;
     throw error;
   }

@@ -18,16 +18,16 @@ exports.handler = async (event) => {
       const body = readJson(event);
       const action = String(body.action || "");
       const id = String(body.id || "").trim();
-      if (action !== "delete" || !id) return json(400, { error: "Invalid request" });
+      if (action !== "delete" || !id) return json(400, { error: "リクエストが不正です" });
       const rows = await sb(`booking_pages?id=${eq(id)}&owner_id=${eq(owner.id)}&limit=1`);
-      if (!rows[0]) return json(404, { error: "Booking page not found" });
+      if (!rows[0]) return json(404, { error: "対象の予約ページが見つかりません" });
       await sb(`questionnaire_questions?booking_page_id=${eq(id)}`, { method: "DELETE" }).catch(() => {});
       await sb(`booking_pages?id=${eq(id)}`, { method: "DELETE" });
       return json(200, { ok: true });
     }
 
-    return json(405, { error: "Method not allowed" });
+    return json(405, { error: "許可されていない操作です" });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

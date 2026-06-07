@@ -12,7 +12,7 @@ function timingEqual(a, b) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   const body = readJson(event);
 
   if (body.action === "logout") {

@@ -47,7 +47,7 @@ async function auditCatKey(event, payload) {
 }
 
 async function listOwners(event) {
-  if (!isCatKeyAdmin(event)) return json(401, { error: "Unauthorized" });
+  if (!isCatKeyAdmin(event)) return json(401, { error: "認証が必要です" });
   const owners = await sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,cat_key_pending,created_at&order=created_at.desc&limit=200").catch(() =>
     sb("owners?select=id,email,name,plan,invite_code,cat_key_disabled,created_at&order=created_at.desc&limit=200"));
   const events = await sb("cat_key_events?select=id,owner_id,email,action,code,ip_address,user_agent,metadata,created_at&order=created_at.desc&limit=50").catch(() => []);
@@ -56,11 +56,11 @@ async function listOwners(event) {
 
 async function updateOwnerCatKey(event) {
   const body = readJson(event);
-  if (!isCatKeyAdmin(event, body)) return json(401, { error: "Unauthorized" });
+  if (!isCatKeyAdmin(event, body)) return json(401, { error: "認証が必要です" });
   const ownerId = String(body.owner_id || "").trim();
   const action = String(body.action || "revoke");
-  if (!ownerId) return json(400, { error: "Missing owner_id" });
-  if (!["revoke", "restore", "approve", "reject"].includes(action)) return json(400, { error: "Invalid action" });
+  if (!ownerId) return json(400, { error: "owner_id が指定されていません" });
+  if (!["revoke", "restore", "approve", "reject"].includes(action)) return json(400, { error: "操作が不正です" });
   const patchByAction = {
     approve: { plan: "pro", cat_key_pending: false, cat_key_disabled: false },
     reject: { cat_key_pending: false, invite_code: "" },
@@ -78,24 +78,24 @@ exports.handler = async (event) => {
     if (event.queryStringParameters?.admin === "cat-key") {
       if (event.httpMethod === "GET") return listOwners(event);
       if (event.httpMethod === "POST") return updateOwnerCatKey(event);
-      return json(405, { error: "Method not allowed" });
+      return json(405, { error: "許可されていない操作です" });
     }
 
-    if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+    if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
     const owner = await requireOwner(event);
     if (owner.cat_key_disabled) {
       await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "blocked_apply" });
-      return json(403, { error: "Cat Key is disabled for this account." });
+      return json(403, { error: "このアカウントではCat Keyを利用できません" });
     }
     const body = readJson(event);
     const code = String(body.code || "").trim().toUpperCase();
     if (!CODE_RE.test(code)) {
       await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "invalid_format", code });
-      return json(400, { error: "Invalid invite code" });
+      return json(400, { error: "招待コード（Cat Key）が正しくありません" });
     }
     if (!proCodes.has(code)) {
       await auditCatKey(event, { owner_id: owner.id, email: owner.email, action: "invalid_code", code });
-      return json(400, { error: "Invalid invite code" });
+      return json(400, { error: "招待コード（Cat Key）が正しくありません" });
     }
     // 承認制（決定 2026-06-03）: 即時付与せず「承認待ち」にする。運営がコンソールで承認するとproになる。
     try {
@@ -110,6 +110,6 @@ exports.handler = async (event) => {
       return json(200, { ok: true, pending: false, owner: rows[0] });
     }
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

@@ -9,15 +9,15 @@ function clean(value, max = 500) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
+  if (event.httpMethod !== "POST") return json(405, { error: "許可されていない操作です" });
   try {
     const body = readJson(event);
     const name = clean(body.name, 100);
     const email = clean(body.email, 254).toLowerCase();
     const language = clean(body.language || "ja", 20);
-    if (!name || !email) return json(400, { error: "Name and email are required" });
-    if (!EMAIL_RE.test(email)) return json(400, { error: "Invalid email address" });
-    if (!LANGUAGE_RE.test(language)) return json(400, { error: "Invalid language" });
+    if (!name || !email) return json(400, { error: "お名前とメールアドレスは必須です" });
+    if (!EMAIL_RE.test(email)) return json(400, { error: "メールアドレスの形式が正しくありません" });
+    if (!LANGUAGE_RE.test(language)) return json(400, { error: "言語の指定が正しくありません" });
 
     const rows = await sb("free_signups", {
       method: "POST",
@@ -31,6 +31,6 @@ exports.handler = async (event) => {
     });
     return json(200, { ok: true, signup: rows[0] });
   } catch (error) {
-    return json(500, { error: error.message });
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

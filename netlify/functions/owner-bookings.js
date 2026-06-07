@@ -23,6 +23,6 @@ exports.handler = async (event) => {
     const bookings = await sb(`bookings?owner_id=${eq(owner.id)}&order=start_at.desc&limit=50`);
     return json(200, { bookings: (bookings || []).map(hidePrivateBirthDate) });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };

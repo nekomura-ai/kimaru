@@ -67,8 +67,8 @@ exports.handler = async (event) => {
       }
     }
 
-    return json(405, { error: "Method not allowed" });
+    return json(405, { error: "許可されていない操作です" });
   } catch (error) {
-    return json(error.statusCode || 500, { error: error.message });
+    return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
 };
