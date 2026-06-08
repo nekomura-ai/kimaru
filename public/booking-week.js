@@ -34,6 +34,30 @@ function escapeHtml(value) {
 
 let bookingQuestions = [];
 
+const LOCATION_LABELS = {
+  google_meet: "Google Meet（自動発行）",
+  zoom: "Zoom",
+  in_person: "対面",
+  phone: "電話",
+  custom_url: "オンライン",
+  later: "後日連絡",
+};
+
+function renderHost(host) {
+  if (!host) return;
+  const titleEl = document.getElementById("host-title");
+  const nameEl = document.getElementById("host-name");
+  const descEl = document.getElementById("host-desc");
+  const metaEl = document.getElementById("meeting-meta");
+  if (titleEl) titleEl.textContent = host.title || "日程を選んで予約";
+  if (nameEl) nameEl.textContent = host.name ? `${host.name} さんとの面談` : "";
+  if (descEl) descEl.textContent = host.description || "";
+  if (metaEl) {
+    const loc = LOCATION_LABELS[host.location_type] || "";
+    metaEl.innerHTML = `<li>所要時間：${Number(host.duration_minutes) || 30}分</li>${loc ? `<li>開催方法：${escapeHtml(loc)}</li>` : ""}`;
+  }
+}
+
 function renderQuestions(questions) {
   const container = document.getElementById("questionnaire-fields");
   if (!container) return;
@@ -246,6 +270,7 @@ async function initBooking() {
   if (form.elements.owner_slug) form.elements.owner_slug.value = slug;
   try {
     const data = await api(`availability?slug=${encodeURIComponent(slug)}`);
+    renderHost(data.host);
     renderWeeklyAvailability(grid, data.slots || [], form);
     renderQuestions(data.questions || []);
   } catch (error) {

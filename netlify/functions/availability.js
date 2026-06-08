@@ -103,14 +103,22 @@ exports.handler = async (event) => {
     if (!owner) return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null), questions: [] });
 
     const questions = await bookingPageQuestions(bookingPage);
+    // ゲスト予約ページに表示するホスト・会議情報
+    const host = {
+      name: owner.name || "",
+      title: bookingPage?.title || "",
+      description: bookingPage?.description || "",
+      duration_minutes: bookingPage?.duration_minutes || 30,
+      location_type: bookingPage?.location_type || "google_meet",
+    };
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
     const slots = generateSlots(weeklySettings, bookingPage);
-    if (!slots.length) return json(200, { slots: [], questions });
+    if (!slots.length) return json(200, { slots: [], questions, host });
 
     const timeMin = slots[0].start;
     const timeMax = slots[slots.length - 1].end;
     const busy = await freebusy(owner.id, timeMin, timeMax).catch(() => []);
-    return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)), questions });
+    return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)), questions, host });
   } catch (error) {
     return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
