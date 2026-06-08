@@ -84,8 +84,10 @@ async function createCalendarEvent(ownerId, booking) {
   if (!accessToken) return null;
   const shouldCreateMeet = (booking.location_type || "google_meet") === "google_meet";
   const eventBody = {
-    summary: `Kimaru: ${booking.visitor_name || booking.guest_name || "Meeting"}`,
-    description: `${booking.topic || ""}\n\nKimaru helps the meeting start with shared context.`,
+    summary: `キマル：${booking.visitor_name || booking.guest_name || "面談"} さんとの面談`,
+    description: booking.calendar_description != null
+      ? booking.calendar_description
+      : `${booking.topic || ""}\n\nキマルで予約された面談です。`,
     start: { dateTime: booking.start_at || booking.start_time },
     end: { dateTime: booking.end_at || booking.end_time },
     attendees: booking.visitor_email ? [{ email: booking.visitor_email, displayName: booking.visitor_name }] : [],

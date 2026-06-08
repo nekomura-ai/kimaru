@@ -219,7 +219,11 @@ function buildBookingPayload(form) {
     profile,
   }) : "none";
   const answers = [...document.querySelectorAll("#questionnaire-fields textarea")]
-    .map((el) => ({ question_id: el.dataset.questionId || null, answer_text: el.value.trim() }))
+    .map((el) => {
+      const label = el.closest("label")?.querySelector("span")?.textContent || "";
+      const questionText = label.replace(/\s*\*$/, "").replace(/（任意）$/, "").trim();
+      return { question_id: el.dataset.questionId || null, question_text: questionText, answer_text: el.value.trim() };
+    })
     .filter((answer) => answer.answer_text);
   data.answers = answers;
   data.topic = answers[0]?.answer_text || "";

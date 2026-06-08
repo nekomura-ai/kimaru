@@ -164,6 +164,16 @@ exports.handler = async (event) => {
       }
     }
 
+    // カレンダー予定の説明文に「事前アンケート（質問と回答）」を載せる。
+    const qa = answers
+      .filter((a) => a && a.answer_text)
+      .map((a) => `Q. ${clean(a.question_text, 200) || "質問"}\nA. ${clean(a.answer_text, 2000)}`)
+      .join("\n\n");
+    booking.calendar_description = [
+      qa ? `【事前アンケート】\n${qa}` : (booking.topic ? `相談内容: ${booking.topic}` : ""),
+      "— キマルで予約された面談です。",
+    ].filter(Boolean).join("\n\n");
+
     const eventResult = await createCalendarEvent(owner.id, booking).catch((error) => ({ error: error.message }));
     if (eventResult?.id) {
       await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || "" }) });
