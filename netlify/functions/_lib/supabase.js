@@ -46,7 +46,7 @@ async function ensureDefaultBookingPage(owner) {
   if (rows[0]) return rows[0];
   const created = await sb("booking_pages", {
     method: "POST",
-    body: JSON.stringify({ owner_id: owner.id, slug: owner.slug || "demo", title: "Kimaru meeting", duration_minutes: 30, active: true }),
+    body: JSON.stringify({ owner_id: owner.id, slug: owner.slug || "demo", title: "キマルでの面談", duration_minutes: 30, active: true }),
   });
   return created[0];
 }
