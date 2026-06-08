@@ -28,13 +28,13 @@ const OPERATOR_PATHS = [
 const SITE_HEADER = `<header class="site-header">
     <a class="brand" href="/" data-i18n="common.brand">キマル</a>
     <nav>
-      <a href="/pro.html" data-i18n="nav.pro">Pro版</a>
+      <a class="guest-only" href="/pro.html" data-i18n="nav.pro">Pro版</a>
       <a class="guest-only" href="/signup.html" data-i18n="nav.signup">無料登録</a>
       <a class="guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
       <a class="app-only" href="/dashboard.html" data-i18n="nav.dashboard">ホーム</a>
-      <a class="app-only" href="/contacts.html" data-i18n="nav.admin">相手管理</a>
       <a class="app-only" href="/booking-settings.html" data-i18n="nav.bookingSettings">予約設定</a>
-      <a class="app-only" href="/profile.html" data-i18n="nav.profile">プロフィール</a>
+      <a class="app-only" href="/profile.html" data-i18n="nav.profile">プロフィール設定</a>
+      <a class="app-only" href="/contacts.html" data-i18n="nav.admin">相手管理</a>
       <a class="app-only" href="/ai-assist.html" data-i18n="nav.aiAssist">AIアシスト</a>
       <a class="app-only" href="/settings.html" data-i18n="nav.settings">設定</a>
       <select class="lang-select" data-language-select aria-label="Language"></select>

@@ -67,6 +67,11 @@ a{color:inherit;text-decoration:none}
 .brand-tag{margin-left:6px;padding:2px 6px;font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--blue)}
 .booking-header{justify-content:space-between}
 .pro-badge{display:inline-block;margin-left:6px;padding:1px 7px;font-family:var(--sans);font-size:10px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--blue);vertical-align:middle;border-radius:0}
+/* トップ（ログイン中）クイックアクセス */
+.quick-links{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.quick-links a{display:block;padding:13px 14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:0;font-family:var(--sans);font-weight:700;font-size:14px;transition:background .15s ease,color .15s ease,transform .15s ease}
+.quick-links a:hover{background:var(--blue);border-color:var(--blue);color:#fff;transform:translateY(-2px)}
+@media(max-width:520px){.quick-links{grid-template-columns:1fr}}
 /* プラン確定までチラ見え防止：Pro専用セクションとロックは既定で非表示。判定後に body.plan-pro / .plan-free で出し分け */
 .pro-feature{display:none}
 .plan-pro .pro-feature{display:block}
@@ -195,6 +200,23 @@ textarea{resize:vertical}
 .section-head .button{flex:none}
 .alert-panel{border-left:4px solid var(--danger)}
 .alert-panel .eyebrow{color:var(--danger)}
+/* プロフィール設定：編集 ⇄ ライブプレビュー */
+.profile-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:start;margin-top:22px}
+.profile-form{grid-template-columns:1fr}
+.form-group{grid-column:1/-1;margin:14px 0 0;padding-bottom:6px;border-bottom:1px solid var(--line);font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--blue);text-transform:uppercase}
+.form-group:first-child{margin-top:0}
+.profile-preview-col{position:sticky;top:88px}
+.profile-card .assist-summary{padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--ink)}
+.assist-summary .eyebrow{display:inline-block;margin:0 0 8px;padding:2px 8px;color:#fff;background:var(--blue)}
+.assist-summary h3{margin:0;font-family:var(--sans);font-size:24px;letter-spacing:-.01em}
+.assist-block{margin-top:14px}
+.assist-block h3{margin:0 0 3px;font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+.assist-block p{margin:0;color:var(--ink-soft);white-space:pre-wrap;line-height:1.7}
+@media(max-width:820px){.profile-grid{grid-template-columns:1fr}.profile-preview-col{position:static}}
+.q-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.q-row input{flex:1}
+.q-row .question-remove{flex:none;min-height:42px;padding:0 14px}
+#add-question[disabled]{opacity:.5;cursor:not-allowed}
 /* ページ設定モーダル（編集・新規作成を別画面風に） */
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;background:rgba(10,10,10,.55);overflow-y:auto;animation:modalFade .2s ease both}
 .modal.open{display:flex}

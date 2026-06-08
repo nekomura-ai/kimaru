@@ -12,7 +12,31 @@
 <body data-i18n-title="home.pageTitle">
 <!-- site-header -->
 <main>
-  <section class="section hero">
+  <!-- ログイン中：おかえりなさい＋クイックアクセス -->
+  <section class="section hero app-only" id="authed-hero">
+    <div>
+      <p class="eyebrow">マイページ</p>
+      <h1>おかえりなさい<span id="welcome-name"></span></h1>
+      <p class="lead">キマルの設定・相手管理はホームから。よく使う機能へすぐ移動できます。</p>
+      <div class="actions">
+        <a class="button primary" href="/dashboard.html">ホームへ</a>
+        <a class="button secondary" href="/booking-settings.html">予約設定</a>
+      </div>
+    </div>
+    <div class="panel">
+      <p class="eyebrow">クイックアクセス</p>
+      <div class="quick-links">
+        <a href="/dashboard.html">ホーム</a>
+        <a href="/booking-settings.html">予約設定</a>
+        <a href="/profile.html">プロフィール設定</a>
+        <a href="/contacts.html">相手管理</a>
+        <a href="/ai-assist.html">AIアシスト</a>
+        <a href="/settings.html">設定</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section hero guest-only">
     <div>
       <p class="eyebrow" data-i18n="home.hero.eyebrow">Scheduling + prep + CRM</p>
       <h1 data-i18n="home.hero.heading">日程がキマル。Pro版では契約がキマりやすく。</h1>
@@ -26,7 +50,7 @@
       </div>
     </div>
     <div class="panel">
-      <span class="badge" data-i18n="home.panel.badge">Free: 3ヶ月先まで / Pro: 6ヶ月先まで</span>
+      <span class="badge" data-i18n="home.panel.badge">Free: 2ヶ月先まで / Pro: 6ヶ月先まで</span>
       <h2 data-i18n="home.panel.heading">会う前の準備まで、ひとつに。</h2>
       <p data-i18n="home.panel.desc">事前アンケート、プロフィール付きリマインド、面談メモ、印象スコアを組み合わせて、日程調整を「会う前の関係づくり」まで広げます。</p>
       <div class="actions">
@@ -38,7 +62,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section guest-only">
     <p class="eyebrow" data-i18n="home.plan.eyebrow">Plan</p>
     <h2 data-i18n="home.plan.heading">無料版とPro版の違い</h2>
     <div class="panel plan-table-card">
@@ -46,7 +70,7 @@
         <table class="comparison-table">
           <thead><tr><th data-i18n="home.plan.th.feature">機能</th><th data-i18n="home.plan.th.free">無料版</th><th data-i18n="home.plan.th.pro">Pro版</th></tr></thead>
           <tbody>
-            <tr><td data-i18n="home.plan.range.label">予約枠の公開範囲</td><td data-i18n="home.plan.range.free">今日から3ヶ月先まで</td><td data-i18n="home.plan.range.pro">今日から6ヶ月先まで</td></tr>
+            <tr><td data-i18n="home.plan.range.label">予約枠の公開範囲</td><td data-i18n="home.plan.range.free">今日から2ヶ月先まで</td><td data-i18n="home.plan.range.pro">今日から6ヶ月先まで</td></tr>
             <tr><td data-i18n="home.plan.survey.label">事前アンケート</td><td data-i18n="home.plan.survey.free">最大2問</td><td data-i18n="home.plan.survey.pro">最大5問</td></tr>
             <tr><td data-i18n="home.plan.hours.label">曜日ごとの受付時間</td><td data-i18n="home.plan.hours.free">利用可能</td><td data-i18n="home.plan.hours.pro">利用可能</td></tr>
             <tr><td data-i18n="home.plan.contacts.label">相手管理</td><td data-i18n="home.plan.contacts.free">基本メモ</td><td data-i18n="home.plan.contacts.pro">印象スコア・フォロー管理を強化</td></tr>
@@ -68,6 +92,17 @@
 
   <!-- site-footer -->
 
+<script>
+  // ログイン中なら「おかえりなさい、〇〇さん」と名前を表示（未ログインは app-only で非表示）
+  fetch('/api/me', { credentials: 'include' })
+    .then((r) => r.json())
+    .then((d) => {
+      const owner = d && d.owner;
+      const el = document.getElementById('welcome-name');
+      if (owner && el) el.textContent = `、${owner.name || owner.email} さん`;
+    })
+    .catch(() => {});
+</script>
 <script src="/i18n.js" defer></script>
 </body>
 </html>
