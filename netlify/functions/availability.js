@@ -51,7 +51,8 @@ function generateSlots(weeklySettings, bookingPage, fromTime, toTime) {
 
     const open = timeToMinutes(setting.start_time);
     const close = timeToMinutes(setting.end_time);
-    for (let minute = open + bufferBefore; minute + duration + bufferAfter <= close; minute += step) {
+    // 最初の枠は受付開始時刻ちょうどから。バッファは枠と枠の間隔（step）に反映する。
+    for (let minute = open; minute + duration <= close; minute += step) {
       const start = tokyoLocalDateToUtc(parts.year, parts.month, parts.date, minute);
       const end = new Date(start.getTime() + duration * 60 * 1000);
       if (start <= now) continue;
