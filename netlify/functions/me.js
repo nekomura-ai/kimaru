@@ -1,10 +1,16 @@
 const { json } = require("./_lib/response");
 const { currentOwner } = require("./_lib/auth");
+const { clearSessionCookie } = require("./_lib/crypto");
 const { sb, eq } = require("./_lib/supabase");
 
 exports.handler = async (event) => {
   try {
     const owner = await currentOwner(event);
+    // Cookie はあるが owner に解決できない（別 SESSION_SECRET / 期限切れ / owner 不在）＝無効セッション。
+    // 残った無効 Cookie を消して宙ぶらり状態を解消する。
+    const cookieHeader = event.headers.cookie || event.headers.Cookie || "";
+    const hadSessionCookie = /(?:^|;\s*)kimaru_session=[^;]+/.test(cookieHeader);
+    const extraHeaders = !owner && hadSessionCookie ? { "Set-Cookie": clearSessionCookie() } : {};
     let calendarConnected = false;
     if (owner) {
       try {
@@ -20,7 +26,7 @@ exports.handler = async (event) => {
       const { password_hash, ...rest } = owner;
       safeOwner = { ...rest, has_password: Boolean(password_hash) };
     }
-    return json(200, { owner: safeOwner, calendar_connected: calendarConnected });
+    return json(200, { owner: safeOwner, calendar_connected: calendarConnected }, extraHeaders);
   } catch (error) {
     return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }
