@@ -195,6 +195,19 @@ textarea{resize:vertical}
 .section-head .button{flex:none}
 .alert-panel{border-left:4px solid var(--danger)}
 .alert-panel .eyebrow{color:var(--danger)}
+/* プロフィール設定：編集 ⇄ ライブプレビュー */
+.profile-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:start;margin-top:22px}
+.profile-form{grid-template-columns:1fr}
+.form-group{grid-column:1/-1;margin:14px 0 0;padding-bottom:6px;border-bottom:1px solid var(--line);font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--blue);text-transform:uppercase}
+.form-group:first-child{margin-top:0}
+.profile-preview-col{position:sticky;top:88px}
+.profile-card .assist-summary{padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--ink)}
+.assist-summary .eyebrow{display:inline-block;margin:0 0 8px;padding:2px 8px;color:#fff;background:var(--blue)}
+.assist-summary h3{margin:0;font-family:var(--sans);font-size:24px;letter-spacing:-.01em}
+.assist-block{margin-top:14px}
+.assist-block h3{margin:0 0 3px;font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+.assist-block p{margin:0;color:var(--ink-soft);white-space:pre-wrap;line-height:1.7}
+@media(max-width:820px){.profile-grid{grid-template-columns:1fr}.profile-preview-col{position:static}}
 .q-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .q-row input{flex:1}
 .q-row .question-remove{flex:none;min-height:42px;padding:0 14px}

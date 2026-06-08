@@ -266,11 +266,13 @@ async function initSignup() {
     event.preventDefault();
     setMessage("#signup-message", t("signup.creating"));
     try {
-      await api("signup", { method: "POST", body: JSON.stringify(formData(form)) });
-      const selectedLanguage = form.elements.language?.value;
-      form.reset();
-      if (form.elements.language && selectedLanguage) form.elements.language.value = selectedLanguage;
+      const data = formData(form);
+      // アカウント作成＋ログイン（セッション発行）
+      await api("auth-register", { method: "POST", body: JSON.stringify({ name: data.name, email: data.email, password: data.password }) });
+      // 利用目的・言語は申請記録として保存（任意・失敗しても続行）
+      api("signup", { method: "POST", body: JSON.stringify(data) }).catch(() => {});
       setMessage("#signup-message", t("signup.done"), "success");
+      location.href = "/dashboard.html";
     } catch (error) {
       setMessage("#signup-message", error.message, "error");
     }

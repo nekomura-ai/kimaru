@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - プロフィールシート</title>
+  <title>キマル - プロフィール設定</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -12,62 +12,73 @@
 <body>
   <!-- site-header -->
 
-  <main class="shell admin-grid">
-    <section class="panel wide">
-      <p class="eyebrow">Profile Sheet</p>
-      <h1>プロフィールシート</h1>
-      <p class="lead">AIアシストが、あなたらしい提案を作るための基本情報です。</p>
-      <p class="muted">ここで保存した内容は、AIアシストのプロフィールシートに自動反映されます。相手に何を届けられる人なのかを整理しておくと、関係構築の提案が具体的になります。</p>
-      <p id="profile-status" class="message">ログイン中のプロフィールを確認しています...</p>
-    </section>
-
-    <section class="panel wide">
-      <p class="eyebrow">あなたの情報</p>
-      <h2>プロフィールを整える</h2>
-      <form id="profile-form" class="form-grid">
-        <label>表示名
-          <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
-        </label>
-        <label>連絡先メール
-          <input name="profile_email" type="email" placeholder="you@example.com" />
-        </label>
-        <label>肩書き・活動内容
-          <input name="profile_title" placeholder="例：事業プロデューサー / 営業支援 / コミュニティ運営" />
-        </label>
-        <label>自分の強み・得意なこと
-          <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
-        </label>
-        <label>話し方・提案スタイル
-          <select name="profile_style">
-            <option value="logical">論理型</option>
-            <option value="empathy">共感型</option>
-            <option value="energy">熱量型</option>
-            <option value="listener">聞き役型</option>
-            <option value="partner">伴走型</option>
-          </select>
-        </label>
-        <label>相手に提供できる価値
-          <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理"></textarea>
-        </label>
-        <label>話すときに大切にしていること
-          <textarea name="profile_values" rows="3" placeholder="例：相手の可能性を広げる、押し売りしない、次の一歩を明確にする"></textarea>
-        </label>
-        <label>今回キメたいこと・次につなげたいこと
-          <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
-        </label>
-        <button class="primary" type="submit">プロフィールを保存</button>
-      </form>
-      <p id="profile-message" class="message"></p>
-    </section>
-
-    <section class="panel wide">
-      <p class="eyebrow">Preview</p>
-      <h2>AIアシストに渡すプロフィール</h2>
-      <div id="profile-preview" class="soft-box">
-        <p class="muted">プロフィールを保存するとプレビューが表示されます。</p>
+  <main class="shell">
+    <section class="dash-hero">
+      <div class="dash-hero-text">
+        <p class="eyebrow">プロフィール設定</p>
+        <h1>あなたのプロフィール</h1>
+        <p class="muted">ここで整えた自己紹介は、相手に合わせた提案を作る「AIアシスト」に渡されます。右のプレビューが、AIアシストが見るあなたの姿です。</p>
+        <p id="profile-status" class="message">ログイン中のプロフィールを確認しています...</p>
       </div>
-      <p><a class="button primary" href="/ai-assist.html">AIアシストで使う</a></p>
     </section>
+
+    <div class="profile-grid">
+      <section class="panel settings-section">
+        <p class="eyebrow">あなたの情報</p>
+        <h2>プロフィールを整える</h2>
+        <form id="profile-form" class="form-grid profile-form">
+          <p class="form-group">基本</p>
+          <label>表示名
+            <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
+          </label>
+          <label>連絡先メール
+            <input name="profile_email" type="email" placeholder="you@example.com" />
+          </label>
+          <label>肩書き・活動内容
+            <input name="profile_title" placeholder="例：事業プロデューサー / 営業支援 / コミュニティ運営" />
+          </label>
+
+          <p class="form-group">伝え方</p>
+          <label>自分の強み・得意なこと
+            <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
+          </label>
+          <label>話し方・提案スタイル
+            <select name="profile_style">
+              <option value="logical">論理型</option>
+              <option value="empathy">共感型</option>
+              <option value="energy">熱量型</option>
+              <option value="listener">聞き役型</option>
+              <option value="partner">伴走型</option>
+            </select>
+          </label>
+
+          <p class="form-group">相手に届けるもの</p>
+          <label>相手に提供できる価値
+            <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理"></textarea>
+          </label>
+          <label>話すときに大切にしていること
+            <textarea name="profile_values" rows="3" placeholder="例：相手の可能性を広げる、押し売りしない、次の一歩を明確にする"></textarea>
+          </label>
+          <label>今回キメたいこと・次につなげたいこと
+            <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
+          </label>
+          <button class="primary" type="submit">プロフィールを保存</button>
+        </form>
+        <p id="profile-message" class="message"></p>
+      </section>
+
+      <div class="profile-preview-col">
+        <section class="panel settings-section">
+          <p class="eyebrow">プレビュー</p>
+          <h2>AIアシストに渡すプロフィール</h2>
+          <p class="muted" style="margin-bottom:14px;">入力するとリアルタイムで反映されます。</p>
+          <div id="profile-preview" class="soft-box profile-card">
+            <p class="muted">プロフィールを入力するとプレビューが表示されます。</p>
+          </div>
+          <p style="margin-top:14px;"><a class="button secondary" href="/ai-assist.html">AIアシストで使う</a></p>
+        </section>
+      </div>
+    </div>
   </main>
 
 
