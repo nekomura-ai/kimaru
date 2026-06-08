@@ -18,7 +18,7 @@
       "nav.bookingSettings": "予約設定",
       "nav.dashboard": "ホーム",
       "nav.admin": "相手管理",
-      "nav.profile": "プロフィール",
+      "nav.profile": "プロフィール設定",
       "nav.aiAssist": "AIアシスト",
       "nav.settings": "設定",
       "nav.pro": "Pro版",
