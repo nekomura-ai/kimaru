@@ -127,13 +127,10 @@ exports.handler = async (event) => {
     };
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
 
-    // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間）内のみ。
+    // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間=月数）内のみ。
     const now = Date.now();
     const rangeMonths = Math.min(Math.max(Number(bookingPage?.booking_range_months || 1), 1), 6);
-    // プラン上限（月数）を絶対上限とし、提示日数(candidate_days)が設定されていればそこまでに短縮。
-    const monthsCap = addMonths(new Date(), rangeMonths).getTime();
-    const candidateDays = Math.max(0, Number(bookingPage?.candidate_days || 0));
-    const maxTime = candidateDays > 0 ? Math.min(now + candidateDays * dayMs, monthsCap) : monthsCap;
+    const maxTime = addMonths(new Date(), rangeMonths).getTime();
     const fromTime = now + weekOffset * 7 * dayMs;
     const toTime = fromTime + 7 * dayMs;
     const hasPrev = weekOffset > 0;

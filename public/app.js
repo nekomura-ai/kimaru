@@ -406,7 +406,8 @@ function updateBookingPageControls() {
 }
 
 // 事前アンケート（可変）。＋ボタンで行を追加、削除で除去。無料2問/Pro5問。
-const DEFAULT_QUESTIONS = ["今回お話したい内容", "今、実現したい夢や目標は何ですか？"];
+// 新規作成時の事前アンケートは初期質問なし（空から始める）。
+const DEFAULT_QUESTIONS = [];
 
 function questionRowHtml(value) {
   return `<div class="q-row"><input class="question-input" placeholder="質問を入力（例：今回お話したい内容）" value="${escapeHtml(value || "")}" /><button type="button" class="button secondary question-remove">削除</button></div>`;
@@ -455,7 +456,6 @@ function collectBookingPagePayload(form) {
     location_value: data.location_value || "",
     accept_holidays: data.accept_holidays !== "false",
     lead_time_hours: Number(data.lead_time_hours || 0),
-    candidate_days: Number(data.candidate_days || 0),
     slot_interval_minutes: Number(data.slot_interval_minutes || 0),
     availability_settings: collectAvailabilitySettings(data),
     questions,
@@ -550,7 +550,6 @@ function fillBookingPageForm(page) {
   set("location_value", page.location_value || "");
   set("accept_holidays", page.accept_holidays === false ? "false" : "true");
   set("lead_time_hours", String(page.lead_time_hours || 0));
-  set("candidate_days", String(page.candidate_days || 0));
   set("slot_interval_minutes", String(page.slot_interval_minutes || 0));
   // 事前アンケート（ページ単位・sort_order 順）を可変行で表示
   const questions = [...(page.questionnaire_questions || [])]
