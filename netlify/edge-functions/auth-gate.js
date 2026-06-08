@@ -1,9 +1,12 @@
 // 認証ミドルウェア（Netlify Edge Function）
-// 1) 未ログインでアプリページ → /login.html、未ログインで運営ページ → /operator-login.html（ルート保護）
+// 1) 未ログイン/無効セッションでアプリページ → /login.html、運営ページ → /operator-login.html（ルート保護）
 // 2) すべてのHTMLの <body> に data-auth="authed|guest" を注入 → CSSでナビ等を出し分け（チラつき無し）
 // 3) 共通ヘッダー <!-- site-header --> / 共通フッター <!-- site-footer --> を注入
 //
-// 判定はCookie存在ベースの前段ゲート（UX用）。厳密な署名検証は各API/関数側（_lib/crypto.js）で実施。
+// 判定は Cookie の「署名＋有効期限」を検証する（サーバ側 _lib/crypto.js と同方式）。
+// これにより、別 SESSION_SECRET / 期限切れ / 改ざんの Cookie は guest 扱いとなり、
+// 「Cookie はあるが API は未ログイン扱い」という宙ぶらり状態を入口で解消する。
+// 無効 Cookie はリダイレクト時に Set-Cookie で消去する。
 // ユーザー用 kimaru_session と 運営用 kimaru_admin_session は完全に別系統。
 
 // ユーザー向け要ログイン画面（docs/screen-flow.md：無登録=−）
@@ -51,34 +54,90 @@ const SITE_FOOTER = `<footer class="footer">
     <p class="footer-copy" data-i18n="footer.copy">© 2026 キマル</p>
   </footer>`;
 
-function hasSession(request) {
-  const cookie = request.headers.get("cookie") || "";
-  return /(?:^|;\s*)kimaru_session=[^;]+/.test(cookie);
+const SESSION_MAX_AGE_MS = 2592000 * 1000; // 30日（Cookie の Max-Age と一致）
+
+function getSecret() {
+  try {
+    if (globalThis.Netlify?.env?.get) return globalThis.Netlify.env.get("SESSION_SECRET") || "";
+  } catch (_) { /* noop */ }
+  try {
+    if (globalThis.Deno?.env?.get) return globalThis.Deno.env.get("SESSION_SECRET") || "";
+  } catch (_) { /* noop */ }
+  return "";
 }
 
-function hasAdminSession(request) {
+function readCookie(request, name) {
   const cookie = request.headers.get("cookie") || "";
-  return /(?:^|;\s*)kimaru_admin_session=[^;]+/.test(cookie);
+  const match = cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return match ? match[1] : "";
+}
+
+function bytesToBase64url(bytes) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function hmacBase64url(message, secret) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return bytesToBase64url(new Uint8Array(sig));
+}
+
+function decodePayload(payload) {
+  try {
+    let b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    return JSON.parse(atob(b64));
+  } catch (_) {
+    return null;
+  }
+}
+
+// Cookie の署名＋有効期限を検証（サーバ側 _lib/crypto.js と同方式）。
+// 秘密鍵が取得できない異常時のみ、存在ベースにフォールバック（可用性優先）。
+async function verifyCookie(request, name, mustBeAdmin) {
+  const raw = readCookie(request, name);
+  if (!raw || !raw.includes(".")) return false;
+  const secret = getSecret();
+  if (!secret) return true; // フォールバック：鍵未設定時は存在を認証扱い
+  const [payload, signature] = raw.split(".");
+  const expected = await hmacBase64url(payload, secret);
+  if (signature !== expected) return false;
+  const data = decodePayload(payload);
+  if (!data || !data.ts || (Date.now() - data.ts) > SESSION_MAX_AGE_MS) return false;
+  if (mustBeAdmin && data.admin !== true) return false;
+  return true;
+}
+
+// 無効 Cookie を消去しつつリダイレクト（Cookie が存在する場合のみ Set-Cookie を付ける）。
+function redirectClearing(location, request, clearName) {
+  const headers = new Headers({ Location: location });
+  if (readCookie(request, clearName)) {
+    headers.append("Set-Cookie", `${clearName}=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0`);
+  }
+  return new Response(null, { status: 302, headers });
 }
 
 export default async (request, context) => {
   const url = new URL(request.url);
   const path = url.pathname;
-  const authed = hasSession(request);
-  const operator = hasAdminSession(request);
+  const authed = await verifyCookie(request, "kimaru_session", false);
+  const operator = await verifyCookie(request, "kimaru_admin_session", true);
 
   // ① 運営ページの保護（ユーザーログインではなく運営セッションを要求）
   if (OPERATOR_PATHS.includes(path) && !operator) {
     const loginUrl = new URL("/operator-login.html", url.origin);
     loginUrl.searchParams.set("next", path);
-    return Response.redirect(loginUrl.toString(), 302);
+    return redirectClearing(loginUrl.toString(), request, "kimaru_admin_session");
   }
 
   // ② ユーザーアプリページの保護
   if (PROTECTED_PATHS.includes(path) && !authed) {
     const loginUrl = new URL("/login.html", url.origin);
     loginUrl.searchParams.set("next", path);
-    return Response.redirect(loginUrl.toString(), 302);
+    return redirectClearing(loginUrl.toString(), request, "kimaru_session");
   }
 
   // ③ HTMLに認証状態・共通ヘッダー・共通フッターを注入
