@@ -573,17 +573,18 @@ async function initAdmin() {
     if (action === "copy") {
       const url = bookingPageUrl(button.dataset.slug);
       navigator.clipboard?.writeText(url).catch(() => {});
-      setMessage("#booking-page-message", `URLをコピーしました: ${url}`, "success");
+      setMessage("#booking-list-message", `URLをコピーしました: ${url}`, "success");
     } else if (action === "edit") {
       fillBookingPageForm(pages.find((p) => p.id === button.dataset.id));
     } else if (action === "delete") {
       if (!confirm("この予約ページを削除しますか？")) return;
+      setMessage("#booking-list-message", "削除しています...");
       try {
         await api("booking-pages", { method: "POST", body: JSON.stringify({ action: "delete", id: button.dataset.id }) });
         await loadBookingPages();
-        setMessage("#booking-page-message", "削除しました。", "success");
+        setMessage("#booking-list-message", "削除しました。", "success");
       } catch (error) {
-        setMessage("#booking-page-message", error.message, "error");
+        setMessage("#booking-list-message", error.message, "error");
       }
     }
   });
