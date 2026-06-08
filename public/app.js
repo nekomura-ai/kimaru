@@ -515,19 +515,23 @@ function applyAvailability(form, settings) {
   });
 }
 
+// 一覧 ⇄ 全幅エディタの切替（モーダルは廃止）。
 function openPageEditor() {
-  const modal = $("#page-editor-modal");
-  if (!modal) return;
+  const editor = $("#page-editor");
+  if (!editor) return;
   setMessage("#booking-page-message", "");
-  modal.classList.add("open");
-  document.body.classList.add("modal-open");
+  const list = $("#list-view");
+  if (list) list.hidden = true;
+  editor.hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function closePageEditor() {
-  const modal = $("#page-editor-modal");
-  if (!modal) return;
-  modal.classList.remove("open");
-  document.body.classList.remove("modal-open");
+  const editor = $("#page-editor");
+  const list = $("#list-view");
+  if (editor) editor.hidden = true;
+  if (list) list.hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function fillBookingPageForm(page) {
@@ -618,8 +622,6 @@ async function initAdmin() {
     }
   });
   $("#page-editor-close")?.addEventListener("click", closePageEditor);
-  $("#page-editor-modal")?.addEventListener("click", (event) => { if (event.target.id === "page-editor-modal") closePageEditor(); });
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closePageEditor(); });
   $("#booking-pages-list")?.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-page-action]");
     if (!button) return;
