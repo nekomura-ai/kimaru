@@ -66,6 +66,14 @@ exports.handler = async (event) => {
     const availability = normalizeAvailability(body.availability_settings);
     const questionLimit = isPro ? 5 : 2;
 
+    // 日程候補設定（TimeRex相当）。危険な値はクランプ（エラーにはしない）。
+    const acceptHolidays = !(body.accept_holidays === false || body.accept_holidays === "false");
+    const leadTimeHours = Math.min(Math.max(intValue(body.lead_time_hours, 0), 0), 720); // 0〜30日
+    const candidateDaysRaw = intValue(body.candidate_days, 0);
+    const candidateDays = candidateDaysRaw > 0 ? Math.min(candidateDaysRaw, 180) : null; // null=プラン範囲に従う
+    const intervalRaw = intValue(body.slot_interval_minutes, 0);
+    const slotInterval = intervalRaw > 0 ? Math.min(Math.max(intervalRaw, 5), 480) : null; // null=自動
+
     if (!allowedDurations.has(duration)) return json(400, { error: "予約時間は30・45・60分のいずれかを選択してください" });
     if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "前後バッファは0・15・30分のいずれかを選択してください" });
     if (!allowedRanges.has(requestedRange)) return json(400, { error: "予約枠の公開範囲は1・2・3・6ヶ月のいずれかを選択してください" });
@@ -103,6 +111,10 @@ exports.handler = async (event) => {
       booking_range_months: bookingRange,
       location_type: locationType,
       location_value: String(body.location_value || "").trim(),
+      accept_holidays: acceptHolidays,
+      lead_time_hours: leadTimeHours,
+      candidate_days: candidateDays,
+      slot_interval_minutes: slotInterval,
       active: body.is_active !== false,
       is_active: body.is_active !== false,
     };

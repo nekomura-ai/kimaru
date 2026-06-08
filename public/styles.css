@@ -88,6 +88,10 @@ a{color:inherit;text-decoration:none}
 .soft-box,.questionnaire-box,.availability-box{padding:16px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:0}
 .questionnaire-box,.availability-box{display:grid;gap:12px}
 .availability-grid{display:grid;gap:10px}
+.candidate-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.candidate-grid>label{display:grid;gap:6px}
+.candidate-grid small{font-size:12px}
+@media (max-width:640px){.candidate-grid{grid-template-columns:1fr}}
 .availability-row{display:grid;grid-template-columns:24px minmax(72px,1fr) minmax(112px,140px) auto minmax(112px,140px);gap:10px;align-items:center;padding:10px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:0;font-size:14px}
 .availability-row input[type=checkbox]{width:18px;min-height:18px;padding:0;accent-color:var(--blue)}
 .availability-row input[type=time]{min-height:42px;padding:8px 10px}
