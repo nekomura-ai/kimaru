@@ -73,6 +73,10 @@ create table if not exists booking_pages (
   location_type text not null default 'google_meet' check (location_type in ('in_person', 'google_meet', 'zoom', 'phone', 'custom_url', 'later')),
   location_value text not null default '',
   timezone text not null default 'Asia/Tokyo',
+  accept_holidays boolean not null default true,
+  lead_time_hours int not null default 0,
+  candidate_days int,
+  slot_interval_minutes int,
   active boolean not null default true,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
@@ -236,6 +240,12 @@ alter table booking_pages add constraint booking_pages_booking_range_months_chec
 alter table booking_pages add column if not exists location_type text not null default 'google_meet';
 alter table booking_pages add column if not exists location_value text not null default '';
 alter table booking_pages add column if not exists is_active boolean not null default true;
+-- 日程候補設定（TimeRex相当。issue: 提示期間/祝日/表示間隔）
+alter table booking_pages add column if not exists timezone text not null default 'Asia/Tokyo';
+alter table booking_pages add column if not exists accept_holidays boolean not null default true;
+alter table booking_pages add column if not exists lead_time_hours int not null default 0;
+alter table booking_pages add column if not exists candidate_days int;
+alter table booking_pages add column if not exists slot_interval_minutes int;
 alter table bookings add column if not exists user_id uuid references users(id) on delete cascade;
 alter table bookings add column if not exists guest_name text not null default '';
 alter table bookings add column if not exists guest_email text not null default '';

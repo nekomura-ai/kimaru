@@ -86,6 +86,56 @@
         <label id="location-value-field" class="hidden">開催場所・電話案内・URL<input name="location_value" placeholder="住所、電話案内、またはURL" /></label>
 
         <div class="availability-box">
+          <p class="eyebrow">日程候補の設定</p>
+          <h3>ゲストに提示する候補の出し方</h3>
+          <p class="muted">タイムゾーンや祝日の扱い、直前予約の防止、表示間隔を設定します。</p>
+          <div class="candidate-grid">
+            <label>タイムゾーン
+              <select name="timezone" disabled>
+                <option value="Asia/Tokyo" selected>アジア/東京（UTC+9）</option>
+              </select>
+              <small class="muted">現在は日本時間（JST）に対応しています。</small>
+            </label>
+            <label>祝日の予約受付
+              <select name="accept_holidays">
+                <option value="true" selected>受け付ける</option>
+                <option value="false">受け付けない</option>
+              </select>
+            </label>
+            <label>何時間後から先の候補を出すか
+              <select name="lead_time_hours">
+                <option value="0" selected>今すぐ（制限なし）</option>
+                <option value="12">12時間後から</option>
+                <option value="18">18時間後から</option>
+                <option value="24">24時間後から</option>
+                <option value="48">48時間後から</option>
+              </select>
+            </label>
+            <label>何日間分の候補を出すか
+              <select name="candidate_days">
+                <option value="0" selected>公開範囲にあわせて自動</option>
+                <option value="7">7日間</option>
+                <option value="10">10日間</option>
+                <option value="14">14日間</option>
+                <option value="21">21日間</option>
+                <option value="30">30日間</option>
+              </select>
+            </label>
+            <label>日程候補の表示間隔
+              <select name="slot_interval_minutes">
+                <option value="0" selected>自動（所要＋前後バッファ）</option>
+                <option value="15">15分ごと</option>
+                <option value="30">30分ごと</option>
+                <option value="45">45分ごと</option>
+                <option value="60">60分ごと</option>
+                <option value="90">90分ごと</option>
+                <option value="120">120分ごと</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="availability-box">
           <p class="eyebrow">受付時間</p>
           <h3>曜日ごとの受付時間</h3>
           <p class="muted">予約を受け付ける曜日と時間帯を設定します。休みにする曜日はチェックを外してください。</p>

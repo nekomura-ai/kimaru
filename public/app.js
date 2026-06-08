@@ -453,6 +453,10 @@ function collectBookingPagePayload(form) {
     booking_range_months: Number(data.booking_range_months),
     location_type: data.location_type,
     location_value: data.location_value || "",
+    accept_holidays: data.accept_holidays !== "false",
+    lead_time_hours: Number(data.lead_time_hours || 0),
+    candidate_days: Number(data.candidate_days || 0),
+    slot_interval_minutes: Number(data.slot_interval_minutes || 0),
     availability_settings: collectAvailabilitySettings(data),
     questions,
   };
@@ -540,6 +544,10 @@ function fillBookingPageForm(page) {
   set("booking_range_months", String(page.booking_range_months || 2));
   set("location_type", page.location_type || "google_meet");
   set("location_value", page.location_value || "");
+  set("accept_holidays", page.accept_holidays === false ? "false" : "true");
+  set("lead_time_hours", String(page.lead_time_hours || 0));
+  set("candidate_days", String(page.candidate_days || 0));
+  set("slot_interval_minutes", String(page.slot_interval_minutes || 0));
   // 事前アンケート（ページ単位・sort_order 順）を可変行で表示
   const questions = [...(page.questionnaire_questions || [])]
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))

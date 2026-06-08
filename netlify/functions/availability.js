@@ -1,6 +1,7 @@
 const { json } = require("./_lib/response");
 const { defaultOwner, findOwnerById, sb, eq } = require("./_lib/supabase");
 const { freebusy } = require("./_lib/google");
+const { isJapaneseHoliday } = require("./_lib/holidays");
 
 const DEFAULT_WEEKLY_AVAILABILITY = [1, 2, 3, 4, 5].map((day) => ({ day_of_week: day, start_time: "10:00", end_time: "18:00" }));
 const TOKYO_OFFSET_MINUTES = 9 * 60;
@@ -39,8 +40,15 @@ function generateSlots(weeklySettings, bookingPage, fromTime, toTime) {
   const duration = Number(bookingPage?.duration_minutes || 30);
   const bufferBefore = Number(bookingPage?.buffer_before_minutes || 0);
   const bufferAfter = Number(bookingPage?.buffer_after_minutes || 0);
-  const step = duration + bufferBefore + bufferAfter;
+  // 表示間隔: 設定があればそれを採用、なければ「所要＋前後バッファ」を自動間隔に。
+  const interval = Number(bookingPage?.slot_interval_minutes || 0);
+  const step = interval > 0 ? interval : duration + bufferBefore + bufferAfter;
+  // 祝日の受付可否（既定: 受け付ける）。
+  const acceptHolidays = bookingPage ? bookingPage.accept_holidays !== false : true;
+  // リードタイム: 「今から○時間後」以降の枠のみ提示（既定: 0時間）。
+  const leadHours = Math.max(0, Number(bookingPage?.lead_time_hours || 0));
   const now = new Date();
+  const earliest = new Date(now.getTime() + leadHours * 60 * 60 * 1000);
   const dayMs = 24 * 60 * 60 * 1000;
   const slots = [];
 
@@ -48,14 +56,15 @@ function generateSlots(weeklySettings, bookingPage, fromTime, toTime) {
     const parts = tokyoParts(new Date(t));
     const setting = byDay.get(parts.day);
     if (!setting) continue;
+    if (!acceptHolidays && isJapaneseHoliday(parts.year, parts.month, parts.date)) continue;
 
     const open = timeToMinutes(setting.start_time);
     const close = timeToMinutes(setting.end_time);
-    // 最初の枠は受付開始時刻ちょうどから。バッファは枠と枠の間隔（step）に反映する。
+    // 最初の枠は受付開始時刻ちょうどから。バッファ/表示間隔は枠と枠の間隔（step）に反映する。
     for (let minute = open; minute + duration <= close; minute += step) {
       const start = tokyoLocalDateToUtc(parts.year, parts.month, parts.date, minute);
       const end = new Date(start.getTime() + duration * 60 * 1000);
-      if (start <= now) continue;
+      if (start <= earliest) continue;
       slots.push({ start: start.toISOString(), end: end.toISOString() });
     }
   }
@@ -121,7 +130,10 @@ exports.handler = async (event) => {
     // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間）内のみ。
     const now = Date.now();
     const rangeMonths = Math.min(Math.max(Number(bookingPage?.booking_range_months || 1), 1), 6);
-    const maxTime = addMonths(new Date(), rangeMonths).getTime();
+    // プラン上限（月数）を絶対上限とし、提示日数(candidate_days)が設定されていればそこまでに短縮。
+    const monthsCap = addMonths(new Date(), rangeMonths).getTime();
+    const candidateDays = Math.max(0, Number(bookingPage?.candidate_days || 0));
+    const maxTime = candidateDays > 0 ? Math.min(now + candidateDays * dayMs, monthsCap) : monthsCap;
     const fromTime = now + weekOffset * 7 * dayMs;
     const toTime = fromTime + 7 * dayMs;
     const hasPrev = weekOffset > 0;
