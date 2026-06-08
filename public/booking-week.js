@@ -114,13 +114,9 @@ function buildWeekDays(slots) {
 }
 
 function buildTimeRows(slots) {
-  const minMinute = slots.length ? Math.min(...slots.map((slot) => minutesOfDay(slot.startDate))) : 10 * 60;
-  const maxMinute = slots.length ? Math.max(...slots.map((slot) => minutesOfDay(slot.endDate))) : 18 * 60;
-  const start = Math.max(0, Math.floor(minMinute / 30) * 30);
-  const end = Math.min(24 * 60, Math.max(start + 180, Math.ceil(maxMinute / 30) * 30));
-  const rows = [];
-  for (let minute = start; minute < end; minute += 30) rows.push(minute);
-  return rows;
+  // 実際の枠の開始時刻から行を作る（所要時間60分やバッファで30分グリッドから外れても確実に表示）
+  const times = [...new Set(slots.map((slot) => minutesOfDay(slot.startDate)))].sort((a, b) => a - b);
+  return times.length ? times : [10 * 60];
 }
 
 function slotKey(slot) {
@@ -160,7 +156,7 @@ function renderWeeklyAvailability(container, rawSlots, form) {
           <h3>${weekTitle(days)}</h3>
         </div>
         <div class="week-schedule-meta">
-          <span>30分刻み</span>
+          <span>空いている時間</span>
           <strong>所要時間 ${duration}分</strong>
         </div>
       </div>
