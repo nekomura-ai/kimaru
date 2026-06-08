@@ -195,6 +195,10 @@ textarea{resize:vertical}
 .section-head .button{flex:none}
 .alert-panel{border-left:4px solid var(--danger)}
 .alert-panel .eyebrow{color:var(--danger)}
+.q-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.q-row input{flex:1}
+.q-row .question-remove{flex:none;min-height:42px;padding:0 14px}
+#add-question[disabled]{opacity:.5;cursor:not-allowed}
 /* ページ設定モーダル（編集・新規作成を別画面風に） */
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;background:rgba(10,10,10,.55);overflow-y:auto;animation:modalFade .2s ease both}
 .modal.open{display:flex}

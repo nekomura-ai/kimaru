@@ -383,9 +383,14 @@ function updateBookingPageControls() {
     });
     if (!isPro && Number(rangeSelect.value) > 2) rangeSelect.value = "2";
   }
-  document.querySelectorAll(".pro-question").forEach((row) => row.classList.toggle("hidden", !isPro));
+  const questionLimit = isPro ? 5 : 2;
   if (questionLimitMessage) {
-    questionLimitMessage.textContent = isPro ? "有料版では最大5問まで設定できます。" : "無料版は最大2問まで。有料版または猫の鍵で最大5問に拡張できます。";
+    questionLimitMessage.textContent = isPro ? "最大5問まで設定できます。" : "無料版は最大2問まで。有料版または猫の鍵で最大5問に拡張できます。";
+  }
+  const addQuestionBtn = $("#add-question");
+  if (addQuestionBtn) {
+    const count = document.querySelectorAll("#question-list .q-row").length;
+    addQuestionBtn.disabled = count >= questionLimit;
   }
   if (locationType && locationField) {
     const needsDetail = ["in_person", "phone", "custom_url"].includes(locationType.value);
@@ -398,13 +403,41 @@ function updateBookingPageControls() {
   updateAvailabilityRows();
 }
 
+// 事前アンケート（可変）。＋ボタンで行を追加、削除で除去。無料2問/Pro5問。
+const DEFAULT_QUESTIONS = ["今回お話したい内容", "今、実現したい夢や目標は何ですか？"];
+
+function questionRowHtml(value) {
+  return `<div class="q-row"><input class="question-input" placeholder="質問を入力（例：今回お話したい内容）" value="${escapeHtml(value || "")}" /><button type="button" class="button secondary question-remove">削除</button></div>`;
+}
+
+function renderQuestionRows(questions) {
+  const list = $("#question-list");
+  if (!list) return;
+  const items = (questions && questions.length) ? questions : [""];
+  list.innerHTML = items.map((q) => questionRowHtml(typeof q === "string" ? q : (q.question_text || ""))).join("");
+  updateBookingPageControls();
+}
+
+function collectQuestions() {
+  return [...document.querySelectorAll("#question-list .question-input")]
+    .map((el) => el.value.trim())
+    .filter(Boolean);
+}
+
+function addQuestionRow() {
+  const list = $("#question-list");
+  if (!list) return;
+  const limit = currentOwner?.plan === "pro" ? 5 : 2;
+  if (list.querySelectorAll(".q-row").length >= limit) return;
+  list.insertAdjacentHTML("beforeend", questionRowHtml(""));
+  updateBookingPageControls();
+}
+
 function collectBookingPagePayload(form) {
   const data = formData(form);
   const isPro = currentOwner?.plan === "pro";
   const maxQuestions = isPro ? 5 : 2;
-  const questions = [1, 2, 3, 4, 5]
-    .map((index) => String(data[`question_${index}`] || "").trim())
-    .filter(Boolean)
+  const questions = collectQuestions()
     .slice(0, maxQuestions)
     .map((question_text, index) => ({ question_text, is_required: index < 2 }));
   return {
@@ -505,16 +538,18 @@ function fillBookingPageForm(page) {
   set("booking_range_months", String(page.booking_range_months || 2));
   set("location_type", page.location_type || "google_meet");
   set("location_value", page.location_value || "");
-  // 事前アンケート（ページ単位・sort_order 順）
-  const questions = [...(page.questionnaire_questions || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-  [1, 2, 3, 4, 5].forEach((i) => { if (form.elements[`question_${i}`]) form.elements[`question_${i}`].value = questions[i - 1]?.question_text || ""; });
+  // 事前アンケート（ページ単位・sort_order 順）を可変行で表示
+  const questions = [...(page.questionnaire_questions || [])]
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    .map((q) => q.question_text);
+  renderQuestionRows(questions);
   // 受付時間（オーナー単位）
   applyAvailability(form, ownerAvailability);
   updateBookingPageControls();
   const editing = $("#booking-page-editing");
   if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;
   const title = $("#page-editor-title");
-  if (title) title.textContent = "予約ページを編集";
+  if (title) title.textContent = "アポイント設定を編集";
   openPageEditor();
 }
 
@@ -523,10 +558,11 @@ function clearBookingPageForm() {
   if (!form) return;
   form.reset();
   if (form.elements.page_id) form.elements.page_id.value = "";
+  renderQuestionRows([...DEFAULT_QUESTIONS]);
   const editing = $("#booking-page-editing");
-  if (editing) editing.textContent = "新規ページを作成";
+  if (editing) editing.textContent = "新しいアポイント設定";
   const title = $("#page-editor-title");
-  if (title) title.textContent = "新規予約ページを作成";
+  if (title) title.textContent = "アポイント設定を作成";
   updateBookingPageControls();
   openPageEditor();
 }
@@ -564,6 +600,13 @@ async function initAdmin() {
   $("#location-type-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-range-select")?.addEventListener("change", updateBookingPageControls);
   $("#booking-page-new")?.addEventListener("click", clearBookingPageForm);
+  $("#add-question")?.addEventListener("click", addQuestionRow);
+  $("#question-list")?.addEventListener("click", (event) => {
+    if (event.target.closest(".question-remove")) {
+      event.target.closest(".q-row")?.remove();
+      updateBookingPageControls();
+    }
+  });
   $("#page-editor-close")?.addEventListener("click", closePageEditor);
   $("#page-editor-modal")?.addEventListener("click", (event) => { if (event.target.id === "page-editor-modal") closePageEditor(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closePageEditor(); });

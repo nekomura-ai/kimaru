@@ -40,7 +40,7 @@
           <h2>予約ページ</h2>
           <p class="muted">設定違いのページを使い分けられます（無料2つ／有料・猫5つまで）。各ページの「開く / URLをコピー / 編集」で操作できます。曜日ごとの受付時間とカレンダーの予定から、空いている枠だけが表示されます。</p>
         </div>
-        <button type="button" id="booking-page-new" class="button primary">＋ 新規ページを作成</button>
+        <button type="button" id="booking-page-new" class="button primary">＋ アポイント設定を作成</button>
       </div>
       <p id="booking-list-message" class="message" role="status"></p>
       <div id="booking-pages-list" class="list"><p class="muted">予約ページを読み込み中...</p></div>
@@ -51,13 +51,13 @@
   <div id="page-editor-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="page-editor-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="page-editor-title">ページの内容を設定</h2>
+        <h2 id="page-editor-title">アポイント設定を作成</h2>
         <button type="button" id="page-editor-close" class="button secondary">閉じる</button>
       </div>
-      <p id="booking-page-editing" class="muted">新規ページを作成</p>
+      <p id="booking-page-editing" class="muted">新しいアポイント設定</p>
       <form id="booking-page-form" class="form-grid">
         <input type="hidden" name="page_id" id="booking-page-id" />
-        <label>ページタイトル<input name="title" value="〇〇との面談" required /></label>
+        <label>アポイント名（タイトル）<input name="title" value="〇〇との面談" required /></label>
         <p class="form-note muted">※◯◯の所はご自身の名前を入力して下さい。</p>
         <label>公開URL（slug）<input name="slug" id="booking-page-slug" placeholder="例: taro-1on1（空欄なら自動生成）" pattern="[a-z0-9-]{3,40}" /></label>
         <p class="form-note muted">公開ページは <code>/b/（slug）</code> で開けます。無料2つ・有料5つまで保存できます。</p>
@@ -103,11 +103,8 @@
         <div class="questionnaire-box">
           <p class="eyebrow">事前アンケート</p>
           <p class="muted" id="question-limit-message">無料版は最大2問、有料版は最大5問まで設定できます。</p>
-          <label class="question-row">質問1<input name="question_1" value="今回お話したい内容" /></label>
-          <label class="question-row">質問2<input name="question_2" value="今、実現したい夢や目標は何ですか？" /></label>
-          <label class="question-row pro-question">質問3<input name="question_3" value="最近挑戦していることはありますか？" /></label>
-          <label class="question-row pro-question">質問4<input name="question_4" value="応援してほしいことはありますか？" /></label>
-          <label class="question-row pro-question">質問5<input name="question_5" value="趣味や好きなことはありますか？" /></label>
+          <div id="question-list"></div>
+          <button type="button" id="add-question" class="button secondary">＋ 質問を追加</button>
         </div>
         <button class="primary" type="submit">設定を保存する</button>
       </form>
