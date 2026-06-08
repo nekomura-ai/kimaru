@@ -213,6 +213,9 @@ textarea{resize:vertical}
 .assist-block h3{margin:0 0 3px;font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
 .assist-block p{margin:0;color:var(--ink-soft);white-space:pre-wrap;line-height:1.7}
 @media(max-width:820px){.profile-grid{grid-template-columns:1fr}.profile-preview-col{position:static}}
+.week-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}
+.week-nav #week-label{font-weight:700;color:var(--ink)}
+.week-nav .button[disabled]{opacity:.4;cursor:not-allowed}
 .q-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .q-row input{flex:1}
 .q-row .question-remove{flex:none;min-height:42px;padding:0 14px}
