@@ -25,6 +25,7 @@
       </div>
     </section>
 
+    <div id="list-view">
     <!-- 未連携アラート（連携済みなら非表示）。今後の外部連携追加も見据え常設STEPにはしない -->
     <section id="calendar-alert" class="panel alert-panel" style="display:none">
       <p class="eyebrow">要対応</p>
@@ -45,45 +46,54 @@
       <p id="booking-list-message" class="message" role="status"></p>
       <div id="booking-pages-list" class="list"><p class="muted">予約ページを読み込み中...</p></div>
     </section>
-  </main>
+    </div><!-- /list-view -->
 
-  <!-- ページ設定エディタ（モーダル：新規作成・編集） -->
-  <div id="page-editor-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="page-editor-title">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2 id="page-editor-title">アポイント設定を作成</h2>
-        <button type="button" id="page-editor-close" class="button secondary">閉じる</button>
+    <!-- ページ設定エディタ（全幅・一覧と切替） -->
+    <section id="page-editor" class="panel settings-section editor-view" aria-labelledby="page-editor-title" hidden>
+      <div class="section-head">
+        <div>
+          <h2 id="page-editor-title">アポイント設定を作成</h2>
+          <p id="booking-page-editing" class="muted">新しいアポイント設定</p>
+        </div>
+        <button type="button" id="page-editor-close" class="button secondary">← 一覧に戻る</button>
       </div>
-      <p id="booking-page-editing" class="muted">新しいアポイント設定</p>
       <form id="booking-page-form" class="form-grid">
         <input type="hidden" name="page_id" id="booking-page-id" />
-        <label>アポイント名（タイトル）<input name="title" value="〇〇との面談" required /></label>
-        <p class="form-note muted">※◯◯の所はご自身の名前を入力して下さい。</p>
-        <label>公開URL（slug）<input name="slug" id="booking-page-slug" placeholder="例: taro-1on1（空欄なら自動生成）" pattern="[a-z0-9-]{3,40}" /></label>
-        <p class="form-note muted">公開ページは <code>/b/（slug）</code> で開けます。無料2つ・有料5つまで保存できます。</p>
-        <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
-        <label>予約時間<select name="duration_minutes"><option value="30">30分</option><option value="45">45分</option><option value="60">60分</option></select></label>
-        <label>前バッファ<select name="buffer_before_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
-        <label>後バッファ<select name="buffer_after_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
-        <label>予約枠の公開範囲
-          <select name="booking_range_months" id="booking-range-select">
-            <option value="1">今日から1ヶ月先の日程まで公開</option>
-            <option value="2" selected>今日から2ヶ月先の日程まで公開（無料版）</option>
-            <option value="3">今日から3ヶ月先の日程まで公開（有料版）</option>
-            <option value="6">今日から6ヶ月先の日程まで公開（有料版）</option>
-          </select>
-        </label>
-        <label>開催方法
-          <select name="location_type" id="location-type-select">
-            <option value="google_meet">Google Meet自動発行</option>
-            <option value="in_person">対面</option>
-            <option value="phone">電話</option>
-            <option value="custom_url">カスタムURL</option>
-            <option value="later">後で連絡</option>
-            <option value="zoom" disabled>Zoom自動発行（将来対応）</option>
-          </select>
-        </label>
-        <label id="location-value-field" class="hidden">開催場所・電話案内・URL<input name="location_value" placeholder="住所、電話案内、またはURL" /></label>
+
+        <div class="editor-section">
+          <p class="eyebrow">基本情報</p>
+          <label>アポイント名（タイトル）<input name="title" value="〇〇との面談" required /></label>
+          <p class="form-note muted">※◯◯の所はご自身の名前を入力して下さい。</p>
+          <label>公開URL（slug）<input name="slug" id="booking-page-slug" placeholder="例: taro-1on1（空欄なら自動生成）" pattern="[a-z0-9-]{3,40}" /></label>
+          <p class="form-note muted">公開ページは <code>/b/（slug）</code> で開けます。無料2つ・有料5つまで保存できます。</p>
+          <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
+        </div>
+
+        <div class="editor-section">
+          <p class="eyebrow">時間設定</p>
+          <label>予約時間<select name="duration_minutes"><option value="30">30分</option><option value="45">45分</option><option value="60">60分</option></select></label>
+          <label>前バッファ<select name="buffer_before_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
+          <label>後バッファ<select name="buffer_after_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
+          <label>予約枠の公開範囲
+            <select name="booking_range_months" id="booking-range-select">
+              <option value="1">今日から1ヶ月先の日程まで公開</option>
+              <option value="2" selected>今日から2ヶ月先の日程まで公開（無料版）</option>
+              <option value="3">今日から3ヶ月先の日程まで公開（有料版）</option>
+              <option value="6">今日から6ヶ月先の日程まで公開（有料版）</option>
+            </select>
+          </label>
+          <label>開催方法
+            <select name="location_type" id="location-type-select">
+              <option value="google_meet">Google Meet自動発行</option>
+              <option value="in_person">対面</option>
+              <option value="phone">電話</option>
+              <option value="custom_url">カスタムURL</option>
+              <option value="later">後で連絡</option>
+              <option value="zoom" disabled>Zoom自動発行（将来対応）</option>
+            </select>
+          </label>
+          <label id="location-value-field" class="hidden">開催場所・電話案内・URL<input name="location_value" placeholder="住所、電話案内、またはURL" /></label>
+        </div>
 
         <div class="availability-box">
           <p class="eyebrow">日程候補の設定</p>
@@ -159,8 +169,8 @@
         <button class="primary" type="submit">設定を保存する</button>
       </form>
       <p id="booking-page-message" class="message"></p>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <!-- site-footer -->
 
