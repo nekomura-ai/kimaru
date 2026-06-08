@@ -598,9 +598,16 @@ async function refreshAdmin() {
         try { const logs = await api("appointment-log"); renderLogs(logs.logs || []); } catch (_) { /* 非致命 */ }
       }
       await loadBookingPages();
+    } else {
+      // クッキーは存在するがセッションが無効（署名不一致/owner不在）＝認証の宙ぶらり状態。
+      // 「読み込み中」のまま固まらないよう、スピナーを止めて再ログインを促す。
+      const list = $("#booking-pages-list");
+      if (list) list.innerHTML = `<p class="muted">セッションの有効期限が切れているようです。<a href="/login.html?next=${encodeURIComponent(location.pathname)}">再度ログイン</a>してください。</p>`;
     }
   } catch (error) {
     setMessage("#owner-status", error.message, "error");
+    const list = $("#booking-pages-list");
+    if (list) list.innerHTML = '<p class="muted">読み込みに失敗しました。ページを再読み込みするか、再度ログインしてください。</p>';
   }
 }
 
