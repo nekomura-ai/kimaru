@@ -32,21 +32,20 @@ function addMonths(date, months) {
   return next;
 }
 
-function generateSlots(weeklySettings, bookingPage) {
+// fromTime〜toTime（1週間）の枠を生成（80件上限は廃止＝週送りで全期間カバー）
+function generateSlots(weeklySettings, bookingPage, fromTime, toTime) {
   const settings = weeklySettings.length ? weeklySettings : DEFAULT_WEEKLY_AVAILABILITY;
   const byDay = new Map(settings.map((setting) => [Number(setting.day_of_week), setting]));
   const duration = Number(bookingPage?.duration_minutes || 30);
   const bufferBefore = Number(bookingPage?.buffer_before_minutes || 0);
   const bufferAfter = Number(bookingPage?.buffer_after_minutes || 0);
   const step = duration + bufferBefore + bufferAfter;
-  const rangeMonths = Number(bookingPage?.booking_range_months || 1);
   const now = new Date();
-  const until = addMonths(now, Math.min(Math.max(rangeMonths, 1), 6));
+  const dayMs = 24 * 60 * 60 * 1000;
   const slots = [];
 
-  for (let offset = 0; offset < 190 && slots.length < 80; offset += 1) {
-    const base = new Date(now.getTime() + offset * 24 * 60 * 60 * 1000);
-    const parts = tokyoParts(base);
+  for (let t = fromTime; t < toTime; t += dayMs) {
+    const parts = tokyoParts(new Date(t));
     const setting = byDay.get(parts.day);
     if (!setting) continue;
 
@@ -55,13 +54,12 @@ function generateSlots(weeklySettings, bookingPage) {
     for (let minute = open + bufferBefore; minute + duration + bufferAfter <= close; minute += step) {
       const start = tokyoLocalDateToUtc(parts.year, parts.month, parts.date, minute);
       const end = new Date(start.getTime() + duration * 60 * 1000);
-      if (start <= now || start > until) continue;
+      if (start <= now) continue;
       slots.push({ start: start.toISOString(), end: end.toISOString() });
-      if (slots.length >= 80) break;
     }
   }
 
-  return slots.slice(0, 80);
+  return slots;
 }
 
 function overlaps(slot, busy) {
@@ -100,7 +98,13 @@ exports.handler = async (event) => {
       owner = await defaultOwner();
       bookingPage = owner ? await ownerBookingPage(owner) : null;
     }
-    if (!owner) return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null), questions: [] });
+    const dayMs = 24 * 60 * 60 * 1000;
+    const weekOffset = Math.max(0, parseInt(event?.queryStringParameters?.week || "0", 10) || 0);
+
+    if (!owner) {
+      const from0 = Date.now() + weekOffset * 7 * dayMs;
+      return json(200, { slots: generateSlots(DEFAULT_WEEKLY_AVAILABILITY, null, from0, from0 + 7 * dayMs), questions: [], host: null, week: weekOffset, hasPrev: weekOffset > 0, hasNext: true });
+    }
 
     const questions = await bookingPageQuestions(bookingPage);
     // ゲスト予約ページに表示するホスト・会議情報
@@ -112,13 +116,24 @@ exports.handler = async (event) => {
       location_type: bookingPage?.location_type || "google_meet",
     };
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
-    const slots = generateSlots(weeklySettings, bookingPage);
-    if (!slots.length) return json(200, { slots: [], questions, host });
 
-    const timeMin = slots[0].start;
-    const timeMax = slots[slots.length - 1].end;
-    const busy = await freebusy(owner.id, timeMin, timeMax).catch(() => []);
-    return json(200, { slots: slots.filter((slot) => !overlaps(slot, busy)), questions, host });
+    // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間）内のみ。
+    const now = Date.now();
+    const rangeMonths = Math.min(Math.max(Number(bookingPage?.booking_range_months || 1), 1), 6);
+    const maxTime = addMonths(new Date(), rangeMonths).getTime();
+    const fromTime = now + weekOffset * 7 * dayMs;
+    const toTime = fromTime + 7 * dayMs;
+    const hasPrev = weekOffset > 0;
+    const hasNext = toTime < maxTime;
+    if (fromTime > maxTime) return json(200, { slots: [], questions, host, week: weekOffset, hasPrev, hasNext: false });
+
+    const weekSlots = generateSlots(weeklySettings, bookingPage, fromTime, Math.min(toTime, maxTime + dayMs));
+    let openSlots = weekSlots;
+    if (weekSlots.length) {
+      const busy = await freebusy(owner.id, new Date(fromTime).toISOString(), new Date(toTime).toISOString()).catch(() => []);
+      openSlots = weekSlots.filter((slot) => !overlaps(slot, busy));
+    }
+    return json(200, { slots: openSlots, questions, host, week: weekOffset, hasPrev, hasNext });
   } catch (error) {
     return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }

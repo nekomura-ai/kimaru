@@ -139,7 +139,7 @@ function renderWeeklyAvailability(container, rawSlots, form) {
     .sort((a, b) => a.startDate - b.startDate);
 
   if (!slots.length) {
-    container.innerHTML = '<p class="muted">現在受付中の日時がありません。</p>';
+    container.innerHTML = '<p class="muted">この週は空き枠がありません。「次の週 →」もご確認ください。</p>';
     return;
   }
 
@@ -258,20 +258,57 @@ function resolveSlug() {
   return param ? param.toLowerCase() : "demo";
 }
 
+let currentWeek = 0;
+let bookingSlug = "demo";
+
+function weekRangeLabel(week) {
+  const base = new Date();
+  base.setDate(base.getDate() + week * 7);
+  const start = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  return `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()}`;
+}
+
+function updateWeekNav(hasPrev, hasNext) {
+  const nav = $("#week-nav");
+  if (!nav) return;
+  nav.style.display = "";
+  const prev = $("#prev-week");
+  const next = $("#next-week");
+  const label = $("#week-label");
+  if (prev) prev.disabled = !hasPrev;
+  if (next) next.disabled = !hasNext;
+  if (label) label.textContent = weekRangeLabel(currentWeek);
+}
+
+async function loadWeek(week, full) {
+  const grid = $("#slot-grid");
+  const form = $("#booking-form");
+  if (!grid || !form) return;
+  grid.innerHTML = '<p class="muted">空き枠を読み込み中...</p>';
+  try {
+    const data = await api(`availability?slug=${encodeURIComponent(bookingSlug)}&week=${week}`);
+    currentWeek = typeof data.week === "number" ? data.week : week;
+    if (full) {
+      renderHost(data.host);
+      renderQuestions(data.questions || []);
+    }
+    renderWeeklyAvailability(grid, data.slots || [], form);
+    updateWeekNav(Boolean(data.hasPrev), Boolean(data.hasNext));
+  } catch (error) {
+    setMessage("#booking-message", error.message, "error");
+  }
+}
+
 async function initBooking() {
   const grid = $("#slot-grid");
   const form = $("#booking-form");
   if (!grid || !form) return;
-  const slug = resolveSlug();
-  if (form.elements.owner_slug) form.elements.owner_slug.value = slug;
-  try {
-    const data = await api(`availability?slug=${encodeURIComponent(slug)}`);
-    renderHost(data.host);
-    renderWeeklyAvailability(grid, data.slots || [], form);
-    renderQuestions(data.questions || []);
-  } catch (error) {
-    setMessage("#booking-message", error.message, "error");
-  }
+  bookingSlug = resolveSlug();
+  if (form.elements.owner_slug) form.elements.owner_slug.value = bookingSlug;
+  $("#prev-week")?.addEventListener("click", () => { if (currentWeek > 0) loadWeek(currentWeek - 1, false); });
+  $("#next-week")?.addEventListener("click", () => loadWeek(currentWeek + 1, false));
+  await loadWeek(0, true);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

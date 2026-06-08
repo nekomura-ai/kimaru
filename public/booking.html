@@ -33,6 +33,11 @@
     <section class="panel">
       <p class="eyebrow" data-i18n="booking.slots.eyebrow">予約できる時間</p>
       <h2 data-i18n="booking.slots.heading">1週間の空き枠から選ぶ</h2>
+      <div id="week-nav" class="week-nav" style="display:none">
+        <button type="button" id="prev-week" class="button secondary">← 前の週</button>
+        <span id="week-label" class="muted"></span>
+        <button type="button" id="next-week" class="button secondary">次の週 →</button>
+      </div>
       <div id="slot-grid" class="slot-grid"></div>
 
       <form id="booking-form" class="form-grid hidden">
