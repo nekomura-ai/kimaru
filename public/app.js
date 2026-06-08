@@ -450,12 +450,14 @@ function renderBookingPages(pages) {
 }
 
 async function loadBookingPages() {
+  const el = $("#booking-pages-list");
+  if (el) el.innerHTML = '<p class="muted">予約ページを読み込み中...</p>';
   try {
     const data = await api("booking-pages");
     ownerAvailability = data.availability || [];
     renderBookingPages(data.pages || []);
   } catch (_) {
-    /* 一覧取得は失敗しても致命的ではない */
+    if (el) el.innerHTML = '<p class="muted">予約ページを読み込めませんでした。ページを再読み込みしてください。</p>';
   }
 }
 
