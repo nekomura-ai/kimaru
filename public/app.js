@@ -496,6 +496,7 @@ function collectBookingPagePayload(form) {
     candidate_days: range.days,
     location_type: data.location_type,
     location_value: data.location_value || "",
+    is_active: data.is_active !== "false",
     accept_holidays: data.accept_holidays !== "false",
     lead_time_hours: Number(data.lead_time_hours || 0),
     slot_interval_minutes: Number(data.slot_interval_minutes || 0),
@@ -517,8 +518,8 @@ function renderBookingPages(pages) {
     return;
   }
   el.innerHTML = pages.map((p) => `
-    <article class="list-item">
-      <strong>${escapeHtml(p.title || "(無題)")}</strong>
+    <article class="list-item${p.is_active === false ? " is-paused" : ""}">
+      <strong>${escapeHtml(p.title || "(無題)")}${p.is_active === false ? '<span class="pause-badge">受付停止中</span>' : ""}</strong>
       <span>${escapeHtml(bookingPageUrl(p.slug))}</span>
       <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.candidate_days > 0 ? `${p.candidate_days}日先まで` : `${p.booking_range_months}ヶ月先まで`}</small>
       <div class="actions">
@@ -588,6 +589,7 @@ function fillBookingPageForm(page) {
   set("buffer_before_minutes", String(page.buffer_before_minutes != null ? page.buffer_before_minutes : 0));
   set("buffer_after_minutes", String(page.buffer_after_minutes != null ? page.buffer_after_minutes : 0));
   set("booking_range", rangeTokenFromPage(page));
+  set("is_active", page.is_active === false ? "false" : "true");
   set("location_type", page.location_type || "google_meet");
   set("location_value", page.location_value || "");
   set("accept_holidays", page.accept_holidays === false ? "false" : "true");

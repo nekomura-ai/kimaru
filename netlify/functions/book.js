@@ -109,6 +109,7 @@ exports.handler = async (event) => {
     }
     if (!owner) owner = await defaultOwner();
     if (!owner) return json(400, { error: "予約先が設定されていません。発行者がGoogleでログインしているかご確認ください" });
+    if (bookingPage && bookingPage.is_active === false) return json(400, { error: "このページは現在、予約の受付を停止しています" });
     const relationshipContext = parseRelationshipContext(body.filter_request);
     const birthDatePrivate = body.birth_date_private === "yes" || body.birth_date_private === true;
     const storedRelationshipContext = sanitizePrivateBirthDate(relationshipContext, birthDatePrivate);

@@ -297,6 +297,13 @@ async function loadWeek(week, full) {
       renderHost(data.host);
       renderQuestions(data.questions || []);
     }
+    if (data.paused) {
+      grid.innerHTML = '<p class="muted">現在、この予約ページは受付を停止しています。しばらくしてから再度お試しください。</p>';
+      form.classList.add("hidden");
+      const nav = $("#week-nav");
+      if (nav) nav.style.display = "none";
+      return;
+    }
     renderWeeklyAvailability(grid, data.slots || [], form);
     updateWeekNav(Boolean(data.hasPrev), Boolean(data.hasNext));
   } catch (error) {
