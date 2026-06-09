@@ -26,6 +26,11 @@
   to = "/booking.html"
   status = 200
 
+[[redirects]]
+  from = "/u/*"
+  to = "/public-profile.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]

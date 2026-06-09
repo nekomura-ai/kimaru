@@ -62,6 +62,30 @@
           <label>今回キメたいこと・次につなげたいこと
             <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
           </label>
+
+          <div id="advanced-profile" class="hidden">
+            <p class="form-group">高度プロフィール（Pro）— 公開ページに反映</p>
+            <label>キャッチコピー（1行）
+              <input name="profile_headline" placeholder="例：はじめての人にも伝わる一言" />
+            </label>
+            <label>自己紹介（公開・装飾可：見出しは行頭「# 」、太字は **文字**）
+              <textarea name="profile_bio_rich" rows="6" placeholder="# 見出し&#10;**太字**で強調できます。&#10;改行はそのまま反映されます。"></textarea>
+            </label>
+            <label>見出しのアクセント色
+              <input name="profile_accent_color" type="color" value="#2563eb" />
+            </label>
+            <label>リンク（1行に1つ・http(s) から始まるURL）
+              <textarea name="profile_links" rows="2" placeholder="https://example.com"></textarea>
+            </label>
+            <label>公開設定
+              <select name="profile_public">
+                <option value="on">公開する（URLを知っている人は誰でも閲覧可）</option>
+                <option value="off">非公開</option>
+              </select>
+            </label>
+            <p class="muted" id="public-url-note"></p>
+          </div>
+
           <button class="primary" type="submit">プロフィールを保存</button>
         </form>
         <p id="profile-message" class="message"></p>
@@ -176,6 +200,16 @@
           applyProfile(form, profileFromOwner(data.owner), false);
           applyProfile(form, stored, true);
           $('#profile-status').textContent = `${data.owner.name || data.owner.email} のプロフィールを反映しています。`;
+          // 高度プロフィール（色・太字・見出し・公開ページ）は Pro/Premium のみ表示（#176）。
+          if (['pro', 'premium'].includes(data.owner.plan)) {
+            const adv = document.getElementById('advanced-profile');
+            if (adv) adv.classList.remove('hidden');
+            if (data.owner.slug) {
+              const url = `${location.origin}/u/${data.owner.slug}`;
+              const note = $('#public-url-note');
+              if (note) note.innerHTML = `公開URL: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+            }
+          }
         } else {
           $('#profile-status').textContent = 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。';
         }
