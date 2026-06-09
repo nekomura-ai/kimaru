@@ -42,6 +42,15 @@ exports.handler = async (event) => { /* event.httpMethod, event.headers, readJso
 ### Auth & accounts
 Google OAuth (`google-auth-start` → `google-auth-callback`) upserts into the **`owners`** table and sets the `kimaru_session` cookie. `owners` is the **live** account table. Note the schema also contains legacy/aspirational duplicates that are **not** the source of truth: `users` (legacy of `owners`), `google_calendar_tokens` (legacy of `google_connections`), and duplicate columns on `bookings` (`visitor_*`/`guest_*`, `start_at`/`start_time`). Prefer `owners` / `google_connections` / `visitor_*` / `start_at`.
 
+### Plan tiers & gating
+`owners.plan` ∈ `free` / `pro` / `premium`. Gate with `auth.js` helpers: `requireProOwner` passes **pro and premium** (premium includes all Pro features), `requirePremiumOwner` passes premium only; `isPro()`/`isPremium()` for inline checks. **premium = プレミアムプラン ¥2,200/mo, no free trial** (Pro ¥980 has a 1-month trial). Square grant: `square-webhook.js` sets `premium` when the subscription's plan id matches `SQUARE_PREMIUM_PLAN_ID`, else `pro`.
+
+### AI assist (premium)
+`/api/ai-assist` (`ai-assist.js`, premium-only) generates relationship suggestions via `_lib/llm.js` (OpenAI Chat Completions over `fetch`, no SDK; default model `gpt-5.4-mini`, override `OPENAI_MODEL`). **Monthly fair-use cap** (`AI_ASSIST_MONTHLY_LIMIT`, default 300) counted from `ai_assist_logs` rows in the current JST month. `OPENAI_API_KEY` unset → 503, and `ai-assist.html` falls back to the client-side rule-based suggestions.
+
+### Mail routing (decision 13)
+`_lib/mail.js` `sendMail({..., category})`: `transactional` (default; from `TRANSACTIONAL_EMAIL_FROM`/notify subdomain) vs `marketing` (from `MARKETING_EMAIL_FROM`/news subdomain). Marketing mail skips suppressed recipients (`email_suppressions`) and gets `List-Unsubscribe` + one-click (RFC 8058). `mail-unsubscribe.js` records opt-outs (HMAC token, no DB column); `resend-webhook.js` auto-suppresses bounces/complaints.
+
 ### Frontend (`public/`)
 Vanilla JS, no framework. i18n is attribute-driven: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` resolved by `i18n.js` (`window.KimaruI18n`, languages ja/en/zh-TW, persisted in localStorage). `app.js` drives the admin/booking-settings screens; `booking-week.js` drives the guest booking grid. Pages call `/api/*` with `fetch`. Booking-page plan limits are enforced both client-side (`app.js`) and server-side (`booking-page-save.js`).
 
@@ -55,7 +64,7 @@ Vanilla JS, no framework. i18n is attribute-driven: `data-i18n` / `data-i18n-pla
 本番ホストは **Netlify 一本化**（2026-06 決定。Vercel対応は廃止＝`vercel.json`/`api/`/`lib/vercel-adapter.js` を削除済み）。`npm run dev`(=`netlify dev`)/`npm run deploy`。`netlify.toml` が `/api/*`→`/.netlify/functions/`、`/b/*`→`booking.html` をルーティング。Edge Function（`netlify/edge-functions/`）が認証ゲート＋ヘッダー注入を担う。
 
 ## Required env vars
-`APP_BASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`, `TOKEN_ENCRYPTION_KEY`. Optional: `SQUARE_WEBHOOK_SHARED_SECRET`, and birthday-mail vars (`RESEND_API_KEY`, `BIRTHDAY_EMAIL_FROM`, `BIRTHDAY_EMAIL_REPLY_TO`, `BIRTHDAY_CRON_SECRET`/`CRON_SECRET`). Missing a required var makes the relevant function throw at request time. See `.env.example`.
+`APP_BASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`, `TOKEN_ENCRYPTION_KEY`. Optional: `SQUARE_WEBHOOK_SHARED_SECRET`, `SQUARE_PREMIUM_PLAN_ID` (premium grant); mail vars (`RESEND_API_KEY`, `BIRTHDAY_EMAIL_FROM`, `BIRTHDAY_EMAIL_REPLY_TO`, `BIRTHDAY_CRON_SECRET`/`CRON_SECRET`, `TRANSACTIONAL_EMAIL_FROM`, `MARKETING_EMAIL_FROM`, `RESEND_WEBHOOK_SECRET`); AI-assist vars (`OPENAI_API_KEY`, `OPENAI_MODEL`, `AI_ASSIST_MONTHLY_LIMIT`). Missing a required var makes the relevant function throw at request time. See `.env.example`.
 
 ## Product spec lives in `docs/`
 `docs/` is the authoritative product spec and decision log — consult it before implementing features. Start at `docs/README.md` (index), then `docs/open-decisions.md` (decisions + open/uncertain items), `docs/features/README.md` (per-feature specs + implementation priority), and `docs/db-schema.md` (real schema + legacy notes). Confirmed plan values: free vs pro = booking range 2mo/6mo, questionnaire 2/5 questions, booking pages 2/5, price ¥980/mo via Square. Cat Key invite code `Neko20240222` (normalized `NEKO20240222`) grants pro for free.

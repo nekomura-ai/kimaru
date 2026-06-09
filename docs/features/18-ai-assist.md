@@ -2,7 +2,7 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ⚠️ 部分実装（簡易ロジック・クライアント側）
+- ステータス: ✅ 実装（サーバLLM連携・プレミアム限定・月300回上限／キー未設定時はルールベースにフォールバック）
 - 対象プラン: **プレミアムプラン**（¥2,200/月・無料お試しなし・フェーズ2開放）
 - 仕様: [`../spec.md`](../spec.md) 有料版機能（AI アシスト ※将来）
 
@@ -20,16 +20,23 @@
 
 ## 現状の実装
 
-- `ai-assist.html` で、`/api/me`・`/api/owner-bookings` から相手を選び、localStorage のプロフィールと突き合わせて提案を生成。
-- 提案は **ルールベースの簡易ロジック**（生年月日インサイト等を利用）。LLM 連携ではない。
+- サーバ関数 **`/api/ai-assist`**（`requirePremiumOwner`）が、サーバ保存のプロフィール × 相手データ（予約・メモ・占いベース傾向）から LLM で提案を生成（`_lib/llm.js`・OpenAI Chat Completions・既定 GPT-5.4 Mini）。
+- **月300回上限**を `ai_assist_logs` の当月（JST）件数で判定（`AI_ASSIST_MONTHLY_LIMIT`）。超過は 429、成功時のみログ記録、残回数をフロントへ返す。
+- `ai-assist.html`：プレミアム会員はサーバLLMを呼び、**未設定(503)/失敗時は従来のルールベース簡易ロジックにフォールバック**（生年月日インサイト等）。pro 会員はルールベースのまま。
+- `OPENAI_API_KEY` 未設定時はサーバが 503 を返して安全に無効化（＝開発中はキー無しで自動フォールバック）。
 
 ## 関連ファイル
 
-- `public/ai-assist.html` — UI・提案生成（クライアント側）
+- `netlify/functions/ai-assist.js` — サーバ関数（プレミアム限定・LLM生成・月300回上限）
+- `netlify/functions/_lib/llm.js` — OpenAI 呼び出し共通ヘルパ（`OPENAI_MODEL` でモデル差し替え可）
+- `ai_assist_logs` テーブル — 利用ログ（上限判定の元）
+- `public/ai-assist.html` — UI（premium=サーバLLM / pro=ルールベース）
 - `public/app.js` — `buildRelationshipProfile` 等のインサイト生成（[16](./16-birthday.md)）
-- 参照 API: `/api/me`, `/api/owner-bookings`
+- 参照 API: `/api/me`, `/api/owner-bookings`, `/api/ai-assist`
 
 ## 残タスク
 
-- 実際の AI（LLM）連携による提案生成（将来）。
-- プロフィールのサーバ保存（[17](./17-profile.md)）と連動した端末間利用。
+- 相手データを外部LLMへ送信することの是非・同意の整理（プライバシー文面・[legal/](../legal/)）。
+- プロンプトキャッシュによる入力コスト圧縮、上位 GPT-5.4 への出し分け（将来のエージェント型機能）。
+- プロフィールのサーバ保存（[17](./17-profile.md)）と `ai-assist.html` のプロフィールシート（localStorage）の一本化。
+- 本番稼働には人間タスク（OpenAI APIキー #187 / env #189）と `supabase-schema.sql` の手動適用が必要。
