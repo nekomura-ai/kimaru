@@ -231,6 +231,8 @@ textarea{resize:vertical}
 .editor-section>.eyebrow{margin:0}
 .field-warning{margin:0;padding:11px 13px;font-size:13px;line-height:1.65;color:#8a5300;background:#fff7e6;border:1px solid #f0cf7a;border-radius:0}
 .field-warning a{color:inherit;font-weight:700;text-decoration:underline}
+.pause-badge{display:inline-block;margin-left:8px;padding:2px 9px;font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.04em;color:#b91c1c;background:#fde8e8;border:1px solid #f0a8a8;vertical-align:middle}
+.list-item.is-paused{opacity:.72}
 
 /* ===== 設定画面 ===== */
 .settings-page{display:grid;gap:22px}

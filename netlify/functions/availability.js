@@ -125,6 +125,10 @@ exports.handler = async (event) => {
       duration_minutes: bookingPage?.duration_minutes || 30,
       location_type: bookingPage?.location_type || "google_meet",
     };
+    // 受付停止中のページは空き枠を返さない（削除せず一時停止）。
+    if (bookingPage && bookingPage.is_active === false) {
+      return json(200, { slots: [], questions, host, week: weekOffset, hasPrev: false, hasNext: false, paused: true });
+    }
     const weeklySettings = await ownerAvailability(owner).catch(() => []);
 
     // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間=月数）内のみ。

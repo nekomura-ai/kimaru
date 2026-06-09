@@ -67,6 +67,13 @@
           <label>公開URL（slug）<input name="slug" id="booking-page-slug" placeholder="例: taro-1on1（空欄なら自動生成）" pattern="[a-z0-9-]{3,40}" /></label>
           <p class="form-note muted">公開ページは <code>/b/（slug）</code> で開けます。無料2つ・有料5つまで保存できます。</p>
           <label>説明文<textarea name="description" rows="3" placeholder="予約ページに表示する案内文を入力します。例：初回相談、面談、オンライン打ち合わせなど"></textarea></label>
+          <label>受付状態
+            <select name="is_active">
+              <option value="true" selected>受付中（公開して予約を受け付ける）</option>
+              <option value="false">受付停止中（ページは残すが予約を受け付けない）</option>
+            </select>
+          </label>
+          <p class="form-note muted">「受付停止中」にすると、削除せずに一時的に予約を止められます。停止中は公開ページに空き枠が表示されません。</p>
         </div>
 
         <div class="editor-section">
