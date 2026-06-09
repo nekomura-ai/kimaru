@@ -2,7 +2,7 @@ const { json, readJson } = require("./_lib/response");
 const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 
-const FIELDS = [
+const BASIC_FIELDS = [
   "profile_name",
   "profile_email",
   "profile_title",
@@ -12,12 +12,33 @@ const FIELDS = [
   "profile_values",
   "profile_goal",
 ];
+// 高度プロフィール（色・太字・見出し・公開設定）は Pro/Premium のみ保存（#176）。画像は保存先未決のため対象外。
+const ADVANCED_FIELDS = [
+  "profile_headline",
+  "profile_bio_rich",
+  "profile_accent_color",
+  "profile_links",
+  "profile_public",
+];
 
-function cleanProfile(input) {
+function cleanProfile(input, isPro) {
   const out = {};
-  FIELDS.forEach((field) => {
+  BASIC_FIELDS.forEach((field) => {
     if (input[field] != null) out[field] = String(input[field]).slice(0, 4000);
   });
+  if (isPro) {
+    ADVANCED_FIELDS.forEach((field) => {
+      if (input[field] == null) return;
+      if (field === "profile_accent_color") {
+        const hex = String(input[field]).trim();
+        out[field] = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "";
+      } else if (field === "profile_public") {
+        out[field] = input[field] === "off" || input[field] === false ? "off" : "on";
+      } else {
+        out[field] = String(input[field]).slice(0, 8000);
+      }
+    });
+  }
   return out;
 }
 
@@ -53,7 +74,8 @@ exports.handler = async (event) => {
     }
 
     if (event.httpMethod === "POST") {
-      const data = cleanProfile(readJson(event));
+      const isPro = owner.plan === "pro" || owner.plan === "premium";
+      const data = cleanProfile(readJson(event), isPro);
       const existing = await findProfile(owner.id);
       const base = { owner_id: owner.id, display_name: data.profile_name || owner.name || "" };
       try {
