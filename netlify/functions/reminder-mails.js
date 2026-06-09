@@ -33,7 +33,7 @@ function formatJst(iso) {
 
 async function ownerMap() {
   try {
-    const rows = await sb("owners?select=id,name,email&limit=10000");
+    const rows = await sb("owners?select=id,name,email,plan&limit=10000");
     return new Map((rows || []).map((owner) => [owner.id, owner]));
   } catch (_) {
     return new Map();
@@ -51,7 +51,8 @@ async function ownerProfile(ownerId) {
   }
 }
 
-function buildMessage(booking, owner, profile) {
+// 無料版は基本リマインダー（相手名＋会議URL）。Pro はお相手プロフィール付き。
+function buildMessage(booking, owner, profile, isPro) {
   const guestName = booking.visitor_name || booking.guest_name || "";
   const greeting = guestName ? `${guestName}さん` : "こんにちは";
   const ownerName = profile.profile_name || owner?.name || owner?.email || "お相手";
@@ -62,10 +63,12 @@ function buildMessage(booking, owner, profile) {
     `まもなく ${ownerName} との面談です（開始予定: ${when}）。`,
   ];
   if (booking.meeting_url) lines.push(`ミーティング: ${booking.meeting_url}`);
-  lines.push("", "― お相手のプロフィール ―", ownerName + (profile.profile_title ? ` / ${profile.profile_title}` : ""));
-  if (profile.profile_strengths) lines.push(`強み: ${profile.profile_strengths}`);
-  if (profile.profile_offer) lines.push(`提供できること: ${profile.profile_offer}`);
-  if (profile.profile_values) lines.push(`大切にしていること: ${profile.profile_values}`);
+  if (isPro) {
+    lines.push("", "― お相手のプロフィール ―", ownerName + (profile.profile_title ? ` / ${profile.profile_title}` : ""));
+    if (profile.profile_strengths) lines.push(`強み: ${profile.profile_strengths}`);
+    if (profile.profile_offer) lines.push(`提供できること: ${profile.profile_offer}`);
+    if (profile.profile_values) lines.push(`大切にしていること: ${profile.profile_values}`);
+  }
   lines.push("", "良い時間になりますように。");
   return { subject: `まもなく面談です（${when}）`, text: lines.join("\n") };
 }
@@ -105,54 +108,61 @@ async function sendViaResend({ to, subject, text }) {
   return { id: data.id || "" };
 }
 
-exports.handler = async (event) => {
-  if (!["GET", "POST"].includes(event.httpMethod)) return json(405, { error: "許可されていない操作です" });
-  if (!isAuthorized(event)) return json(401, { error: "認証が必要です" });
-
-  const dryRun = event.queryStringParameters?.dry_run === "1" || event.queryStringParameters?.dry_run === "true";
+// 送信処理の本体。HTTP ハンドラと Scheduled Function（reminder-scheduled.js）の双方から呼ぶ。
+async function run(dryRun) {
   const now = new Date();
   const from = new Date(now.getTime() + (LEAD_MINUTES - WINDOW_MINUTES) * 60 * 1000);
   const to = new Date(now.getTime() + LEAD_MINUTES * 60 * 1000);
 
-  try {
-    const bookings = await sb(
-      `bookings?select=*&status=eq.confirmed&start_at=gte.${encodeURIComponent(from.toISOString())}&start_at=lte.${encodeURIComponent(to.toISOString())}&order=start_at.asc&limit=500`
-    );
-    const owners = await ownerMap();
+  const bookings = await sb(
+    `bookings?select=*&status=eq.confirmed&start_at=gte.${encodeURIComponent(from.toISOString())}&start_at=lte.${encodeURIComponent(to.toISOString())}&order=start_at.asc&limit=500`
+  );
+  const owners = await ownerMap();
 
-    const results = [];
-    for (const booking of bookings || []) {
-      const recipient = booking.visitor_email || booking.guest_email || "";
-      if (!recipient) {
-        results.push({ booking_id: booking.id, status: "skipped", reason: "Missing visitor email" });
-        continue;
-      }
-      if (await alreadySent(booking.id)) {
-        results.push({ booking_id: booking.id, to: recipient, status: "skipped", reason: "Already sent" });
-        continue;
-      }
-      const owner = owners.get(booking.owner_id || booking.user_id);
-      const profile = await ownerProfile(booking.owner_id || booking.user_id);
-      const message = buildMessage(booking, owner, profile);
-      if (dryRun) {
-        results.push({ booking_id: booking.id, to: recipient, status: "dry_run", subject: message.subject, text: message.text });
-        continue;
-      }
-      try {
-        const sent = await sendViaResend({ to: recipient, ...message });
-        if (sent.skipped) {
-          results.push({ booking_id: booking.id, to: recipient, status: "dry_run", reason: sent.reason, subject: message.subject, text: message.text });
-          continue;
-        }
-        await markSent(booking.id, sent.id, "sent");
-        results.push({ booking_id: booking.id, to: recipient, status: "sent", provider_message_id: sent.id });
-      } catch (error) {
-        await markSent(booking.id, "", "failed", error.message);
-        results.push({ booking_id: booking.id, to: recipient, status: "failed", error: error.message });
-      }
+  const results = [];
+  for (const booking of bookings || []) {
+    const recipient = booking.visitor_email || booking.guest_email || "";
+    if (!recipient) {
+      results.push({ booking_id: booking.id, status: "skipped", reason: "Missing visitor email" });
+      continue;
     }
+    if (await alreadySent(booking.id)) {
+      results.push({ booking_id: booking.id, to: recipient, status: "skipped", reason: "Already sent" });
+      continue;
+    }
+    const owner = owners.get(booking.owner_id || booking.user_id);
+    const isPro = owner?.plan === "pro";
+    const profile = isPro ? await ownerProfile(booking.owner_id || booking.user_id) : {};
+    const message = buildMessage(booking, owner, profile, isPro);
+    if (dryRun) {
+      results.push({ booking_id: booking.id, to: recipient, status: "dry_run", subject: message.subject, text: message.text });
+      continue;
+    }
+    try {
+      const sent = await sendViaResend({ to: recipient, ...message });
+      if (sent.skipped) {
+        results.push({ booking_id: booking.id, to: recipient, status: "dry_run", reason: sent.reason, subject: message.subject, text: message.text });
+        continue;
+      }
+      await markSent(booking.id, sent.id, "sent");
+      results.push({ booking_id: booking.id, to: recipient, status: "sent", provider_message_id: sent.id });
+    } catch (error) {
+      await markSent(booking.id, "", "failed", error.message);
+      results.push({ booking_id: booking.id, to: recipient, status: "failed", error: error.message });
+    }
+  }
 
-    return json(200, { ok: true, window: { from: from.toISOString(), to: to.toISOString() }, due_count: (bookings || []).length, results });
+  return { ok: true, window: { from: from.toISOString(), to: to.toISOString() }, due_count: (bookings || []).length, results };
+}
+
+exports.run = run;
+
+exports.handler = async (event) => {
+  if (!["GET", "POST"].includes(event.httpMethod)) return json(405, { error: "許可されていない操作です" });
+  if (!isAuthorized(event)) return json(401, { error: "認証が必要です" });
+  const dryRun = event.queryStringParameters?.dry_run === "1" || event.queryStringParameters?.dry_run === "true";
+  try {
+    return json(200, await run(dryRun));
   } catch (error) {
     return json(500, { error: error.message });
   }

@@ -101,59 +101,65 @@ async function sendViaResend({ to, subject, text }) {
   return { id: data.id || "" };
 }
 
+// 送信処理の本体。HTTP ハンドラと Scheduled Function（birthday-scheduled.js）の双方から呼ぶ。
+async function run(dryRun) {
+  const today = todayInTokyo();
+  const todayMonthDay = monthDay(today);
+
+  const [bookings, proOwnerIds] = await Promise.all([
+    sb("bookings?select=*&status=eq.confirmed&order=created_at.desc&limit=1000"),
+    getProOwnerIds(),
+  ]);
+  const due = [];
+  for (const booking of bookings || []) {
+    if (!proOwnerIds.has(booking.owner_id || booking.user_id)) continue;
+    const { birthDate, optIn, profile } = getBirthdayData(booking);
+    if (!optIn || monthDay(birthDate) !== todayMonthDay) continue;
+    const message = buildMessage(booking, profile);
+    due.push({ booking, birthDate, profile, message });
+  }
+
+  const results = [];
+  for (const item of due) {
+    const booking = item.booking;
+    const to = booking.visitor_email || booking.guest_email || "";
+    if (!to) {
+      results.push({ booking_id: booking.id, status: "skipped", reason: "Missing visitor email" });
+      continue;
+    }
+    if (await alreadyDelivered(booking.id, today)) {
+      results.push({ booking_id: booking.id, to, status: "skipped", reason: "Already delivered today" });
+      continue;
+    }
+    if (dryRun) {
+      results.push({ booking_id: booking.id, to, status: "dry_run", subject: item.message.subject, text: item.message.text });
+      continue;
+    }
+    try {
+      const sent = await sendViaResend({ to, ...item.message });
+      if (sent.skipped) {
+        results.push({ booking_id: booking.id, to, status: "dry_run", reason: sent.reason, subject: item.message.subject, text: item.message.text });
+        continue;
+      }
+      await markDelivered(booking.id, today, sent.id, "sent");
+      results.push({ booking_id: booking.id, to, status: "sent", provider_message_id: sent.id });
+    } catch (error) {
+      await markDelivered(booking.id, today, "", "failed", error.message);
+      results.push({ booking_id: booking.id, to, status: "failed", error: error.message });
+    }
+  }
+
+  return { ok: true, date: today, pro_owner_count: proOwnerIds.size, due_count: due.length, results };
+}
+
+exports.run = run;
+
 exports.handler = async (event) => {
   if (!["GET", "POST"].includes(event.httpMethod)) return json(405, { error: "許可されていない操作です" });
   if (!isAuthorized(event)) return json(401, { error: "認証が必要です" });
-
-  const today = todayInTokyo();
-  const todayMonthDay = monthDay(today);
   const dryRun = event.queryStringParameters?.dry_run === "1" || event.queryStringParameters?.dry_run === "true";
-
   try {
-    const [bookings, proOwnerIds] = await Promise.all([
-      sb("bookings?select=*&status=eq.confirmed&order=created_at.desc&limit=1000"),
-      getProOwnerIds(),
-    ]);
-    const due = [];
-    for (const booking of bookings || []) {
-      if (!proOwnerIds.has(booking.owner_id || booking.user_id)) continue;
-      const { birthDate, optIn, profile } = getBirthdayData(booking);
-      if (!optIn || monthDay(birthDate) !== todayMonthDay) continue;
-      const message = buildMessage(booking, profile);
-      due.push({ booking, birthDate, profile, message });
-    }
-
-    const results = [];
-    for (const item of due) {
-      const booking = item.booking;
-      const to = booking.visitor_email || booking.guest_email || "";
-      if (!to) {
-        results.push({ booking_id: booking.id, status: "skipped", reason: "Missing visitor email" });
-        continue;
-      }
-      if (await alreadyDelivered(booking.id, today)) {
-        results.push({ booking_id: booking.id, to, status: "skipped", reason: "Already delivered today" });
-        continue;
-      }
-      if (dryRun) {
-        results.push({ booking_id: booking.id, to, status: "dry_run", subject: item.message.subject, text: item.message.text });
-        continue;
-      }
-      try {
-        const sent = await sendViaResend({ to, ...item.message });
-        if (sent.skipped) {
-          results.push({ booking_id: booking.id, to, status: "dry_run", reason: sent.reason, subject: item.message.subject, text: item.message.text });
-          continue;
-        }
-        await markDelivered(booking.id, today, sent.id, "sent");
-        results.push({ booking_id: booking.id, to, status: "sent", provider_message_id: sent.id });
-      } catch (error) {
-        await markDelivered(booking.id, today, "", "failed", error.message);
-        results.push({ booking_id: booking.id, to, status: "failed", error: error.message });
-      }
-    }
-
-    return json(200, { ok: true, date: today, pro_owner_count: proOwnerIds.size, due_count: due.length, results });
+    return json(200, await run(dryRun));
   } catch (error) {
     return json(500, { error: error.message });
   }
