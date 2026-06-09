@@ -1,14 +1,35 @@
 # 法務3ページ — 確認と記入シート
 
-最終更新: 2026-06-07
+最終更新: 2026-06-09
+
+## 0. 事業者回答（2026-06-09 反映済み）
+
+| # | 値 |
+|---|---|
+| A1 事業形態 | 法人（一般社団法人） |
+| A2 事業者名 | 一般社団法人ぴんころ |
+| A3 運営責任者 | 内山 文雄（代表理事） |
+| A4 所在地 | 〒556-0006 大阪府大阪市西区西本町1丁目4-1 オリックス本町ビル4階 fabbit |
+| A5 連絡先メール | **未作成（要追って差し込み）** ← 唯一の残課題 |
+| A6 電話番号 | 080-6882-9783 |
+| A7 制定日 | 2026年6月9日 |
+| A8 管轄裁判所 | 大阪地方裁判所 |
+| B1 Pro価格 | ¥980/月（税込） |
+| B2 無料お試し | カード登録あり・1ヶ月無料→自動課金 |
+| B3 解約 | いつでも解約可。解約後も契約期間（次回更新日）終了まで利用可 |
+| B4 返金 | デジタルのため返金なし |
+| B5 インボイス番号 | T1030005019164 |
+| C1 サービスURL | https://apointkimaru.netlify.app（当面） |
+| C2 個人情報保護管理者 | 記載する（代表理事 内山 文雄） |
+| C3 問い合わせ窓口 | A5と同じ |
 
 ## 1. 場所と状態
 
 | ドキュメント | ドラフト（本文） | 表示ページ（公開） | 状態 |
 |---|---|---|---|
-| 利用規約 | [`terms.md`](./terms.md) | `public/terms.html` → `/terms.html` | ⚠️ ドラフトは充実。**表示HTMLは簡易版で未同期** |
-| プライバシーポリシー | [`privacy-policy.md`](./privacy-policy.md) | `public/privacy.html` → `/privacy.html` | ⚠️ 同上 |
-| 特定商取引法に基づく表記 | [`tokushoho.md`](./tokushoho.md) | `public/tokushoho.html` → `/tokushoho.html` | ⚠️ 同上 |
+| 利用規約 | [`terms.md`](./terms.md) | `public/terms.html` → `/terms.html` | ✅ 回答反映・HTML同期済み（メールのみ未確定） |
+| プライバシーポリシー | [`privacy-policy.md`](./privacy-policy.md) | `public/privacy.html` → `/privacy.html` | ✅ 同上 |
+| 特定商取引法に基づく表記 | [`tokushoho.md`](./tokushoho.md) | `public/tokushoho.html` → `/tokushoho.html` | ✅ 同上 |
 
 - 全ページ共通フッター（Edge注入）から3ページへ導線あり。
 - **進め方（B）**: 下の「質問事項」に記入 → ドラフト（.md）へ差し込み → 表示HTML（public/）へ同期、の順で完成させる。
