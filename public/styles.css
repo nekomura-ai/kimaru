@@ -75,6 +75,9 @@ a{color:inherit;text-decoration:none}
 /* プラン確定までチラ見え防止：Pro専用セクションとロックは既定で非表示。判定後に body.plan-pro / .plan-free で出し分け */
 .pro-feature{display:none}
 .plan-pro .pro-feature{display:block}
+/* 予約履歴など無料でも閲覧できるセクション（決定19）。チラ見え防止のため判定後に表示。 */
+.free-feature{display:none}
+.plan-free .free-feature,.plan-pro .free-feature{display:block}
 #contacts-pro-lock,#ai-pro-lock{display:none}
 .plan-free #contacts-pro-lock,.plan-free #ai-pro-lock{display:block}
 .lang-select{width:auto;min-height:36px;padding:6px 10px;font-size:13px;font-weight:700}

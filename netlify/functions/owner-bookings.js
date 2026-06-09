@@ -1,5 +1,5 @@
 const { json } = require("./_lib/response");
-const { requireProOwner } = require("./_lib/auth");
+const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 
 function hidePrivateBirthDate(booking) {
@@ -17,9 +17,11 @@ function hidePrivateBirthDate(booking) {
   return sanitized;
 }
 
+// 予約履歴（相手レコード）の閲覧は無料にも開放（決定19・#182）。GETのみ・閲覧専用。
+// 面談メモ・印象スコアの編集は Pro/Premium 限定（appointment-log 側で制限）。
 exports.handler = async (event) => {
   try {
-    const owner = await requireProOwner(event);
+    const owner = await requireOwner(event);
     const bookings = await sb(`bookings?owner_id=${eq(owner.id)}&order=start_at.desc&limit=50`);
     return json(200, { bookings: (bookings || []).map(hidePrivateBirthDate) });
   } catch (error) {

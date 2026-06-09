@@ -405,8 +405,11 @@ function rangeTokenFromPage(page) {
   return `${Number(page?.booking_range_months || 2)}m`;
 }
 
+// premium は pro の全機能を含む上位プラン。プラン判定はこのヘルパで統一する。
+function isProPlan(plan) { return plan === "pro" || plan === "premium"; }
+
 function updateBookingPageControls() {
-  const isPro = currentOwner?.plan === "pro";
+  const isPro = isProPlan(currentOwner?.plan);
   const rangeSelect = $("#booking-range-select");
   const locationType = $("#location-type-select");
   const locationField = $("#location-value-field");
@@ -470,7 +473,7 @@ function collectQuestions() {
 function addQuestionRow() {
   const list = $("#question-list");
   if (!list) return;
-  const limit = currentOwner?.plan === "pro" ? 5 : 2;
+  const limit = isProPlan(currentOwner?.plan) ? 5 : 2;
   if (list.querySelectorAll(".q-row").length >= limit) return;
   list.insertAdjacentHTML("beforeend", questionRowHtml(""));
   updateBookingPageControls();
@@ -478,7 +481,7 @@ function addQuestionRow() {
 
 function collectBookingPagePayload(form) {
   const data = formData(form);
-  const isPro = currentOwner?.plan === "pro";
+  const isPro = isProPlan(currentOwner?.plan);
   const maxQuestions = isPro ? 5 : 2;
   const questions = collectQuestions()
     .slice(0, maxQuestions)
@@ -632,13 +635,13 @@ async function refreshAdmin() {
     const ownerStatus = $("#owner-status");
     if (ownerStatus) ownerStatus.textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
     const ownerCard = $("#owner-card");
-    if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>プラン: ${escapeHtml(me.owner.plan === "pro" ? "Pro" : "無料")}</p>` : "";
+    if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>プラン: ${escapeHtml(me.owner.plan === "premium" ? "プレミアム" : me.owner.plan === "pro" ? "Pro" : "無料")}</p>` : "";
     updateBookingPageControls();
     if (me.owner) {
-      // 相手管理（owner-bookings / appointment-log）は Pro 限定 API（無料は 403）。
-      // 無料ユーザーでも予約設定などが壊れないよう、Pro のときだけ取得し、失敗しても致命にしない。
-      if (me.owner.plan === "pro") {
-        try { const bookings = await api("owner-bookings"); renderBookings(bookings.bookings || []); } catch (_) { /* 非致命 */ }
+      // 予約履歴（相手レコード）の閲覧は無料にも開放（決定19）。失敗しても致命にしない。
+      try { const bookings = await api("owner-bookings"); renderBookings(bookings.bookings || []); } catch (_) { /* 非致命 */ }
+      // 面談メモ・印象スコア（appointment-log）は Pro/Premium 限定。
+      if (isProPlan(me.owner.plan)) {
         try { const logs = await api("appointment-log"); renderLogs(logs.logs || []); } catch (_) { /* 非致命 */ }
       }
       await loadBookingPages();
