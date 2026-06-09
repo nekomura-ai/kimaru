@@ -263,15 +263,33 @@ function buildBookingPayload(form) {
 
 async function initSignup() {
   const form = $("#signup-form");
-  form?.addEventListener("submit", async (event) => {
+  if (!form) return;
+  // パスワードと確認用の一致をリアルタイム検証（ブラウザ標準の検証UIにも連動）。
+  const pw = form.elements.password;
+  const pwConfirm = form.elements.password_confirm;
+  const syncPasswordMatch = () => {
+    if (!pwConfirm) return;
+    const mismatch = Boolean(pwConfirm.value) && pw.value !== pwConfirm.value;
+    pwConfirm.setCustomValidity(mismatch ? t("signup.passwordMismatch") : "");
+  };
+  pw?.addEventListener("input", syncPasswordMatch);
+  pwConfirm?.addEventListener("input", syncPasswordMatch);
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    // 念のためJS側でも一致を確認（標準検証が無効な環境でも弾く）。
+    if (pwConfirm && pw.value !== pwConfirm.value) {
+      setMessage("#signup-message", t("signup.passwordMismatch"), "error");
+      pwConfirm.focus();
+      return;
+    }
     setMessage("#signup-message", t("signup.creating"));
     try {
       const data = formData(form);
       // アカウント作成＋ログイン（セッション発行）
       await api("auth-register", { method: "POST", body: JSON.stringify({ name: data.name, email: data.email, password: data.password }) });
-      // 利用目的・言語は申請記録として保存（任意・失敗しても続行）
-      api("signup", { method: "POST", body: JSON.stringify(data) }).catch(() => {});
+      // 利用目的・言語は申請記録として保存（任意・失敗しても続行）。確認用パスワードは送らない。
+      const { password_confirm, ...signupRecord } = data;
+      api("signup", { method: "POST", body: JSON.stringify(signupRecord) }).catch(() => {});
       setMessage("#signup-message", t("signup.done"), "success");
       location.href = "/dashboard.html";
     } catch (error) {
