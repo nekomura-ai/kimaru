@@ -1,6 +1,7 @@
 const { json, readJson } = require("./_lib/response");
 const { sb, eq, defaultOwner, findOwnerById } = require("./_lib/supabase");
 const { createCalendarEvent } = require("./_lib/google");
+const zoom = require("./_lib/zoom");
 const { sendMail } = require("./_lib/mail");
 const { LOCATION_LABELS, formatJst, manageUrl, answersSummary } = require("./_lib/booking-format");
 
@@ -142,6 +143,22 @@ exports.handler = async (event) => {
     const rows = await createBooking(bookingPayload);
     const booking = rows[0];
 
+    // Zoom 自動発行（#23・env設定時のみ）。location_type が zoom なら Zoom ミーティングを作成して URL を採用。
+    let zoomUrl = "";
+    if (booking?.id && bookingPayload.location_type === "zoom" && zoom.isConfigured()) {
+      try {
+        const durationMinutes = Math.max(1, Math.round((end - start) / 60000));
+        const meeting = await zoom.createMeeting({ topic: booking.topic || `面談: ${visitorName}`, startIso: start.toISOString(), durationMinutes });
+        if (meeting?.joinUrl) {
+          zoomUrl = meeting.joinUrl;
+          booking.meeting_url = zoomUrl;
+          await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ meeting_url: zoomUrl }) }).catch(() => null);
+        }
+      } catch (_) {
+        // 失敗時は手動URL（location_value）運用にフォールバック。
+      }
+    }
+
     // 事前アンケート回答を保存（questionnaire_answers）。失敗してもブッキングは成立させる。
     const answers = Array.isArray(body.answers) ? body.answers : [];
     if (booking?.id && answers.length) {
@@ -169,11 +186,12 @@ exports.handler = async (event) => {
 
     const eventResult = await createCalendarEvent(owner.id, booking).catch((error) => ({ error: error.message }));
     if (eventResult?.id) {
-      await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || "" }) });
+      // Zoom URL を上書きしないよう hangoutLink || zoomUrl を採用。
+      await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || zoomUrl || "" }) });
     }
 
     // 予約完了メール（ゲスト）＋ホスト通知（いずれも任意・非致命）。
-    const meetingUrl = eventResult?.hangoutLink || booking.meeting_url || "";
+    const meetingUrl = eventResult?.hangoutLink || zoomUrl || booking.meeting_url || "";
     const locationValue = clean(body.location_value, 500);
     await sendBookingConfirmation({ booking, owner, meetingUrl, locationValue }).catch(() => {});
     await sendHostNotification({ booking, owner, meetingUrl, locationValue, answers }).catch(() => {});
