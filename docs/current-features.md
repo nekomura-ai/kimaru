@@ -34,9 +34,11 @@
 | 空き判定（freeBusy で既存予定を除外） | ✅ | `_lib/google.js` `freebusy()`, `availability.js` |
 | 予約作成＋カレンダー予定自動登録 | ✅ | `book.js`, `_lib/google.js` |
 | Google Meet 自動発行（conferenceData） | ✅ | `_lib/google.js`（`meeting_url` 保存） |
-| 1週間スケジュールグリッド予約UI | ✅ | `booking.html`, `booking-week.js` |
+| 1週間スケジュールグリッド予約UI（3ステップ：日程調整→確認→完了） | ✅ | `booking.html`, `booking-week.js` |
 | カレンダー招待メール（Meet リンク込み） | ✅ | `createCalendarEvent`（`sendUpdates=all`） |
-| 22分前リマインダー（プロフィール付き） | ❌ | 打ち合わせ 2026-06-03 決定・未実装（[features/21](./features/21-reminder.md)） |
+| 予約のキャンセル・日程変更（ゲスト・メールリンク） | ✅ | `booking-manage.js`, `manage-booking.html`（[features/26](./features/26-booking-cancel.md)/[27](./features/27-booking-reschedule.md)） |
+| 予約ページの受付一時停止（is_active） | ✅ | `booking-settings`/`availability`/`book.js`（[features/29](./features/29-suspend-booking.md)） |
+| 22分前リマインダー（無料=基本/Pro=プロフィール付き） | ✅ | `reminder-mails.js`+`reminder-scheduled.js`（要 Resend 設定。[features/21](./features/21-reminder.md)） |
 
 ## 📝 アンケート・メール
 
@@ -44,8 +46,9 @@
 |---|---|---|
 | 事前アンケート（設定・保存・プラン別問数） | ✅ | `booking-settings.html`, `booking-page-save.js` |
 | 事前アンケート（ゲスト動的表示・回答保存） | ❌ | 未配線（`questionnaire_answers` 未使用） |
-| 予約完了メール（独自テンプレ） | ⚠️ | カレンダー招待で代替。独自送信は未実装 |
-| 誕生日メール（Resend） | ⚠️ | `birthday-mails.js`（要 Resend 設定・cron） |
+| 予約完了メール（独自テンプレ・管理リンク付き） | ✅ | `book.js` `sendBookingConfirmation`（要 Resend 設定。`_lib/mail.js`） |
+| ホストへの予約通知メール | ✅ | `book.js` `sendHostNotification`（[features/28](./features/28-host-notification.md)） |
+| 誕生日メール（Resend・Scheduled） | ✅ | `birthday-mails.js`+`birthday-scheduled.js`（要 Resend 設定） |
 
 ## 👤 アカウント・プラン・顧客管理
 
@@ -81,20 +84,19 @@
 
 ---
 
-## ⚠️ 打ち合わせ 2026-06-03 決定で「実装が未反映」の項目
+## ✅ 2026-06 で反映済み（決定→実装）
 
-実装済みだが、打ち合わせの決定値にコードが追いついていないもの。
+- **受付期間 無料2ヶ月/有料6ヶ月**（7日〜で選択。3ヶ月以降はPro）（[features/05](./features/05-booking-range.md)）。
+- **予約ページの複数保存 無料2/有料・猫5**（[features/24](./features/24-multiple-booking-pages.md)）。
+- **予約時間 30〜120分（10分刻み）・前後バッファ 0〜60分**。
+- **予約のキャンセル・日程変更／ホスト通知／受付一時停止／22分前リマインダー（定期実行）**。
 
-- **受付期間 無料を 3ヶ月 → 2ヶ月**（[features/05](./features/05-booking-range.md)）。現状コードは無料3ヶ月。
-- **予約ページ（日程調整URL）の複数保存 無料2/有料・猫5**（[features/24](./features/24-multiple-booking-pages.md)）。現状は実質1オーナー1ページ。
-
-## ⚠️ 主な残課題（未実装）
+## ⚠️ 主な残課題（未実装・人間タスク）
 
 - **事前アンケートのゲスト表示・回答保存**（[features/10](./features/10-questionnaire.md)）が未配線。
-- **22分前リマインダー（プロフィール付き）**（[features/21](./features/21-reminder.md)）。
-- **独自の予約完了メール**は未実装（現状はカレンダー招待で代替）。
-- **誕生日メールのスケジューラ（cron）** と Resend 設定が必要。
+- **Resend 設定**（`RESEND_API_KEY` + 各 `*_EMAIL_FROM`・送信元ドメイン認証 SPF/DKIM）。未設定だと予約完了/ホスト通知/リマインダー/誕生日メールは送信スキップ。
+- **本番デプロイ**で Netlify Scheduled Functions（リマインダー/誕生日）が稼働。
 - **プロフィール/AIアシスト** はクライアント側の簡易実装（サーバ保存・LLM 連携は将来）。
-- **会員同士の相互質問**（[features/20](./features/20-member-mutual-questions.md)）。
+- **会員同士の相互質問**（[features/20](./features/20-member-mutual-questions.md)）＝両プラン🔜・据え置き。
 - **Zoom 自動発行**・**議事録アプリ連携**は将来対応（[features/25](./features/25-auth-architecture.md) ロードマップ）。
 - 注: DB はレガシー重複あり（`owners`/`users`、`google_connections`/`google_calendar_tokens` ほか）。詳細は [`db-schema.md`](./db-schema.md)。
