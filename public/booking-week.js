@@ -412,8 +412,13 @@ async function initBooking() {
     setMessage("#confirm-message", "予約を保存しています...");
     button.disabled = true;
     try {
-      await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });
+      const result = await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });
       renderSummary("done-list", buildSummaryRows(form));
+      const manage = document.getElementById("done-manage");
+      if (manage && result?.manage_url) {
+        manage.innerHTML = `予約の確認・日程変更・キャンセルは <a href="${escapeHtml(result.manage_url)}">こちらのページ</a> から行えます（確認メールにも同じリンクを記載します）。`;
+        manage.hidden = false;
+      }
       goToStep(3);
     } catch (error) {
       setMessage("#confirm-message", error.message, "error");

@@ -1,35 +1,13 @@
 const { json, readJson } = require("./_lib/response");
 const { sb, eq, defaultOwner, findOwnerById } = require("./_lib/supabase");
 const { createCalendarEvent } = require("./_lib/google");
-const { optional } = require("./_lib/config");
+const { sendMail } = require("./_lib/mail");
+const { LOCATION_LABELS, formatJst, manageUrl, answersSummary } = require("./_lib/booking-format");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const LOCATION_LABELS = {
-  google_meet: "Google Meet",
-  zoom: "Zoom",
-  in_person: "対面",
-  phone: "電話",
-  custom_url: "オンライン",
-  later: "後日連絡",
-};
-
-function formatJst(iso) {
-  try {
-    return new Intl.DateTimeFormat("ja-JP", {
-      timeZone: "Asia/Tokyo", month: "long", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit",
-    }).format(new Date(iso));
-  } catch (_) {
-    return iso;
-  }
-}
-
-// 予約完了メール（任意）。カレンダー招待が主だが、独自の確認メールも送る。Resend 未設定ならスキップ。
-async function sendBookingConfirmation({ to, owner, booking, meetingUrl, locationValue }) {
-  const apiKey = optional("RESEND_API_KEY", "");
-  const from = optional("BOOKING_EMAIL_FROM", optional("BIRTHDAY_EMAIL_FROM", ""));
-  const replyTo = optional("BOOKING_EMAIL_REPLY_TO", optional("BIRTHDAY_EMAIL_REPLY_TO", ""));
-  if (!to || !apiKey || !from) return { skipped: true };
+// 予約完了メール（ゲスト宛・任意・非致命）。管理（変更/キャンセル）リンク付き。Resend 未設定ならスキップ。
+async function sendBookingConfirmation({ booking, owner, meetingUrl, locationValue }) {
   const ownerName = owner?.name || owner?.email || "担当者";
   const when = formatJst(booking.start_at || booking.start_time);
   const lines = [
@@ -42,15 +20,29 @@ async function sendBookingConfirmation({ to, owner, booking, meetingUrl, locatio
   ];
   if (meetingUrl) lines.push(`ミーティング: ${meetingUrl}`);
   if (locationValue) lines.push(`場所/案内: ${locationValue}`);
-  lines.push("", "当日お会いできるのを楽しみにしています。");
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject: `予約が確定しました（${when}）`, text: lines.join("\n"), ...(replyTo ? { reply_to: replyTo } : {}) }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.message || "確認メールの送信に失敗しました");
-  return { id: data.id || "" };
+  lines.push("", "▼ 予約の変更・キャンセルはこちら", manageUrl(booking.id), "", "当日お会いできるのを楽しみにしています。");
+  return sendMail({ to: booking.visitor_email, subject: `予約が確定しました（${when}）`, text: lines.join("\n") });
+}
+
+// 新規予約のホスト（主催者）宛通知メール（任意・非致命）。無料版でも予約に気づける。
+async function sendHostNotification({ booking, owner, meetingUrl, locationValue, answers }) {
+  if (!owner?.email) return { skipped: true };
+  const when = formatJst(booking.start_at || booking.start_time);
+  const qa = answersSummary(answers);
+  const lines = [
+    `${owner.name || ""}さん`,
+    "",
+    "新しい予約が入りました。",
+    `お名前: ${booking.visitor_name || ""}`,
+    `メール: ${booking.visitor_email || ""}`,
+    `日時: ${when}`,
+    `開催方法: ${LOCATION_LABELS[booking.location_type] || booking.location_type || "オンライン"}`,
+  ];
+  if (meetingUrl) lines.push(`ミーティング: ${meetingUrl}`);
+  if (locationValue) lines.push(`場所/案内: ${locationValue}`);
+  if (qa) lines.push("", "― 事前アンケート ―", qa);
+  lines.push("", "▼ この予約の変更・キャンセル", manageUrl(booking.id));
+  return sendMail({ to: owner.email, subject: `新しい予約: ${when} / ${booking.visitor_name || ""}さん`, text: lines.join("\n") });
 }
 
 function clean(value, max = 500) {
@@ -179,11 +171,13 @@ exports.handler = async (event) => {
       await sb(`bookings?id=eq.${booking.id}`, { method: "PATCH", body: JSON.stringify({ google_event_id: eventResult.id, meeting_url: eventResult.hangoutLink || "" }) });
     }
 
-    // 予約完了メール（任意・非致命）。
+    // 予約完了メール（ゲスト）＋ホスト通知（いずれも任意・非致命）。
     const meetingUrl = eventResult?.hangoutLink || booking.meeting_url || "";
-    await sendBookingConfirmation({ to: visitorEmail, owner, booking, meetingUrl, locationValue: clean(body.location_value, 500) }).catch(() => {});
+    const locationValue = clean(body.location_value, 500);
+    await sendBookingConfirmation({ booking, owner, meetingUrl, locationValue }).catch(() => {});
+    await sendHostNotification({ booking, owner, meetingUrl, locationValue, answers }).catch(() => {});
 
-    return json(200, { ok: true, booking, google: eventResult });
+    return json(200, { ok: true, booking, google: eventResult, manage_url: manageUrl(booking.id) });
   } catch (error) {
     return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
   }

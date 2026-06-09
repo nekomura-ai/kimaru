@@ -112,4 +112,18 @@ async function createCalendarEvent(ownerId, booking) {
   return data;
 }
 
-module.exports = { googleAuthUrl, exchangeCode, userInfo, saveGoogleConnection, freebusy, createCalendarEvent };
+// 予約キャンセル/日程変更時にカレンダー予定を削除。連携なし・既に削除済み(404/410)は成功扱い。
+async function deleteCalendarEvent(ownerId, eventId) {
+  if (!eventId) return { skipped: true };
+  const accessToken = await accessTokenForOwner(ownerId);
+  if (!accessToken) return { skipped: true };
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  if (response.ok || response.status === 404 || response.status === 410) return { ok: true };
+  const data = await response.json().catch(() => ({}));
+  throw new Error(data.error?.message || "Googleカレンダーの予定削除に失敗しました");
+}
+
+module.exports = { googleAuthUrl, exchangeCode, userInfo, saveGoogleConnection, freebusy, createCalendarEvent, deleteCalendarEvent };
