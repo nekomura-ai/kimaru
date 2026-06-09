@@ -100,6 +100,11 @@ async function loadWeek(week) {
   try {
     const data = await api(`availability?slug=${encodeURIComponent(state.slug || "demo")}&week=${week}`);
     state.week = typeof data.week === "number" ? data.week : week;
+    if (data.paused) {
+      grid.innerHTML = '<p class="muted">現在、この予約ページは受付を停止しているため、日程変更ができません。主催者にお問い合わせください。</p>';
+      $("#rs-week-nav").style.display = "none";
+      return;
+    }
     renderSlots(data.slots || []);
     $("#rs-week-nav").style.display = "";
     $("#rs-prev").disabled = !data.hasPrev;
