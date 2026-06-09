@@ -203,6 +203,17 @@ insert into invite_codes (code, plan_grant, is_active)
 values ('NEKO20240222', 'pro', true)
 on conflict (code) do update set plan_grant = excluded.plan_grant, is_active = excluded.is_active;
 
+-- AIアシスト（プレミアム）の利用ログ。当月の件数で月300回上限（#190）を判定する。
+create table if not exists ai_assist_logs (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references owners(id) on delete cascade,
+  model text not null default '',
+  prompt_tokens int,
+  completion_tokens int,
+  created_at timestamptz not null default now()
+);
+create index if not exists ai_assist_logs_owner_created_idx on ai_assist_logs(owner_id, created_at desc);
+
 create table if not exists payment_events (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid references owners(id) on delete set null,
