@@ -1,5 +1,7 @@
 create extension if not exists pgcrypto;
 
+-- ⚠️ LEGACY（#25）: 旧アカウント表。現行の主アカウントは owners。新規実装は owners / owner_id を使う。
+-- 誤削除リスク回避のため DROP せず非破壊で残置（整理方針: ドキュメントで明示し、コードは現行表のみ参照）。
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
   email text not null unique,
@@ -48,6 +50,7 @@ create table if not exists google_connections (
   updated_at timestamptz not null default now()
 );
 
+-- ⚠️ LEGACY（#25）: 旧トークン表。現行は google_connections。非破壊で残置。
 create table if not exists google_calendar_tokens (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references users(id) on delete cascade,
@@ -100,6 +103,7 @@ create table if not exists bookings (
   booking_page_id uuid references booking_pages(id) on delete set null,
   visitor_name text not null default '',
   visitor_email text not null default '',
+  -- ⚠️ LEGACY 重複（#25）: guest_name/guest_email は旧カラム。現行は visitor_*。非破壊で残置。
   guest_name text not null default '',
   guest_email text not null default '',
   topic text not null default '',
@@ -111,6 +115,7 @@ create table if not exists bookings (
   relationship_profile jsonb not null default '{}'::jsonb,
   start_at timestamptz,
   end_at timestamptz,
+  -- ⚠️ LEGACY 重複（#25）: start_time/end_time は旧カラム。現行は start_at/end_at。非破壊で残置。
   start_time timestamptz,
   end_time timestamptz,
   meeting_url text not null default '',
