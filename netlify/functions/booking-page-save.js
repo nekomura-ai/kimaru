@@ -2,10 +2,11 @@ const { json, readJson } = require("./_lib/response");
 const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 
-const allowedDurations = new Set([30, 45, 60]);
-const allowedBuffers = new Set([0, 15, 30]);
-const allowedRanges = new Set([1, 2, 3, 6]);
-const FREE_RANGE_LIMIT = 2;
+const allowedDurations = new Set([30, 40, 50, 60, 70, 80, 90, 100, 110, 120]);
+const allowedBuffers = new Set([0, 10, 20, 30, 40, 50, 60]);
+const allowedRanges = new Set([1, 2, 3, 4, 5, 6]); // 月数
+const allowedCandidateDays = new Set([7, 14, 21]); // 日数指定（月数より優先）
+const FREE_RANGE_LIMIT = 2; // 無料は2ヶ月先まで（3ヶ月以降はPro）
 const allowedLocationTypes = new Set(["in_person", "google_meet", "zoom", "phone", "custom_url", "later"]);
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
@@ -59,8 +60,7 @@ exports.handler = async (event) => {
     const duration = intValue(body.duration_minutes, 30);
     const bufferBefore = intValue(body.buffer_before_minutes, 0);
     const bufferAfter = intValue(body.buffer_after_minutes, 0);
-    const requestedRange = intValue(body.booking_range_months, 3);
-    const bookingRange = isPro ? requestedRange : Math.min(requestedRange, FREE_RANGE_LIMIT);
+    const requestedRange = intValue(body.booking_range_months, 2);
     const locationType = allowedLocationTypes.has(body.location_type) ? body.location_type : "google_meet";
     const questions = Array.isArray(body.questions) ? body.questions.map(normalizeQuestion).filter((q) => q.question_text) : [];
     const availability = normalizeAvailability(body.availability_settings);
@@ -70,14 +70,16 @@ exports.handler = async (event) => {
     const acceptHolidays = !(body.accept_holidays === false || body.accept_holidays === "false");
     const leadTimeHours = Math.min(Math.max(intValue(body.lead_time_hours, 0), 0), 720); // 0〜30日
     const candidateDaysRaw = intValue(body.candidate_days, 0);
-    const candidateDays = candidateDaysRaw > 0 ? Math.min(candidateDaysRaw, 180) : null; // null=プラン範囲に従う
+    const candidateDays = allowedCandidateDays.has(candidateDaysRaw) ? candidateDaysRaw : null; // 7/14/21日 or null
+    // 公開範囲の月数（日数指定が無いときに有効）。無料は2ヶ月までにクランプ。
+    const bookingRange = candidateDays ? 1 : (isPro ? requestedRange : Math.min(requestedRange, FREE_RANGE_LIMIT));
     const intervalRaw = intValue(body.slot_interval_minutes, 0);
     const slotInterval = intervalRaw > 0 ? Math.min(Math.max(intervalRaw, 5), 480) : null; // null=自動
 
-    if (!allowedDurations.has(duration)) return json(400, { error: "予約時間は30・45・60分のいずれかを選択してください" });
-    if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "前後バッファは0・15・30分のいずれかを選択してください" });
-    if (!allowedRanges.has(requestedRange)) return json(400, { error: "予約枠の公開範囲は1・2・3・6ヶ月のいずれかを選択してください" });
-    if (!isPro && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "無料版で公開できるのは2ヶ月先までです。6ヶ月先まで公開するにはPro版が必要です" });
+    if (!allowedDurations.has(duration)) return json(400, { error: "予約時間は30〜120分の10分刻みで選択してください" });
+    if (!allowedBuffers.has(bufferBefore) || !allowedBuffers.has(bufferAfter)) return json(400, { error: "前後バッファは0〜60分の10分刻みで選択してください" });
+    if (!candidateDays && !allowedRanges.has(requestedRange)) return json(400, { error: "予約枠の公開範囲の指定が正しくありません" });
+    if (!isPro && !candidateDays && requestedRange > FREE_RANGE_LIMIT) return json(403, { error: "無料版で公開できるのは2ヶ月先までです。3ヶ月以降を公開するにはPro版が必要です" });
     if (questions.length > questionLimit) return json(403, { error: `現在のプランで設定できる質問は${questionLimit}問までです（無料2問／Pro5問）` });
     if (!availability.length) return json(400, { error: "受付可能な曜日・時間帯を1つ以上設定してください" });
 
