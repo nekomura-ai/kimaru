@@ -250,6 +250,8 @@ alter table owners add column if not exists cat_key_disabled boolean not null de
 alter table owners add column if not exists cat_key_pending boolean not null default false;
 alter table owners add column if not exists trial_ends_at timestamptz;
 alter table owners add column if not exists password_hash text;
+-- メール確認フラグ（#73）。確認は任意・非ブロッキング（確認しなくても利用可）。
+alter table owners add column if not exists email_verified boolean not null default false;
 -- プレミアムプラン（AIアシスト上位・¥2,200/月・無料お試しなし）を許可。既存DBの plan 制約を貼り替える。
 alter table owners drop constraint if exists owners_plan_check;
 alter table owners add constraint owners_plan_check check (plan in ('free', 'pro', 'premium'));

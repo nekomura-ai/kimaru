@@ -1,6 +1,21 @@
 const { json, readJson } = require("./_lib/response");
 const { sb, eq, findOwnerByEmail } = require("./_lib/supabase");
-const { sessionCookie, hashPassword } = require("./_lib/crypto");
+const { sessionCookie, hashPassword, timedToken } = require("./_lib/crypto");
+const { appBaseUrl } = require("./_lib/config");
+const { sendMail } = require("./_lib/mail");
+
+// メール確認メール（任意・非ブロッキング）。確認しなくても利用可。送信失敗は無視。
+async function sendVerifyEmail(owner) {
+  try {
+    const ts = Date.now();
+    const token = timedToken("emailverify", owner.id, ts);
+    const link = `${appBaseUrl()}/api/verify-email?id=${encodeURIComponent(owner.id)}&ts=${ts}&t=${encodeURIComponent(token)}`;
+    const text = `${owner.name || ""}様\n\nキマルへのご登録ありがとうございます。\n下記のリンクからメールアドレスをご確認ください（任意・7日間有効）。\n\n${link}`;
+    await sendMail({ to: owner.email, subject: "【キマル】メールアドレスのご確認", text, category: "transactional" });
+  } catch (_) {
+    // 確認メール送信失敗は登録自体を妨げない。
+  }
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -43,6 +58,7 @@ exports.handler = async (event) => {
       });
       owner = rows[0];
     }
+    await sendVerifyEmail(owner);
     return json(200, { ok: true, owner: { id: owner.id, email: owner.email, name: owner.name, plan: owner.plan } }, { "Set-Cookie": sessionCookie(owner.id) });
   } catch (error) {
     return json(error.statusCode || 500, { error: error.statusCode ? error.message : "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });

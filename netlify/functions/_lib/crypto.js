@@ -129,4 +129,21 @@ function verifyMailUnsubToken(email, token) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword, bookingToken, verifyBookingToken, mailUnsubToken, verifyMailUnsubToken };
+// 期限付き署名トークン（パスワード再設定・メール確認に共用）。`purpose:id:ts` を署名し、ts で期限判定。DB列不要。
+function timedToken(purpose, id, ts) {
+  return sign(`${purpose}:${id}:${ts}`);
+}
+
+function verifyTimedToken(purpose, id, ts, token, maxAgeMs) {
+  if (!id || !ts || !token) return false;
+  const issued = Number(ts);
+  if (!Number.isFinite(issued)) return false;
+  // 期限切れ / 未来すぎる ts は拒否。
+  if (maxAgeMs && (Date.now() - issued > maxAgeMs || issued - Date.now() > 60000)) return false;
+  const expected = sign(`${purpose}:${id}:${ts}`);
+  const a = Buffer.from(String(token));
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword, bookingToken, verifyBookingToken, mailUnsubToken, verifyMailUnsubToken, timedToken, verifyTimedToken };
