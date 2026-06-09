@@ -23,17 +23,14 @@
 
 - **生年月日インサイト（現状＝プレースホルダ）**: `public/booking-week.js` の `buildRelationshipProfile` が、予約時に `bookings.relationship_profile` 等へメモを保存し相手管理一覧に表示する。ただし**中身は固定の汎用テキスト**（「目標や関心を丁寧に聞くと会話が進む」等）で、**算命学・動物占い・四柱推命の実算出は行っていない**。生年月日非公開時はマスク。
   - → 本命の「占いベースの相手分析（注意点・接し方）」は**未実装（Pro・🔜）**。生年月日の収集・非公開・保存・表示の土台はあるので、分析エンジン（ルール表 or LLM）を載せれば機能化できる。
-- **誕生日メール**: `birthday-mails.js` が本日（Asia/Tokyo）誕生日かつ opt-in の予約（Pro オーナー分）を抽出し、Resend でメール送信。`birthday_message_deliveries` で重複送信防止。`?dry_run=1` で送信せず確認可。
-- 実行: Netlify Scheduled Functions / 外部cron で `POST /api/birthday-mails`。認証は `BIRTHDAY_CRON_SECRET`（or `CRON_SECRET`）。
+- **誕生日メール（廃止済み・#180）**: 自動送信機能（`birthday-mails.js` / `birthday-scheduled.js` / `netlify.toml` のスケジュール）は**削除済み**。`birthday_message_deliveries` テーブルと `birthday_message_opt_in` 列は無害な遺物として残置（参照なし）。
 
 ## 関連ファイル
 
-- `public/app.js` — `buildRelationshipProfile` / `getBirthdayStatus` 等
-- `netlify/functions/birthday-mails.js` — 抽出・送信・配信記録
-- DB: `bookings`（`visitor_birth_date` / `relationship_profile` / `birthday_message_opt_in`）、`birthday_message_deliveries`
+- `public/app.js` / `public/booking-week.js` — `buildRelationshipProfile`（生年月日インサイト・占い分析の土台）
+- DB: `bookings`（`visitor_birth_date` / `relationship_profile`）。`birthday_message_opt_in` / `birthday_message_deliveries` は廃止機能の遺物（未使用）。
 
 ## 残タスク
 
-- 送信スケジューラ（Netlify Scheduled Functions / 外部cron）の設定。
-- `RESEND_API_KEY` / `BIRTHDAY_EMAIL_FROM` 未設定時は送信スキップ（dry run 扱い）。
-- 「AI」分析の高度化（将来、LLM 連携など）。
+- 占いベース相手分析エンジンの実装（算命学＋数秘術のルール表 or LLM）。現状は固定の汎用テキスト。
+- 分析の高度化（将来、LLM 連携。プレミアムのAIアシスト [18](./18-ai-assist.md) と連携余地）。
