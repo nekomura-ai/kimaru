@@ -5,6 +5,13 @@
 [functions]
   node_bundler = "esbuild"
 
+# 定期実行ジョブ（Netlify Scheduled Functions, cron はUTC）
+[functions."reminder-scheduled"]
+  schedule = "*/5 * * * *"   # 約5分間隔（予約22分前リマインダー）
+
+[functions."birthday-scheduled"]
+  schedule = "0 22 * * *"    # 毎日 UTC22:00 = JST07:00（誕生日メール・Pro限定）
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
