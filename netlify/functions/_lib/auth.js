@@ -17,11 +17,27 @@ async function requireOwner(event) {
   return owner;
 }
 
+// プラン判定ヘルパ。premium は pro の全機能を含む上位プランなので、pro 判定では premium も真。
+const isPro = (plan) => plan === "pro" || plan === "premium";
+const isPremium = (plan) => plan === "premium";
+
 // 有料(Pro)限定の機能・APIで使う。無料ユーザーは 403。Cat Key 承認済みは plan='pro' になるため通る。
+// プレミアム会員も Pro 機能をすべて使えるため通す。
 async function requireProOwner(event) {
   const owner = await requireOwner(event);
-  if (owner.plan !== "pro") {
+  if (!isPro(owner.plan)) {
     const error = new Error("この機能はPro版でご利用いただけます。");
+    error.statusCode = 403;
+    throw error;
+  }
+  return owner;
+}
+
+// プレミアムプラン（AIアシスト等の上位機能）限定。free/pro は 403。
+async function requirePremiumOwner(event) {
+  const owner = await requireOwner(event);
+  if (!isPremium(owner.plan)) {
+    const error = new Error("この機能はプレミアムプランでご利用いただけます。");
     error.statusCode = 403;
     throw error;
   }
@@ -43,4 +59,4 @@ function requireOperator(event) {
   return operator;
 }
 
-module.exports = { currentOwner, requireOwner, requireProOwner, currentOperator, requireOperator };
+module.exports = { currentOwner, requireOwner, requireProOwner, requirePremiumOwner, isPro, isPremium, currentOperator, requireOperator };
