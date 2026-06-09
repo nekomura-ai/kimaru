@@ -215,19 +215,60 @@ function getBirthdayStatus(dateString) {
   return `次の誕生日まであと${days}日です。`;
 }
 
+// 数秘術ライフパスナンバー（生年月日の各桁の和を1桁に還元。11/22/33はマスターで保持）。
+function lifePathNumber(year, month, day) {
+  const reduce = (n) => { while (n > 9 && n !== 11 && n !== 22 && n !== 33) n = String(n).split("").reduce((s, d) => s + Number(d), 0); return n; };
+  return reduce([year, month, day].join("").split("").reduce((s, d) => s + Number(d), 0));
+}
+const LIFE_PATH_HINT = {
+  1: "主導・自立タイプ。結論から伝え、主導権の余地を残すと響きます。",
+  2: "協調・受容タイプ。共感を示し、相手のペースに合わせると安心されます。",
+  3: "表現・楽観タイプ。雑談やアイデアを一緒に広げると乗ってきます。",
+  4: "堅実・誠実タイプ。手順と根拠、約束を守る姿勢が信頼になります。",
+  5: "自由・変化タイプ。選択肢と新しさ・自由度を示すと関心を引きます。",
+  6: "貢献・面倒見タイプ。人や周囲への貢献という文脈が心に響きます。",
+  7: "探究・分析タイプ。データと背景を添え、考える時間を尊重しましょう。",
+  8: "実現・影響力タイプ。成果・規模・リターンを具体的に示すと前向きに。",
+  9: "理想・包容タイプ。意義や社会的価値を語ると共感を得やすいです。",
+  11: "直感・理想（マスター）。ビジョンや感性への共感が深い話を生みます。",
+  22: "実現力（マスター）。大きな構想を具体策に落とす伴走が響きます。",
+  33: "奉仕・愛（マスター）。思いやりに寄り添うと信頼されます。",
+};
+
+// 算命学（年柱の五行）＋数秘術（ライフパス）から決定的にインサイトを算出する（#20）。
 function buildRelationshipProfile(dateString, name = "") {
   if (!dateString) return null;
-  const [year, month, day] = dateString.split("-").map(Number);
-  if (!year || !month || !day) return null;
+  const [rawYear, month, day] = dateString.split("-").map(Number);
+  if (!rawYear || !month || !day) return null;
+  // 立春前(2/4頃)は前年扱い→年干→五行。
+  const adjustedYear = month < 2 || (month === 2 && day < 4) ? rawYear - 1 : rawYear;
+  const stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+  const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+  const elements = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
+  const stemIndex = (((adjustedYear - 4) % 10) + 10) % 10;
+  const branchIndex = (((adjustedYear - 4) % 12) + 12) % 12;
+  const element = elements[stemIndex];
+  const elementTips = {
+    木: ["成長と可能性を大切にするタイプ", "未来の話、挑戦していること、伸ばしたい強みから入ると会話が進みやすいです。", "最初から結論を急がせすぎず、考えを広げる余白を残すと関係が作りやすくなります。"],
+    火: ["熱量と反応を大切にするタイプ", "面白いと思った点や期待していることを先に伝えると、前向きな空気を作りやすいです。", "淡々と条件だけを並べるより、目的や背景を添えると話が深まりやすくなります。"],
+    土: ["安心感と具体性を大切にするタイプ", "流れ、目的、次に決めたいことを整理して伝えると、信頼を得やすいです。", "抽象的な話だけで進めず、具体例や段取りを添えると安心してもらいやすくなります。"],
+    金: ["基準と成果を大切にするタイプ", "何を達成したいか、判断基準は何かを明確にすると、話が噛み合いやすいです。", "曖昧な約束より、役割や次のアクションをはっきりさせると関係が進みやすくなります。"],
+    水: ["情報と柔軟性を大切にするタイプ", "相手の考えを引き出す質問から入ると、自然に本音や関心が見えやすくなります。", "一方的に話し切らず、相手が整理する時間を作ると会話が深まりやすいです。"],
+  };
+  const [type, approach, avoid] = elementTips[element];
+  const lp = lifePathNumber(rawYear, month, day);
+  const lpHint = LIFE_PATH_HINT[lp] || "";
   const displayName = name ? `${name}さん` : "お相手";
   return {
-    method: "生年月日インサイト（簡易）",
-    type: "会話のきっかけを作るための簡易メモ",
-    approach: "目標、最近の関心、これから挑戦したいことを丁寧に聞くと会話が進みやすいです。",
-    avoid: "断定せず、関係構築の仮説として扱ってください。",
+    method: "生年月日インサイト（算命学＋数秘術）",
+    pillar: `${stems[stemIndex]}${branches[branchIndex]}`,
+    element,
+    type: `五行「${element}」× 数秘${lp}: ${type}`,
+    approach: `${approach}${lpHint ? `（数秘${lp}：${lpHint}）` : ""}`,
+    avoid,
     birthday_status: getBirthdayStatus(dateString),
-    birthday_message: `${displayName}、お誕生日おめでとうございます。新しい一年が、挑戦したいことに一歩近づく時間になりますように。`,
-    note: "生年月日から作る簡易メモです。断定ではなく、会話のきっかけとして使ってください。",
+    birthday_message: `${displayName}、新しい一年が挑戦したいことに一歩近づく時間になりますように。`,
+    note: "生年月日から機械的に算出した傾向（算命学の年柱五行＋数秘術ライフパス）です。断定ではなく、会話のきっかけとしてお使いください。",
   };
 }
 

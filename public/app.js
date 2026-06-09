@@ -198,10 +198,32 @@ function getGenerationInsight(year) {
   return { generation: "成熟世代", tip: "敬意を持って背景を聞き、急がず丁寧に関係を作ると話が進みやすいです。" };
 }
 
+// 数秘術ライフパスナンバー（生年月日の各桁の和を1桁に還元。11/22/33はマスターで保持）。
+function lifePathNumber(year, month, day) {
+  const reduce = (n) => { while (n > 9 && n !== 11 && n !== 22 && n !== 33) n = String(n).split("").reduce((s, d) => s + Number(d), 0); return n; };
+  return reduce([year, month, day].join("").split("").reduce((s, d) => s + Number(d), 0));
+}
+const LIFE_PATH_HINT = {
+  1: "主導・自立タイプ。結論から伝え、主導権の余地を残すと響きます。",
+  2: "協調・受容タイプ。共感を示し、相手のペースに合わせると安心されます。",
+  3: "表現・楽観タイプ。雑談やアイデアを一緒に広げると乗ってきます。",
+  4: "堅実・誠実タイプ。手順と根拠、約束を守る姿勢が信頼になります。",
+  5: "自由・変化タイプ。選択肢と新しさ・自由度を示すと関心を引きます。",
+  6: "貢献・面倒見タイプ。人や周囲への貢献という文脈が心に響きます。",
+  7: "探究・分析タイプ。データと背景を添え、考える時間を尊重しましょう。",
+  8: "実現・影響力タイプ。成果・規模・リターンを具体的に示すと前向きに。",
+  9: "理想・包容タイプ。意義や社会的価値を語ると共感を得やすいです。",
+  11: "直感・理想（マスター）。ビジョンや感性への共感が深い話を生みます。",
+  22: "実現力（マスター）。大きな構想を具体策に落とす伴走が響きます。",
+  33: "奉仕・愛（マスター）。思いやりに寄り添うと信頼されます。",
+};
+
 function buildRelationshipProfile(dateString, name = "") {
   if (!dateString) return null;
   const [rawYear, month, day] = dateString.split("-").map(Number);
   if (!rawYear || !month || !day) return null;
+  const lifePath = lifePathNumber(rawYear, month, day);
+  const lifePathHint = LIFE_PATH_HINT[lifePath] || "";
   const adjustedYear = month < 2 || (month === 2 && day < 4) ? rawYear - 1 : rawYear;
   const stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
   const branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
@@ -222,20 +244,21 @@ function buildRelationshipProfile(dateString, name = "") {
   const generation = getGenerationInsight(rawYear);
   const displayName = name ? `${name}さん` : "お相手";
   return {
-    method: "生年月日インサイト（簡易）",
+    method: "生年月日インサイト（算命学＋数秘術）",
     pillar: `${stems[stemIndex]}${branches[branchIndex]}`,
     element,
     zodiac,
     season: season.season,
     generation: generation.generation,
-    type,
-    approach,
+    type: `${type}（数秘${lifePath}）`,
+    approach: `${approach}${lifePathHint ? ` ${lifePathHint}` : ""}`,
     avoid,
     lenses: [
       `星座: ${zodiac}`,
       `季節感: ${season.season}。${season.tip}`,
       `世代感: ${generation.generation}。${generation.tip}`,
       `四柱推命メモ: ${stems[stemIndex]}${branches[branchIndex]} / ${element}`,
+      `数秘術ライフパス: ${lifePath}。${lifePathHint}`,
     ],
     birthday_status: getBirthdayStatus(dateString),
     birthday_message: `${displayName}、お誕生日おめでとうございます。新しい一年が、挑戦したいことに一歩近づく時間になりますように。`,
