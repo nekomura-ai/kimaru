@@ -34,6 +34,11 @@ exports.handler = async (event) => {
     const owner = email ? await findOwnerByEmail(email) : null;
     const subscription = body.data?.object?.subscription || {};
     const trialEndsAt = body.trial_ends_at || subscription.charged_through_date || null;
+    // プレミアムプラン判定: サブスクの plan variation id が env(SQUARE_PREMIUM_PLAN_ID) と一致すれば premium。
+    // プレミアムは無料お試しなし（決定20）＝ trial_ends_at を付与しない。一致しなければ従来どおり pro。
+    const premiumPlanId = optional("SQUARE_PREMIUM_PLAN_ID", "");
+    const planVariationId = String(subscription.plan_variation_id || subscription.plan_id || body.plan_variation_id || "");
+    const targetPlan = premiumPlanId && planVariationId && planVariationId === premiumPlanId ? "premium" : "pro";
 
     let planResult = "none";
     if (owner) {
@@ -44,16 +49,19 @@ exports.handler = async (event) => {
         });
         planResult = "downgraded";
       } else if (isGrant) {
+        const grant = targetPlan === "premium"
+          ? { plan: "premium", trial_ends_at: null, updated_at: new Date().toISOString() }
+          : { plan: "pro", trial_ends_at: trialEndsAt, updated_at: new Date().toISOString() };
         await sb(`owners?id=${eq(owner.id)}`, {
           method: "PATCH",
-          body: JSON.stringify({ plan: "pro", trial_ends_at: trialEndsAt, updated_at: new Date().toISOString() }),
+          body: JSON.stringify(grant),
         }).catch(() =>
           // trial_ends_at 未マイグレーション環境向けフォールバック
-          sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: "pro", updated_at: new Date().toISOString() }) }));
-        planResult = "pro";
+          sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: targetPlan, updated_at: new Date().toISOString() }) }));
+        planResult = targetPlan;
       }
     }
-    const shouldGrantPro = planResult === "pro";
+    const shouldGrantPro = planResult === "pro" || planResult === "premium";
 
     await sb("payment_events", {
       method: "POST",
@@ -66,7 +74,7 @@ exports.handler = async (event) => {
       }),
     }).catch(() => null);
 
-    return json(200, { ok: true, pro_granted: Boolean(shouldGrantPro && owner) });
+    return json(200, { ok: true, pro_granted: Boolean(shouldGrantPro && owner), plan: planResult });
   } catch (error) {
     return json(500, { error: error.message });
   }

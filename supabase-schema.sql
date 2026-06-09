@@ -15,7 +15,7 @@ create table if not exists owners (
   name text not null default '',
   avatar_url text,
   slug text not null default 'demo',
-  plan text not null default 'free' check (plan in ('free', 'pro')),
+  plan text not null default 'free' check (plan in ('free', 'pro', 'premium')),
   invite_code text,
   cat_key_disabled boolean not null default false,
   cat_key_pending boolean not null default false,
@@ -230,6 +230,9 @@ alter table owners add column if not exists cat_key_disabled boolean not null de
 alter table owners add column if not exists cat_key_pending boolean not null default false;
 alter table owners add column if not exists trial_ends_at timestamptz;
 alter table owners add column if not exists password_hash text;
+-- プレミアムプラン（AIアシスト上位・¥2,200/月・無料お試しなし）を許可。既存DBの plan 制約を貼り替える。
+alter table owners drop constraint if exists owners_plan_check;
+alter table owners add constraint owners_plan_check check (plan in ('free', 'pro', 'premium'));
 alter table booking_pages add column if not exists user_id uuid references users(id) on delete cascade;
 alter table booking_pages add column if not exists buffer_before_minutes int not null default 0;
 alter table booking_pages add column if not exists buffer_after_minutes int not null default 0;
