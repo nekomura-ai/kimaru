@@ -2,7 +2,7 @@
 
 [← 機能一覧に戻る](./README.md)
 
-- ステータス: ⚠️ 実装済（`reminder-mails` 関数。要 Resend 設定＋スケジューラ ~5分間隔）
+- ステータス: ✅ 実装済（`reminder-mails` + `reminder-scheduled`。Netlify Scheduled Functions で ~5分間隔起動。本番は Resend 設定で実送信。無料=基本／Pro=プロフィール付き）
 - 対象プラン: 共通
 - 仕様: [`../spec.md`](../spec.md) 主要機能 10
 
@@ -33,8 +33,13 @@
 - `birthday-mails.js` の Resend 送信基盤を流用（[11](./11-notification-email.md) / [16](./16-birthday.md)）
 - DB: `bookings`（開始時刻 `start_at`・`visitor_email`）、`profiles`（[17](./17-profile.md)）、送信済み管理用テーブル（重複防止）
 
+## 実装（2026-06-09）
+
+- `reminder-mails.js` のコアを `run()` に切り出し、HTTP（`/api/reminder-mails?dry_run=1`）と Scheduled Function（`reminder-scheduled.js`）の双方から起動。
+- `netlify.toml` の `[functions."reminder-scheduled"] schedule="*/5 * * * *"` で定期実行。
+- `reminder_deliveries`（unique）で重複送信を防止。`owner.plan` で本文を出し分け（無料=相手名＋会議URL／Pro=プロフィール付き）。
+
 ## 残タスク
 
-- 22分前トリガの実装（対象抽出・送信済み管理・重複防止）。
-- メール本文にプロフィール（ハイパーリンク形式）を反映。
-- 送信元ドメイン認証（SPF/DKIM）・送信元アドレスの設定。
+- 本番での送信元ドメイン認証（SPF/DKIM）・`RESEND_API_KEY`/`REMINDER_EMAIL_FROM` 設定（人間タスク）。
+- プロフィールのハイパーリンク形式（現状はテキスト）。
