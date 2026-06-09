@@ -174,8 +174,11 @@ create table if not exists appointment_logs (
   keywords text not null default '',
   notes text not null default '',
   next_action text not null default '',
+  scores jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+-- 印象スコアの構造化保存（#175）。相手ごとの集約・平均算出に使う。
+alter table appointment_logs add column if not exists scores jsonb not null default '{}'::jsonb;
 
 create table if not exists free_signups (
   id uuid primary key default gen_random_uuid(),
