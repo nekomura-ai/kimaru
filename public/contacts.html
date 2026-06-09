@@ -14,20 +14,19 @@
 
   <main class="shell">
     <section id="contacts-pro-lock" class="panel wide">
-      <p class="eyebrow">Pro限定</p>
-      <h1>相手管理はPro版の機能です</h1>
-      <p class="muted">会った相手を「資産」として管理し、関係を続けていくための機能です。Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p class="eyebrow">Pro限定の機能があります</p>
+      <h1>面談メモ・印象スコアはPro版の機能です</h1>
+      <p class="muted">予約履歴（相手レコード）の閲覧は無料でもご利用いただけます（下に表示）。会った後に関係を育てる「面談メモ」「印象スコア」はPro版（または猫の鍵で承認されたアカウント）の機能です。</p>
       <ul class="feature-list">
-        <li><strong>相手一覧・検索</strong>：名前・メール・話題・目標・誕生日メモから素早く探せます。</li>
         <li><strong>面談メモ</strong>：話した内容・次のアクションを記録し、次の連絡につなげます。</li>
         <li><strong>印象スコア</strong>：第一印象・話し上手・ギバー度など10項目を5段階で記録。</li>
-        <li><strong>予約履歴</strong>：これまでの予約をまとめて振り返れます。</li>
+        <li><strong>AIアシスト</strong>：相手データから次回アポの戦略を提案（プレミアム）。</li>
       </ul>
-      <p class="muted">無料版は「予約が決まる」までを担当。相手管理は会った後の関係づくり（Pro）です。</p>
+      <p class="muted">無料版は「予約が決まる」までと予約履歴の閲覧まで。メモ・スコアは会った後の関係づくり（Pro）です。</p>
       <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
     </section>
 
-    <section class="panel wide pro-feature">
+    <section class="panel wide free-feature">
       <p class="eyebrow" data-i18n="admin.contacts.eyebrow">相手管理</p>
       <h1 data-i18n="admin.contacts.heading">日程調整した相手</h1>
       <p class="muted" data-i18n="admin.contacts.desc">予約した人の情報を一覧で確認し、名前・メール・話題・目標・誕生日メモから探せます。</p>
@@ -122,7 +121,7 @@
       .then((r) => r.json())
       .then((d) => {
         const owner = d && d.owner;
-        document.body.classList.add(owner && owner.plan === 'pro' ? 'plan-pro' : 'plan-free');
+        document.body.classList.add(owner && ['pro', 'premium'].includes(owner.plan) ? 'plan-pro' : 'plan-free');
       })
       .catch(() => { document.body.classList.add('plan-free'); });
   </script>
