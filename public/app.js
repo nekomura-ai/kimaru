@@ -397,6 +397,41 @@ function renderLogs(logs) {
   `).join("");
 }
 
+// 相手ごとの集約ビュー（#175）。構造化スコア(log.scores)を相手メールで集計し、面談回数と各項目の平均を表示。
+function renderLogAggregate(logs) {
+  const el = $("#log-aggregate");
+  if (!el) return;
+  const byEmail = new Map();
+  (logs || []).forEach((log) => {
+    const email = String(log.visitor_email || "").toLowerCase();
+    if (!email) return;
+    const entry = byEmail.get(email) || { email, count: 0, sums: {}, counts: {} };
+    entry.count += 1;
+    const scores = log.scores && typeof log.scores === "object" ? log.scores : {};
+    Object.entries(scores).forEach(([key, value]) => {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return;
+      entry.sums[key] = (entry.sums[key] || 0) + n;
+      entry.counts[key] = (entry.counts[key] || 0) + 1;
+    });
+    byEmail.set(email, entry);
+  });
+  const rows = [...byEmail.values()].sort((a, b) => b.count - a.count);
+  if (!rows.length) {
+    el.innerHTML = '<p class="muted">まだ集計できる相手がいません。面談メモを保存すると、相手ごとに面談回数と印象スコアの平均が集計されます。</p>';
+    return;
+  }
+  el.innerHTML = rows.map((r) => {
+    const avgs = Object.keys(r.sums).map((key) => `${escapeHtml(key)} ${(r.sums[key] / r.counts[key]).toFixed(1)}`).join(" ・ ");
+    return `
+    <article class="list-item">
+      <strong>${escapeHtml(r.email)}</strong>
+      <span>面談メモ ${r.count}件</span>
+      <p>${avgs || "印象スコア未入力"}</p>
+    </article>`;
+  }).join("");
+}
+
 function updateAvailabilityRows() {
   document.querySelectorAll(".availability-row").forEach((row) => {
     const enabled = row.querySelector('input[type="checkbox"]')?.checked;
@@ -665,7 +700,7 @@ async function refreshAdmin() {
       try { const bookings = await api("owner-bookings"); renderBookings(bookings.bookings || []); } catch (_) { /* 非致命 */ }
       // 面談メモ・印象スコア（appointment-log）は Pro/Premium 限定。
       if (isProPlan(me.owner.plan)) {
-        try { const logs = await api("appointment-log"); renderLogs(logs.logs || []); } catch (_) { /* 非致命 */ }
+        try { const logs = await api("appointment-log"); renderLogs(logs.logs || []); renderLogAggregate(logs.logs || []); } catch (_) { /* 非致命 */ }
       }
       await loadBookingPages();
     } else {

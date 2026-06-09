@@ -67,6 +67,15 @@
       <p id="log-search-count" class="message"></p>
       <div id="log-list" class="list searchable-list"></div>
     </section>
+
+    <section class="panel wide pro-feature">
+      <p class="eyebrow">顧客集約</p>
+      <h2>相手ごとのまとめ（面談回数・印象スコア平均）</h2>
+      <p class="muted">同じ相手の面談メモを集計し、面談回数と印象スコアの平均を相手ごとに表示します。</p>
+      <label class="search-field"><span>相手検索</span><input id="aggregate-search" type="search" placeholder="メールで検索" /></label>
+      <p id="aggregate-search-count" class="message"></p>
+      <div id="log-aggregate" class="list searchable-list"></div>
+    </section>
   </main>
 
 
@@ -111,6 +120,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupSearch('booking-search', 'booking-list', 'booking-search-count', '表示中');
       setupSearch('log-search', 'log-list', 'log-search-count', '表示中');
+      setupSearch('aggregate-search', 'log-aggregate', 'aggregate-search-count', '表示中');
       setupConversationRatings();
     });
   </script>
