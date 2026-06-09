@@ -103,6 +103,7 @@ create table if not exists bookings (
   guest_name text not null default '',
   guest_email text not null default '',
   topic text not null default '',
+  guest_message text not null default '',
   filter_request text not null default 'none',
   visitor_birth_date date,
   visitor_birth_date_private boolean not null default false,
@@ -306,6 +307,8 @@ alter table bookings add column if not exists start_time timestamptz;
 alter table bookings add column if not exists end_time timestamptz;
 alter table bookings add column if not exists meeting_url text not null default '';
 alter table bookings add column if not exists location_type text not null default 'google_meet';
+-- ゲスト→ホストへの質問・メッセージ（会員同士の相互質問・#21）。
+alter table bookings add column if not exists guest_message text not null default '';
 alter table profiles add column if not exists data jsonb not null default '{}'::jsonb;
 alter table free_signups add column if not exists invite_code text not null default '';
 alter table free_signups add column if not exists language text not null default 'ja';
