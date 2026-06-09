@@ -46,7 +46,10 @@ Google OAuth (`google-auth-start` → `google-auth-callback`) upserts into the *
 Vanilla JS, no framework. i18n is attribute-driven: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` resolved by `i18n.js` (`window.KimaruI18n`, languages ja/en/zh-TW, persisted in localStorage). `app.js` drives the admin/booking-settings screens; `booking-week.js` drives the guest booking grid. Pages call `/api/*` with `fetch`. Booking-page plan limits are enforced both client-side (`app.js`) and server-side (`booking-page-save.js`).
 
 ### Scheduled jobs
-`birthday-mails.js`（日次）と `reminder-mails.js`（~5分間隔・予約22分前）は **Netlify Scheduled Functions / 外部cron** で起動する想定。`/api/reminder-mails`・`/api/birthday-mails` を叩く（認証は `REMINDER_CRON_SECRET` / `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`）。メール送信は Resend で、`RESEND_API_KEY` + `*_EMAIL_FROM` 未設定時は dry-run（送信スキップ）。
+リマインダー（予約22分前）と誕生日メール（日次）は **Netlify Scheduled Functions** で起動する。コアは `reminder-mails.js` / `birthday-mails.js` の `run()` に切り出し、`*-scheduled.js`（`reminder-scheduled` / `birthday-scheduled`）が呼ぶ。スケジュールは `netlify.toml` の `[functions."reminder-scheduled"] schedule="*/5 * * * *"` ・ `[functions."birthday-scheduled"] schedule="0 22 * * *"`（UTC＝JST07:00）。`run()` 元の HTTP エンドポイント（`/api/reminder-mails?dry_run=1` 等。認証 `REMINDER_CRON_SECRET` / `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`）はローカル確認用に残る。メール送信は Resend で、`RESEND_API_KEY` + `*_EMAIL_FROM` 未設定時は dry-run（送信スキップ）。リマインダーは無料=基本／Pro=プロフィール付き（`owner.plan` で出し分け）。
+
+### 予約のキャンセル・日程変更
+ゲストは確認メール/完了画面の管理リンク（`/manage-booking.html?id=&t=`、`t` は `bookingToken`=booking idのHMAC）から、ログイン不要でキャンセル・日程変更できる（`booking-manage.js`）。リスケは同一bookingを更新し、Googleイベントは新規作成成功時のみ旧を削除して差し替え。新規予約・キャンセル・変更時はホストへも通知メール（`book.js sendHostNotification`）。
 
 ## Hosting — Netlify only
 本番ホストは **Netlify 一本化**（2026-06 決定。Vercel対応は廃止＝`vercel.json`/`api/`/`lib/vercel-adapter.js` を削除済み）。`npm run dev`(=`netlify dev`)/`npm run deploy`。`netlify.toml` が `/api/*`→`/.netlify/functions/`、`/b/*`→`booking.html` をルーティング。Edge Function（`netlify/edge-functions/`）が認証ゲート＋ヘッダー注入を担う。
