@@ -2,6 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const page = document.body.dataset.page;
 let currentOwner = null;
 let ownerAvailability = [];
+let calendarConnected = false;
 
 function t(key) {
   return window.KimaruI18n?.t(key) || key;
@@ -418,6 +419,11 @@ function updateBookingPageControls() {
       input.placeholder = { in_person: "例：東京都渋谷区...", phone: "例：当日こちらからお電話します / 090-...", custom_url: "例：https://..." }[locationType.value] || "";
     }
   }
+  // Google Meet自動発行を選んでいるのにカレンダー未連携だと、Meet URLは発行されない旨を警告。
+  const meetWarning = $("#meet-warning");
+  if (meetWarning && locationType) {
+    meetWarning.classList.toggle("hidden", !(locationType.value === "google_meet" && !calendarConnected));
+  }
   updateAvailabilityRows();
 }
 
@@ -602,6 +608,7 @@ async function refreshAdmin() {
   try {
     const me = await api("me");
     currentOwner = me.owner || null;
+    calendarConnected = Boolean(me.calendar_connected);
     const ownerStatus = $("#owner-status");
     if (ownerStatus) ownerStatus.textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
     const ownerCard = $("#owner-card");
