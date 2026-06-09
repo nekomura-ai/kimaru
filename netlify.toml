@@ -11,6 +11,9 @@
 [functions."reminder-scheduled"]
   schedule = "*/5 * * * *"   # 約5分間隔（予約22分前リマインダー）
 
+[functions."thankyou-scheduled"]
+  schedule = "0 1 * * *"     # 毎日 UTC01:00 = JST10:00（前日面談の未登録者へサンキュー＋登録案内・#181）
+
 # 誕生日メールの自動送信は廃止（決定17・#180）。生年月日入力と占いベース相手分析は継続。
 
 [[redirects]]
