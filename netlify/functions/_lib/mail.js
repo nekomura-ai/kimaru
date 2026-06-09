@@ -1,7 +1,12 @@
-const { optional } = require("./config");
+const { optional, appBaseUrl } = require("./config");
+const { mailUnsubToken } = require("./crypto");
+const { isEmailSuppressed } = require("./supabase");
 
 // メール送信の共通ヘルパ。優先順位: Gmail SMTP（アプリパスワード）→ Resend → 未設定ならスキップ。
-// 当面は Gmail で無料運用し、有料顧客が増えたら独自ドメイン+Resend に移行する想定（env を入れるだけで切替）。
+// 種別(category)で送信元を出し分ける（決定13の送信アーキテクチャ）:
+//   - transactional（既定）: 予約確認・リマインダー・通知。必ず届けたい → TRANSACTIONAL_EMAIL_FROM（notify.<domain>）
+//   - marketing: サンキュー・登録勧誘・宣伝。苦情リスクを取引系から隔離 → MARKETING_EMAIL_FROM（news.<domain>）
+// marketing は (1) サプレッション登録済み宛先には送らない (2) List-Unsubscribe（ワンクリック解除）を付与する。
 
 let _nodemailer = null;
 function getNodemailer() {
@@ -19,10 +24,26 @@ function defaultReplyTo() {
   return optional("BOOKING_EMAIL_REPLY_TO", optional("BIRTHDAY_EMAIL_REPLY_TO", ""));
 }
 
+// 種別ごとの送信元。未設定なら defaultFrom() にフォールバック（＝既存の単一ドメイン運用と互換）。
+function categoryFrom(category) {
+  if (category === "marketing") return optional("MARKETING_EMAIL_FROM", defaultFrom());
+  return optional("TRANSACTIONAL_EMAIL_FROM", defaultFrom());
+}
+
 // "キマル <x@y>" → "キマル"（表示名のみ抽出。無ければ "")
 function displayName(from) {
   const m = String(from || "").match(/^\s*(.+?)\s*<[^>]+>\s*$/);
   return m ? m[1].trim() : "";
+}
+
+// 営業メールの解除URL（ワンクリック）。SESSION_SECRET 未設定等で失敗したら空。
+function unsubscribeUrl(email) {
+  try {
+    const token = mailUnsubToken(email);
+    return `${appBaseUrl()}/api/mail-unsubscribe?e=${encodeURIComponent(email)}&t=${encodeURIComponent(token)}`;
+  } catch (_) {
+    return "";
+  }
 }
 
 let _gmailTransport = null;
@@ -39,23 +60,31 @@ function gmailTransport() {
 }
 
 // Gmail SMTP で送信。差出人アドレスは認証アカウント（GMAIL_USER）固定、表示名のみ反映。
-async function sendViaGmail({ to, subject, text, replyTo, fromName }) {
+async function sendViaGmail({ to, subject, text, replyTo, fromName, headers }) {
   const transport = gmailTransport();
   if (!transport) return null;
   const user = optional("GMAIL_USER", "");
   const from = fromName ? `${fromName} <${user}>` : user;
-  const info = await transport.sendMail({ from, to, subject, text, ...(replyTo ? { replyTo } : {}) });
+  const info = await transport.sendMail({
+    from, to, subject, text,
+    ...(replyTo ? { replyTo } : {}),
+    ...(headers && Object.keys(headers).length ? { headers } : {}),
+  });
   return { id: info.messageId || "" };
 }
 
 // Resend HTTP API で送信。
-async function sendViaResend({ to, subject, text, from, replyTo }) {
+async function sendViaResend({ to, subject, text, from, replyTo, headers }) {
   const apiKey = optional("RESEND_API_KEY", "");
   if (!apiKey || !from) return null;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    body: JSON.stringify({
+      from, to, subject, text,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(headers && Object.keys(headers).length ? { headers } : {}),
+    }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data?.message || "メールの送信に失敗しました");
@@ -63,15 +92,37 @@ async function sendViaResend({ to, subject, text, from, replyTo }) {
 }
 
 // 共通送信。Gmail（設定あれば）→ Resend → スキップ。失敗は例外（呼び出し側は非致命で握りつぶす）。
-async function sendMail({ to, subject, text, from, replyTo }) {
+// category 既定は transactional（＝従来挙動と互換）。
+async function sendMail({ to, subject, text, from, replyTo, category = "transactional", headers = {}, unsubscribeEmail }) {
   if (!to) return { skipped: true };
-  const fromAddr = from || defaultFrom();
+  const isMarketing = category === "marketing";
+
+  // 営業メールは配信停止リストに載っている宛先には送らない。取引メールは常に送る。
+  if (isMarketing) {
+    try {
+      if (await isEmailSuppressed(to)) return { skipped: true, suppressed: true };
+    } catch (_) {
+      // suppression テーブル未マイグレーション等では止めずに送る。
+    }
+  }
+
+  const fromAddr = from || categoryFrom(category);
   const reply = replyTo || defaultReplyTo();
 
-  const viaGmail = await sendViaGmail({ to, subject, text, replyTo: reply, fromName: displayName(fromAddr) || "キマル" });
+  // 営業メールには List-Unsubscribe + ワンクリック解除（RFC 8058）を付与（Gmail/Yahoo 要件）。
+  const mailHeaders = { ...headers };
+  if (isMarketing) {
+    const unsub = unsubscribeUrl(unsubscribeEmail || to);
+    if (unsub) {
+      mailHeaders["List-Unsubscribe"] = `<${unsub}>`;
+      mailHeaders["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+    }
+  }
+
+  const viaGmail = await sendViaGmail({ to, subject, text, replyTo: reply, fromName: displayName(fromAddr) || "キマル", headers: mailHeaders });
   if (viaGmail) return viaGmail;
 
-  const viaResend = await sendViaResend({ to, subject, text, from: fromAddr, replyTo: reply });
+  const viaResend = await sendViaResend({ to, subject, text, from: fromAddr, replyTo: reply, headers: mailHeaders });
   if (viaResend) return viaResend;
 
   return { skipped: true };

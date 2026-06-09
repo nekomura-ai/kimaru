@@ -214,6 +214,15 @@ create table if not exists ai_assist_logs (
 );
 create index if not exists ai_assist_logs_owner_created_idx on ai_assist_logs(owner_id, created_at desc);
 
+-- メール配信停止リスト（決定13）。営業メールはここに載った宛先には送らない。
+-- reason: unsubscribe=本人解除 / bounce=不達 / complaint=苦情(スパム報告)。
+create table if not exists email_suppressions (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  reason text not null default 'unsubscribe' check (reason in ('unsubscribe', 'bounce', 'complaint')),
+  created_at timestamptz not null default now()
+);
+
 create table if not exists payment_events (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid references owners(id) on delete set null,

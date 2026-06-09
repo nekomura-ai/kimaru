@@ -116,4 +116,17 @@ function verifyBookingToken(bookingId, token) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword, bookingToken, verifyBookingToken };
+// 営業メールのワンクリック解除リンク用の署名トークン。メールアドレスから HMAC で導出（DB列不要・期限なし）。
+function mailUnsubToken(email) {
+  return sign(`unsub:${String(email || "").trim().toLowerCase()}`);
+}
+
+function verifyMailUnsubToken(email, token) {
+  if (!email || !token) return false;
+  const expected = sign(`unsub:${String(email).trim().toLowerCase()}`);
+  const a = Buffer.from(String(token));
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword, bookingToken, verifyBookingToken, mailUnsubToken, verifyMailUnsubToken };
