@@ -15,6 +15,7 @@
 | [`features/README.md`](./features/README.md) | 機能一覧（ユーザー機能／運営者機能で分割・優先度付き）。各機能1ファイル |
 | [`current-features.md`](./current-features.md) | 現状の実装棚卸し（実装済み／未実装／決定未反映） |
 | [`plan-comparison.md`](./plan-comparison.md) | 無料版 / 有料版の説明資料（比較表） |
+| [`pro-open-items.md`](./pro-open-items.md) | **Pro版で仕様が未確定・曖昧な点の洗い出し**（リリース前に埋める） |
 | [`screens.md`](./screens.md) | 画面・URL 一覧、API 概要 |
 | [`screen-flow.md`](./screen-flow.md) | 5アクター × 画面のアクセス権マトリクス・主要フロー |
 | [`api.md`](./api.md) | API エンドポイント詳細（req/res・認証・環境変数） |
