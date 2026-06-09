@@ -189,6 +189,57 @@ body[data-page="booking"] .slot-grid{
   }
 }
 
+/* ===== 3ステップ・ウィザード（日程調整 → 確認 → 完了）===== */
+.booking-flow{display:grid;gap:24px}
+
+.stepper{display:flex;list-style:none;margin:0;padding:0;border:1.5px solid var(--ink);background:var(--surface)}
+.stepper .step{flex:1;display:flex;align-items:center;gap:10px;min-width:0;padding:14px 16px;border-right:1px solid var(--line)}
+.stepper .step:last-child{border-right:0}
+.stepper .step-num{flex:none;display:grid;place-items:center;width:28px;height:28px;font-family:var(--sans);font-weight:800;font-size:14px;color:var(--muted);background:var(--surface-subtle);border:1px solid var(--line-strong);transition:background .2s ease,color .2s ease,border-color .2s ease}
+.stepper .step-label{font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.02em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stepper .step.is-active{background:var(--ink)}
+.stepper .step.is-active .step-num{color:#fff;background:var(--blue);border-color:var(--blue)}
+.stepper .step.is-active .step-label{color:#fff}
+.stepper .step.is-done .step-num{color:#fff;background:var(--ink);border-color:var(--ink)}
+.stepper .step.is-done .step-num::after{content:"✓";font-size:13px}
+.stepper .step.is-done .step-num{font-size:0}
+.stepper .step.is-done .step-label{color:var(--ink)}
+
+.flow-step[hidden]{display:none}
+.flow-step{animation:stepIn .34s cubic-bezier(.22,1,.36,1) both}
+@keyframes stepIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.form-section-label{margin:4px 0 0;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--blue);text-transform:uppercase}
+.selected-slot{margin:0 0 6px;padding:12px 14px;font-family:var(--sans);font-weight:800;font-size:17px;color:var(--ink);background:var(--primary-soft);border:1px solid var(--blue)}
+
+.confirm-card,.done-card{max-width:640px;margin:0 auto}
+.confirm-list{display:grid;gap:0;margin:20px 0 24px;border:1.5px solid var(--ink);background:var(--surface)}
+.confirm-list>div{display:grid;grid-template-columns:108px 1fr;gap:16px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.confirm-list>div:last-child{border-bottom:0}
+.confirm-list>div.is-primary{background:var(--primary-soft);border-bottom:1.5px solid var(--ink)}
+.confirm-list dt{margin:0;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);align-self:center}
+.confirm-list dd{margin:0;color:var(--ink);font-size:15px;font-weight:600;line-height:1.55;word-break:break-word}
+.confirm-list>div.is-primary dd{font-family:var(--sans);font-weight:800;font-size:17px;color:var(--blue)}
+.confirm-list dd .sub{display:block;margin-top:3px;color:var(--muted);font-size:13px;font-weight:500}
+
+.flow-actions{display:flex;gap:12px;flex-wrap:wrap}
+.flow-actions .primary,.flow-actions .button{flex:1;min-width:170px}
+
+.done-card{text-align:center}
+.done-card .confirm-list{text-align:left}
+.done-stamp{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 16px;font-size:30px;font-weight:900;color:#fff;background:var(--blue);border:2px solid var(--ink);animation:stampPop .4s cubic-bezier(.22,1.4,.36,1) both}
+@keyframes stampPop{from{opacity:0;transform:scale(.6) rotate(-8deg)}to{opacity:1;transform:none}}
+.done-note{margin-top:20px;padding:14px 16px;font-size:14px;line-height:1.7;color:var(--ink-soft);background:var(--surface-subtle);border:1px solid var(--line);text-align:left}
+
+@media(max-width:560px){
+  .stepper .step{padding:12px 10px;gap:7px}
+  .stepper .step-label{font-size:12px}
+  .confirm-list>div{grid-template-columns:88px 1fr;gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .flow-step,.done-stamp{animation:none}
+}
+
 @media(max-width:620px){
   .week-schedule-head{
     display:grid;
