@@ -11,8 +11,7 @@
 [functions."reminder-scheduled"]
   schedule = "*/5 * * * *"   # 約5分間隔（予約22分前リマインダー）
 
-[functions."birthday-scheduled"]
-  schedule = "0 22 * * *"    # 毎日 UTC22:00 = JST07:00（誕生日メール・Pro限定）
+# 誕生日メールの自動送信は廃止（決定17・#180）。生年月日入力と占いベース相手分析は継続。
 
 [[redirects]]
   from = "/api/*"

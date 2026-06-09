@@ -15,7 +15,7 @@ npm run deploy   # netlify deploy --prod
 
 - There are **no tests, no lint, no build**. Don't invent them.
 - DB changes: apply `supabase-schema.sql` manually in the Supabase SQL editor (no migration tool).
-- Birthday-mail dry run: `GET /api/birthday-mails?dry_run=1` (returns targets/message without sending).
+- Reminder-mail dry run: `GET /api/reminder-mails?dry_run=1` (returns targets/message without sending). (Birthday-mail auto-send was removed — decision 17 / #180.)
 
 ## Architecture (the non-obvious parts)
 
@@ -55,7 +55,7 @@ Google OAuth (`google-auth-start` → `google-auth-callback`) upserts into the *
 Vanilla JS, no framework. i18n is attribute-driven: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` resolved by `i18n.js` (`window.KimaruI18n`, languages ja/en/zh-TW, persisted in localStorage). `app.js` drives the admin/booking-settings screens; `booking-week.js` drives the guest booking grid. Pages call `/api/*` with `fetch`. Booking-page plan limits are enforced both client-side (`app.js`) and server-side (`booking-page-save.js`).
 
 ### Scheduled jobs
-リマインダー（予約22分前）と誕生日メール（日次）は **Netlify Scheduled Functions** で起動する。コアは `reminder-mails.js` / `birthday-mails.js` の `run()` に切り出し、`*-scheduled.js`（`reminder-scheduled` / `birthday-scheduled`）が呼ぶ。スケジュールは `netlify.toml` の `[functions."reminder-scheduled"] schedule="*/5 * * * *"` ・ `[functions."birthday-scheduled"] schedule="0 22 * * *"`（UTC＝JST07:00）。`run()` 元の HTTP エンドポイント（`/api/reminder-mails?dry_run=1` 等。認証 `REMINDER_CRON_SECRET` / `BIRTHDAY_CRON_SECRET` or `CRON_SECRET`）はローカル確認用に残る。メール送信は Resend で、`RESEND_API_KEY` + `*_EMAIL_FROM` 未設定時は dry-run（送信スキップ）。リマインダーは無料=基本／Pro=プロフィール付き（`owner.plan` で出し分け）。
+リマインダー（予約22分前）は **Netlify Scheduled Functions** で起動する。コアは `reminder-mails.js` の `run()` に切り出し、`reminder-scheduled.js` が呼ぶ。スケジュールは `netlify.toml` の `[functions."reminder-scheduled"] schedule="*/5 * * * *"`。`run()` 元の HTTP エンドポイント（`/api/reminder-mails?dry_run=1`。認証 `REMINDER_CRON_SECRET` or `CRON_SECRET`）はローカル確認用に残る。メール送信は `_lib/mail.js`（Gmail→Resend、未設定時は送信スキップ）。リマインダーは無料=基本／Pro=プロフィール付き（`owner.plan` で出し分け）。**誕生日メールの自動送信は廃止（決定17・#180）— 生年月日入力と占いベース相手分析は継続。**
 
 ### 予約のキャンセル・日程変更
 ゲストは確認メール/完了画面の管理リンク（`/manage-booking.html?id=&t=`、`t` は `bookingToken`=booking idのHMAC）から、ログイン不要でキャンセル・日程変更できる（`booking-manage.js`）。リスケは同一bookingを更新し、Googleイベントは新規作成成功時のみ旧を削除して差し替え。新規予約・キャンセル・変更時はホストへも通知メール（`book.js sendHostNotification`）。
