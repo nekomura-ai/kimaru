@@ -71,15 +71,53 @@
 
         <div class="editor-section">
           <p class="eyebrow">時間設定</p>
-          <label>予約時間<select name="duration_minutes"><option value="30">30分</option><option value="45">45分</option><option value="60">60分</option></select></label>
-          <label>前バッファ<select name="buffer_before_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
-          <label>後バッファ<select name="buffer_after_minutes"><option value="0">なし</option><option value="15">15分</option><option value="30">30分</option></select></label>
+          <label>予約時間
+            <select name="duration_minutes">
+              <option value="30" selected>30分</option>
+              <option value="40">40分</option>
+              <option value="50">50分</option>
+              <option value="60">60分</option>
+              <option value="70">70分</option>
+              <option value="80">80分</option>
+              <option value="90">90分</option>
+              <option value="100">100分</option>
+              <option value="110">110分</option>
+              <option value="120">120分</option>
+            </select>
+          </label>
+          <label>前バッファ
+            <select name="buffer_before_minutes">
+              <option value="0" selected>なし</option>
+              <option value="10">10分</option>
+              <option value="20">20分</option>
+              <option value="30">30分</option>
+              <option value="40">40分</option>
+              <option value="50">50分</option>
+              <option value="60">60分</option>
+            </select>
+          </label>
+          <label>後バッファ
+            <select name="buffer_after_minutes">
+              <option value="0" selected>なし</option>
+              <option value="10">10分</option>
+              <option value="20">20分</option>
+              <option value="30">30分</option>
+              <option value="40">40分</option>
+              <option value="50">50分</option>
+              <option value="60">60分</option>
+            </select>
+          </label>
           <label>予約枠の公開範囲
-            <select name="booking_range_months" id="booking-range-select">
-              <option value="1">今日から1ヶ月先の日程まで公開</option>
-              <option value="2" selected>今日から2ヶ月先の日程まで公開（無料版）</option>
-              <option value="3">今日から3ヶ月先の日程まで公開（有料版）</option>
-              <option value="6">今日から6ヶ月先の日程まで公開（有料版）</option>
+            <select name="booking_range" id="booking-range-select">
+              <option value="7d">今日から7日先まで公開</option>
+              <option value="14d">今日から14日先まで公開</option>
+              <option value="21d">今日から21日先まで公開</option>
+              <option value="1m">今日から1ヶ月先まで公開</option>
+              <option value="2m" selected>今日から2ヶ月先まで公開（無料はここまで）</option>
+              <option value="3m">今日から3ヶ月先まで公開（Pro）</option>
+              <option value="4m">今日から4ヶ月先まで公開（Pro）</option>
+              <option value="5m">今日から5ヶ月先まで公開（Pro）</option>
+              <option value="6m">今日から6ヶ月先まで公開（Pro）</option>
             </select>
           </label>
           <label>開催方法

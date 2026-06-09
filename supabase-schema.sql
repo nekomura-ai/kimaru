@@ -66,10 +66,10 @@ create table if not exists booking_pages (
   slug text not null unique default 'demo',
   title text not null default 'Kimaru meeting',
   description text not null default '',
-  duration_minutes int not null default 30 check (duration_minutes in (30, 45, 60)),
-  buffer_before_minutes int not null default 0 check (buffer_before_minutes in (0, 15, 30)),
-  buffer_after_minutes int not null default 0 check (buffer_after_minutes in (0, 15, 30)),
-  booking_range_months int not null default 3 check (booking_range_months in (1, 2, 3, 6)),
+  duration_minutes int not null default 30 check (duration_minutes between 30 and 120),
+  buffer_before_minutes int not null default 0 check (buffer_before_minutes between 0 and 60),
+  buffer_after_minutes int not null default 0 check (buffer_after_minutes between 0 and 60),
+  booking_range_months int not null default 2 check (booking_range_months between 1 and 6),
   location_type text not null default 'google_meet' check (location_type in ('in_person', 'google_meet', 'zoom', 'phone', 'custom_url', 'later')),
   location_value text not null default '',
   timezone text not null default 'Asia/Tokyo',
@@ -234,9 +234,16 @@ alter table booking_pages add column if not exists user_id uuid references users
 alter table booking_pages add column if not exists buffer_before_minutes int not null default 0;
 alter table booking_pages add column if not exists buffer_after_minutes int not null default 0;
 alter table booking_pages add column if not exists booking_range_months int not null default 3;
--- 受付期間: 無料2ヶ月対応のため 2 を許可（既存DBの CHECK 制約も更新。issue #56）
+-- 受付期間: 1〜6ヶ月を許可（3ヶ月以降はアプリ側でPro限定）。日数指定(7/14/21)は candidate_days を使用。
 alter table booking_pages drop constraint if exists booking_pages_booking_range_months_check;
-alter table booking_pages add constraint booking_pages_booking_range_months_check check (booking_range_months in (1, 2, 3, 6));
+alter table booking_pages add constraint booking_pages_booking_range_months_check check (booking_range_months between 1 and 6);
+-- 予約時間: 30〜120分の10分刻み（刻みはアプリ側で担保）。前後バッファ: 0〜60分。
+alter table booking_pages drop constraint if exists booking_pages_duration_minutes_check;
+alter table booking_pages add constraint booking_pages_duration_minutes_check check (duration_minutes between 30 and 120);
+alter table booking_pages drop constraint if exists booking_pages_buffer_before_minutes_check;
+alter table booking_pages add constraint booking_pages_buffer_before_minutes_check check (buffer_before_minutes between 0 and 60);
+alter table booking_pages drop constraint if exists booking_pages_buffer_after_minutes_check;
+alter table booking_pages add constraint booking_pages_buffer_after_minutes_check check (buffer_after_minutes between 0 and 60);
 alter table booking_pages add column if not exists location_type text not null default 'google_meet';
 alter table booking_pages add column if not exists location_value text not null default '';
 alter table booking_pages add column if not exists is_active boolean not null default true;

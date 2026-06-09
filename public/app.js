@@ -372,6 +372,20 @@ function collectAvailabilitySettings(data) {
   })).filter((setting) => setting.enabled);
 }
 
+// 公開範囲ドロップダウンの値（"7d"/"14d"/"21d" or "1m".."6m"）を {months, days} に変換。
+function parseRangeToken(token) {
+  const m = String(token || "2m").match(/^(\d+)(d|m)$/);
+  if (!m) return { months: 2, days: 0 };
+  const n = Number(m[1]);
+  return m[2] === "d" ? { months: 1, days: n } : { months: n, days: 0 };
+}
+// 保存済みページ（candidate_days/booking_range_months）から復元用トークンを作る。
+function rangeTokenFromPage(page) {
+  const days = Number(page?.candidate_days || 0);
+  if (days > 0) return `${days}d`;
+  return `${Number(page?.booking_range_months || 2)}m`;
+}
+
 function updateBookingPageControls() {
   const isPro = currentOwner?.plan === "pro";
   const rangeSelect = $("#booking-range-select");
@@ -379,11 +393,13 @@ function updateBookingPageControls() {
   const locationField = $("#location-value-field");
   const questionLimitMessage = $("#question-limit-message");
   if (rangeSelect) {
-    // 無料は2ヶ月まで。3ヶ月・6ヶ月は有料のみ。
+    // 無料は2ヶ月先まで。3ヶ月以降（3m/4m/5m/6m）は有料のみ。日数(7/14/21)は無料可。
     [...rangeSelect.options].forEach((option) => {
-      if (option.value === "3" || option.value === "6") option.disabled = !isPro;
+      const mm = option.value.match(/^(\d+)m$/);
+      option.disabled = !isPro && Boolean(mm) && Number(mm[1]) >= 3;
     });
-    if (!isPro && Number(rangeSelect.value) > 2) rangeSelect.value = "2";
+    const cur = rangeSelect.value.match(/^(\d+)m$/);
+    if (!isPro && cur && Number(cur[1]) > 2) rangeSelect.value = "2m";
   }
   const questionLimit = isPro ? 5 : 2;
   if (questionLimitMessage) {
@@ -443,6 +459,7 @@ function collectBookingPagePayload(form) {
   const questions = collectQuestions()
     .slice(0, maxQuestions)
     .map((question_text, index) => ({ question_text, is_required: index < 2 }));
+  const range = parseRangeToken(data.booking_range);
   return {
     id: data.page_id || undefined,
     slug: (data.slug || "").trim() || undefined,
@@ -451,7 +468,8 @@ function collectBookingPagePayload(form) {
     duration_minutes: Number(data.duration_minutes),
     buffer_before_minutes: Number(data.buffer_before_minutes),
     buffer_after_minutes: Number(data.buffer_after_minutes),
-    booking_range_months: Number(data.booking_range_months),
+    booking_range_months: range.months,
+    candidate_days: range.days,
     location_type: data.location_type,
     location_value: data.location_value || "",
     accept_holidays: data.accept_holidays !== "false",
@@ -478,7 +496,7 @@ function renderBookingPages(pages) {
     <article class="list-item">
       <strong>${escapeHtml(p.title || "(無題)")}</strong>
       <span>${escapeHtml(bookingPageUrl(p.slug))}</span>
-      <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.booking_range_months}ヶ月</small>
+      <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.candidate_days > 0 ? `${p.candidate_days}日先まで` : `${p.booking_range_months}ヶ月先まで`}</small>
       <div class="actions">
         <a class="button secondary" href="${escapeHtml(bookingPageUrl(p.slug))}" target="_blank" rel="noopener">開く</a>
         <button class="button secondary" type="button" data-page-action="copy" data-slug="${escapeHtml(p.slug)}">URLをコピー</button>
@@ -545,7 +563,7 @@ function fillBookingPageForm(page) {
   set("duration_minutes", String(page.duration_minutes || 30));
   set("buffer_before_minutes", String(page.buffer_before_minutes != null ? page.buffer_before_minutes : 0));
   set("buffer_after_minutes", String(page.buffer_after_minutes != null ? page.buffer_after_minutes : 0));
-  set("booking_range_months", String(page.booking_range_months || 2));
+  set("booking_range", rangeTokenFromPage(page));
   set("location_type", page.location_type || "google_meet");
   set("location_value", page.location_value || "");
   set("accept_holidays", page.accept_holidays === false ? "false" : "true");

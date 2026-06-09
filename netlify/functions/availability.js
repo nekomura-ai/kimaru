@@ -130,7 +130,9 @@ exports.handler = async (event) => {
     // 週送り：今日からの7日窓を week 単位でずらす。公開範囲（受付期間=月数）内のみ。
     const now = Date.now();
     const rangeMonths = Math.min(Math.max(Number(bookingPage?.booking_range_months || 1), 1), 6);
-    const maxTime = addMonths(new Date(), rangeMonths).getTime();
+    const candidateDays = Math.max(0, Number(bookingPage?.candidate_days || 0));
+    // 日数指定(7/14/21)があればそこまで、無ければ月数(1-6)先まで。
+    const maxTime = candidateDays > 0 ? now + candidateDays * dayMs : addMonths(new Date(), rangeMonths).getTime();
     const fromTime = now + weekOffset * 7 * dayMs;
     const toTime = fromTime + 7 * dayMs;
     const hasPrev = weekOffset > 0;
