@@ -1,6 +1,7 @@
 const { json } = require("./_lib/response");
 const { optional } = require("./_lib/config");
 const { sb, eq } = require("./_lib/supabase");
+const { sendMail } = require("./_lib/mail");
 
 function todayInTokyo() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -86,19 +87,11 @@ async function markDelivered(bookingId, deliveryDate, providerMessageId, status,
   }
 }
 
-async function sendViaResend({ to, subject, text }) {
-  const apiKey = optional("RESEND_API_KEY", "");
-  const from = optional("BIRTHDAY_EMAIL_FROM", "");
-  const replyTo = optional("BIRTHDAY_EMAIL_REPLY_TO", "");
-  if (!apiKey || !from) return { skipped: true, reason: "Missing RESEND_API_KEY or BIRTHDAY_EMAIL_FROM" };
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.message || "誕生日メールの送信に失敗しました");
-  return { id: data.id || "" };
+function birthdayFrom() {
+  return optional("BIRTHDAY_EMAIL_FROM", "");
+}
+function birthdayReplyTo() {
+  return optional("BIRTHDAY_EMAIL_REPLY_TO", "");
 }
 
 // 送信処理の本体。HTTP ハンドラと Scheduled Function（birthday-scheduled.js）の双方から呼ぶ。
@@ -136,9 +129,9 @@ async function run(dryRun) {
       continue;
     }
     try {
-      const sent = await sendViaResend({ to, ...item.message });
+      const sent = await sendMail({ to, subject: item.message.subject, text: item.message.text, from: birthdayFrom(), replyTo: birthdayReplyTo() });
       if (sent.skipped) {
-        results.push({ booking_id: booking.id, to, status: "dry_run", reason: sent.reason, subject: item.message.subject, text: item.message.text });
+        results.push({ booking_id: booking.id, to, status: "dry_run", reason: "メール送信が未設定（Gmail/Resend）", subject: item.message.subject, text: item.message.text });
         continue;
       }
       await markDelivered(booking.id, today, sent.id, "sent");

@@ -1,6 +1,7 @@
 const { json } = require("./_lib/response");
 const { optional } = require("./_lib/config");
 const { sb, eq } = require("./_lib/supabase");
+const { sendMail } = require("./_lib/mail");
 
 // 予約開始の約22分前にゲストへ「お相手プロフィール付き」リマインダーメールを送る。
 // スケジューラ（Netlify Scheduled Functions / 外部cron）から ~5分間隔で叩く想定。
@@ -93,19 +94,12 @@ async function markSent(bookingId, providerMessageId, status, errorMessage = "")
   }
 }
 
-async function sendViaResend({ to, subject, text }) {
-  const apiKey = optional("RESEND_API_KEY", "");
-  const from = optional("REMINDER_EMAIL_FROM", optional("BIRTHDAY_EMAIL_FROM", ""));
-  const replyTo = optional("REMINDER_EMAIL_REPLY_TO", optional("BIRTHDAY_EMAIL_REPLY_TO", ""));
-  if (!apiKey || !from) return { skipped: true, reason: "Missing RESEND_API_KEY or REMINDER_EMAIL_FROM" };
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.message || "リマインドメールの送信に失敗しました");
-  return { id: data.id || "" };
+// 差出人/返信先（Resend利用時に有効。Gmail利用時はアドレスは GMAIL_USER 固定）。
+function reminderFrom() {
+  return optional("REMINDER_EMAIL_FROM", optional("BIRTHDAY_EMAIL_FROM", ""));
+}
+function reminderReplyTo() {
+  return optional("REMINDER_EMAIL_REPLY_TO", optional("BIRTHDAY_EMAIL_REPLY_TO", ""));
 }
 
 // 送信処理の本体。HTTP ハンドラと Scheduled Function（reminder-scheduled.js）の双方から呼ぶ。
@@ -139,9 +133,9 @@ async function run(dryRun) {
       continue;
     }
     try {
-      const sent = await sendViaResend({ to: recipient, ...message });
+      const sent = await sendMail({ to: recipient, subject: message.subject, text: message.text, from: reminderFrom(), replyTo: reminderReplyTo() });
       if (sent.skipped) {
-        results.push({ booking_id: booking.id, to: recipient, status: "dry_run", reason: sent.reason, subject: message.subject, text: message.text });
+        results.push({ booking_id: booking.id, to: recipient, status: "dry_run", reason: "メール送信が未設定（Gmail/Resend）", subject: message.subject, text: message.text });
         continue;
       }
       await markSent(booking.id, sent.id, "sent");

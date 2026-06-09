@@ -32,7 +32,8 @@
 - **メール送信を採用する**。ログイン時に発行者のメール、予約時にゲストのメールを取得するため、**双方にメール通知を送れる**。
 - **予約完了通知**: 予約時に Google カレンダーへ招待（`sendUpdates=all`）＋必要に応じて独自メール（[features/11](./features/11-notification-email.md)）。
 - **22分前リマインダー**: **独自メール送信で実装**（スケジューラ＋メール送信）。相手プロフィールを本文に載せられる（[features/21](./features/21-reminder.md)）。当初の「メール基盤なし」制約は解消。
-- メール送信基盤は既存の **Resend**（`birthday-mails.js` で採用済み）を流用。**送信元ドメイン認証（SPF/DKIM）と送信元アドレスの設定**が必要。
+- メール送信基盤は **Gmail SMTP / Resend の両対応**（`_lib/mail.js`、優先順位: Gmail → Resend → スキップ）。
+- **送信方式の方針（2026-06-09 決定）**: **当面は Gmail（apointokimaru@gmail.com / アプリパスワード）で無料運用** → **有料顧客が増えたら独自ドメイン+Resend へ移行**（env を入れ替えるだけでコード変更不要）。設定は `GMAIL_USER` / `GMAIL_APP_PASSWORD`（要 2段階認証＋アプリパスワード）。無料Gmailは約500通/日が上限のため、増加後にドメイン移行。SPF/DKIM 設定は Resend 移行時に対応。
 
 ### 6. 課金（Square 決済）（2026-06-03 決定）
 - **決済は Square**（`square-webhook.js` 実装済み）。有料版 ¥980/月。

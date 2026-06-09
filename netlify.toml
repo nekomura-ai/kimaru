@@ -4,6 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
+  # nodemailer は動的requireを含むためバンドルせず node_module として同梱（Gmail SMTP送信用）
+  external_node_modules = ["nodemailer"]
 
 # 定期実行ジョブ（Netlify Scheduled Functions, cron はUTC）
 [functions."reminder-scheduled"]

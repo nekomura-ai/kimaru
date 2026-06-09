@@ -5,5 +5,8 @@
   "scripts": {
     "dev": "netlify dev",
     "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "nodemailer": "^8.0.10"
   }
 }
