@@ -40,6 +40,7 @@
         <span id="auth-toggle-text">アカウントをお持ちでないですか？</span>
         <a href="#" id="auth-toggle">新規登録する</a>
       </p>
+      <p class="form-note muted" id="forgot-note"><a href="/reset-password.html">パスワードをお忘れですか？</a></p>
     </section>
   </main>
 
@@ -59,6 +60,7 @@
       $("#auth-form").elements.password.autocomplete = register ? "new-password" : "current-password";
       $("#auth-toggle-text").textContent = register ? "すでにアカウントをお持ちですか？" : "アカウントをお持ちでないですか？";
       $("#auth-toggle").textContent = register ? "ログインする" : "新規登録する";
+      $("#forgot-note").classList.toggle("hidden", register);
       $("#auth-message").textContent = "";
     }
 
