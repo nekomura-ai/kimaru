@@ -115,5 +115,6 @@
 ## 補足
 
 - 🔜（提供予定）の機能はリリース時期が前後する場合があります。最新の実装状況は [`features/README.md`](./features/README.md) を参照。
+- **Pro版で仕様が未確定の点**は [`pro-open-items.md`](./pro-open-items.md) に一覧化（課金/お試し・ダウングレード時のデータ・印象スコア・AI・高度プロフィール・占い分析 等）。
 - 機能の根拠仕様は [`spec.md`](./spec.md)、プラン制限の実装は [`features/13-plans.md`](./features/13-plans.md) を参照。
 - Cat Key（招待コード）の運用・不正対策は [`features/12-invite-code.md`](./features/12-invite-code.md) / [`features/19-cat-key-admin.md`](./features/19-cat-key-admin.md)。
