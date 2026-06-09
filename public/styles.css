@@ -171,6 +171,7 @@ textarea{resize:vertical}
 .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,6vw,70px);align-items:center;min-height:calc(100vh - 70px)}
 .badge{display:inline-flex;margin-bottom:14px;padding:8px 12px;color:var(--blue);background:var(--primary-soft);border:1px solid var(--blue);border-radius:0;font-family:var(--sans);font-size:13px;font-weight:700}
 .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:28px}
+.actions+.form-note{margin-top:14px}
 .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 /* ===== ダッシュボード（ホーム）動線 ===== */
 .dashboard{display:block}
