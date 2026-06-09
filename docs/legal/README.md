@@ -10,7 +10,7 @@
 | A2 事業者名 | 一般社団法人ぴんころ |
 | A3 運営責任者 | 内山 文雄（代表理事） |
 | A4 所在地 | 〒556-0006 大阪府大阪市西区西本町1丁目4-1 オリックス本町ビル4階 fabbit |
-| A5 連絡先メール | **未作成（要追って差し込み）** ← 唯一の残課題 |
+| A5 連絡先メール | apointokimaru@gmail.com（暫定・運営Gmail） |
 | A6 電話番号 | 080-6882-9783 |
 | A7 制定日 | 2026年6月9日 |
 | A8 管轄裁判所 | 大阪地方裁判所 |
@@ -27,7 +27,7 @@
 
 | ドキュメント | ドラフト（本文） | 表示ページ（公開） | 状態 |
 |---|---|---|---|
-| 利用規約 | [`terms.md`](./terms.md) | `public/terms.html` → `/terms.html` | ✅ 回答反映・HTML同期済み（メールのみ未確定） |
+| 利用規約 | [`terms.md`](./terms.md) | `public/terms.html` → `/terms.html` | ✅ 回答反映・HTML同期済み（全項目確定） |
 | プライバシーポリシー | [`privacy-policy.md`](./privacy-policy.md) | `public/privacy.html` → `/privacy.html` | ✅ 同上 |
 | 特定商取引法に基づく表記 | [`tokushoho.md`](./tokushoho.md) | `public/tokushoho.html` → `/tokushoho.html` | ✅ 同上 |
 
