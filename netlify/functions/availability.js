@@ -90,7 +90,8 @@ async function ownerAvailability(owner) {
 async function bookingPageQuestions(bookingPage) {
   if (!bookingPage) return [];
   const rows = await sb(`questionnaire_questions?booking_page_id=${eq(bookingPage.id)}&order=sort_order.asc`).catch(() => []);
-  return rows.map((row) => ({ id: row.id, question_text: row.question_text, is_required: Boolean(row.is_required) }));
+  // 凍結された質問（無料降格時の上限超過分・#174）はゲストに出さない。未マイグレーション環境では frozen 未定義＝表示。
+  return rows.filter((row) => !row.frozen).map((row) => ({ id: row.id, question_text: row.question_text, is_required: Boolean(row.is_required) }));
 }
 
 exports.handler = async (event) => {

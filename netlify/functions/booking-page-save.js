@@ -55,7 +55,7 @@ exports.handler = async (event) => {
   try {
     const owner = await requireOwner(event);
     const body = readJson(event);
-    const isPro = owner.plan === "pro";
+    const isPro = owner.plan === "pro" || owner.plan === "premium";
 
     const duration = intValue(body.duration_minutes, 30);
     const bufferBefore = intValue(body.buffer_before_minutes, 0);
@@ -97,9 +97,11 @@ exports.handler = async (event) => {
 
     // 新規作成時の保存数上限（無料2 / 有料・猫5）
     if (!existing) {
-      const owned = await sb(`booking_pages?owner_id=${eq(owner.id)}&select=id`);
+      const owned = await sb(`booking_pages?owner_id=${eq(owner.id)}&select=id,frozen`);
+      // 凍結ページ（降格時の超過分・#174）は上限カウントから除外する。
+      const activeCount = (owned || []).filter((p) => !p.frozen).length;
       const limit = isPro ? PAGE_LIMIT.pro : PAGE_LIMIT.free;
-      if ((owned || []).length >= limit) return json(403, { error: `現在のプランで保存できる予約ページは${limit}個までです（無料2つ／Pro5つ）` });
+      if (activeCount >= limit) return json(403, { error: `現在のプランで保存できる予約ページは${limit}個までです（無料2つ／Pro5つ）` });
     }
 
     const payload = {

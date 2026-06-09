@@ -276,6 +276,9 @@ alter table booking_pages add column if not exists accept_holidays boolean not n
 alter table booking_pages add column if not exists lead_time_hours int not null default 0;
 alter table booking_pages add column if not exists candidate_days int;
 alter table booking_pages add column if not exists slot_interval_minutes int;
+-- 無料降格時の超過ページ凍結フラグ（決定15・#174）。再昇格で復元。
+alter table booking_pages add column if not exists frozen boolean not null default false;
+alter table questionnaire_questions add column if not exists frozen boolean not null default false;
 alter table bookings add column if not exists user_id uuid references users(id) on delete cascade;
 alter table bookings add column if not exists guest_name text not null default '';
 alter table bookings add column if not exists guest_email text not null default '';
