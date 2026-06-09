@@ -3,6 +3,7 @@ const { requireOwner } = require("./_lib/auth");
 const { sb, eq } = require("./_lib/supabase");
 const { optional } = require("./_lib/config");
 const { verifyAdminSession } = require("./_lib/crypto");
+const { freezeExcess, restoreFrozen } = require("./_lib/plan-freeze");
 
 const proCodes = new Set([
   "JF7YAIN40EQL",
@@ -69,6 +70,9 @@ async function updateOwnerCatKey(event) {
   };
   const patch = patchByAction[action];
   const rows = await sb(`owners?id=${eq(ownerId)}`, { method: "PATCH", body: JSON.stringify(patch) });
+  // Cat Key 承認=昇格→凍結データ復元 / 取消=降格→超過データ凍結（決定15・#174）。
+  if (action === "approve") await restoreFrozen(ownerId).catch(() => null);
+  else if (action === "revoke") await freezeExcess(ownerId).catch(() => null);
   await auditCatKey(event, { owner_id: ownerId, email: rows[0]?.email || "", action: `admin_${action}`, metadata: { source: "cat-key-admin" } });
   return json(200, { ok: true, owner: rows[0] });
 }

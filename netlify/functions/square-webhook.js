@@ -1,6 +1,7 @@
 const { json, readJson } = require("./_lib/response");
 const { optional } = require("./_lib/config");
 const { sb, eq, findOwnerByEmail } = require("./_lib/supabase");
+const { freezeExcess, restoreFrozen } = require("./_lib/plan-freeze");
 
 function header(event, name) {
   const headers = event.headers || {};
@@ -47,6 +48,7 @@ exports.handler = async (event) => {
           method: "PATCH",
           body: JSON.stringify({ plan: "free", updated_at: new Date().toISOString() }),
         });
+        await freezeExcess(owner.id).catch(() => null); // 超過データを削除せず凍結（決定15・#174）
         planResult = "downgraded";
       } else if (isGrant) {
         const grant = targetPlan === "premium"
@@ -58,6 +60,7 @@ exports.handler = async (event) => {
         }).catch(() =>
           // trial_ends_at 未マイグレーション環境向けフォールバック
           sb(`owners?id=${eq(owner.id)}`, { method: "PATCH", body: JSON.stringify({ plan: targetPlan, updated_at: new Date().toISOString() }) }));
+        await restoreFrozen(owner.id).catch(() => null); // 凍結データを復元（決定15・#174）
         planResult = targetPlan;
       }
     }
