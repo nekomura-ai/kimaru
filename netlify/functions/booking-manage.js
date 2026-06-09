@@ -1,0 +1,130 @@
+const { json, readJson } = require("./_lib/response");
+const { sb, eq, findOwnerById } = require("./_lib/supabase");
+const { verifyBookingToken } = require("./_lib/crypto");
+const { createCalendarEvent, deleteCalendarEvent } = require("./_lib/google");
+const { sendMail } = require("./_lib/mail");
+const { LOCATION_LABELS, formatJst, manageUrl } = require("./_lib/booking-format");
+
+function clean(value, max = 500) {
+  return String(value || "").trim().slice(0, max);
+}
+
+function parseDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+// 署名トークン検証つきで予約を取得（ログイン不要・id だけでは取れない）。
+async function loadBooking(id, token) {
+  if (!id || !verifyBookingToken(id, token)) return null;
+  const rows = await sb(`bookings?id=${eq(id)}&limit=1`).catch(() => []);
+  return rows[0] || null;
+}
+
+async function bookingPageFor(booking) {
+  if (!booking.booking_page_id) return null;
+  const rows = await sb(`booking_pages?id=${eq(booking.booking_page_id)}&limit=1`).catch(() => []);
+  return rows[0] || null;
+}
+
+function publicView(booking, owner, page) {
+  return {
+    id: booking.id,
+    status: booking.status,
+    visitor_name: booking.visitor_name,
+    start_at: booking.start_at || booking.start_time,
+    end_at: booking.end_at || booking.end_time,
+    location_type: booking.location_type,
+    location_label: LOCATION_LABELS[booking.location_type] || booking.location_type || "",
+    meeting_url: booking.meeting_url || "",
+    host_name: owner?.name || "",
+    slug: page?.slug || "",
+    page_title: page?.title || "",
+  };
+}
+
+// キャンセル/日程変更時にゲスト＋ホストへ通知（いずれも非致命）。
+async function notify({ booking, owner, kind, before, meetingUrl }) {
+  const when = formatJst(booking.start_at || booking.start_time);
+  const ownerName = owner?.name || owner?.email || "担当者";
+  const guestName = booking.visitor_name || "";
+  let guest;
+  let host;
+  if (kind === "cancel") {
+    guest = { subject: `予約をキャンセルしました（${when}）`, lines: [`${guestName}さん`, "", "以下の予約をキャンセルしました。", `お相手: ${ownerName}`, `日時: ${when}`, "", "またのご予約をお待ちしています。"] };
+    host = { subject: `予約がキャンセルされました（${when} / ${guestName}さん）`, lines: [`${owner?.name || ""}さん`, "", "予約がキャンセルされました。", `お名前: ${guestName}`, `日時: ${when}`] };
+  } else {
+    guest = { subject: `予約の日程を変更しました（${when}）`, lines: [`${guestName}さん`, "", "予約の日程を変更しました。", `お相手: ${ownerName}`, `変更前: ${before}`, `変更後: ${when}`] };
+    if (meetingUrl) guest.lines.push(`ミーティング: ${meetingUrl}`);
+    guest.lines.push("", "▼ 予約の変更・キャンセルはこちら", manageUrl(booking.id));
+    host = { subject: `予約の日程が変更されました（${when} / ${guestName}さん）`, lines: [`${owner?.name || ""}さん`, "", "予約の日程が変更されました。", `お名前: ${guestName}`, `変更前: ${before}`, `変更後: ${when}`] };
+  }
+  if (booking.visitor_email) await sendMail({ to: booking.visitor_email, subject: guest.subject, text: guest.lines.join("\n") }).catch(() => {});
+  if (owner?.email) await sendMail({ to: owner.email, subject: host.subject, text: host.lines.join("\n") }).catch(() => {});
+}
+
+exports.handler = async (event) => {
+  try {
+    // 取得（管理ページ初期表示）
+    if (event.httpMethod === "GET") {
+      const id = clean(event.queryStringParameters?.id, 64);
+      const booking = await loadBooking(id, event.queryStringParameters?.t || "");
+      if (!booking) return json(404, { error: "予約が見つからないか、リンクが無効です" });
+      const owner = await findOwnerById(booking.owner_id);
+      const page = await bookingPageFor(booking);
+      return json(200, { booking: publicView(booking, owner, page) });
+    }
+
+    // 操作（キャンセル / 日程変更）
+    if (event.httpMethod === "POST") {
+      const body = readJson(event);
+      const id = clean(body.id, 64);
+      const booking = await loadBooking(id, body.t);
+      if (!booking) return json(404, { error: "予約が見つからないか、リンクが無効です" });
+      const owner = await findOwnerById(booking.owner_id);
+      const action = String(body.action || "");
+
+      if (action === "cancel") {
+        if (booking.status === "cancelled") return json(200, { ok: true, status: "cancelled" });
+        await sb(`bookings?id=${eq(booking.id)}`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) });
+        if (booking.google_event_id) await deleteCalendarEvent(booking.owner_id, booking.google_event_id).catch(() => {});
+        await notify({ booking, owner, kind: "cancel" });
+        return json(200, { ok: true, status: "cancelled" });
+      }
+
+      if (action === "reschedule") {
+        if (booking.status === "cancelled") return json(400, { error: "キャンセル済みの予約は変更できません" });
+        const start = parseDate(body.start);
+        const end = parseDate(body.end);
+        if (!start || !end || start >= end) return json(400, { error: "日時が正しくありません" });
+        const now = new Date();
+        const maxFuture = new Date(now);
+        maxFuture.setMonth(maxFuture.getMonth() + 6);
+        if (start < now || start > maxFuture) return json(400, { error: "予約できる期間外の日時です" });
+
+        const before = formatJst(booking.start_at || booking.start_time);
+        // 旧カレンダー予定を削除し、新しい時間で作り直す（booking 行は同一＝管理リンク不変）。
+        if (booking.google_event_id) await deleteCalendarEvent(booking.owner_id, booking.google_event_id).catch(() => {});
+        const updated = { ...booking, start_at: start.toISOString(), end_at: end.toISOString(), start_time: start.toISOString(), end_time: end.toISOString() };
+        updated.calendar_description = `${booking.topic ? `相談内容: ${booking.topic}\n\n` : ""}— キマルで予約された面談です（日程変更）。`;
+        const eventResult = await createCalendarEvent(booking.owner_id, updated).catch(() => null);
+        const meetingUrl = eventResult?.hangoutLink || "";
+        await sb(`bookings?id=${eq(booking.id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            start_at: updated.start_at, end_at: updated.end_at, start_time: updated.start_time, end_time: updated.end_time,
+            google_event_id: eventResult?.id || null, meeting_url: meetingUrl,
+          }),
+        });
+        await notify({ booking: { ...updated, meeting_url: meetingUrl }, owner, kind: "reschedule", before, meetingUrl });
+        return json(200, { ok: true, status: "confirmed", start_at: updated.start_at, end_at: updated.end_at, meeting_url: meetingUrl });
+      }
+
+      return json(400, { error: "不正な操作です" });
+    }
+
+    return json(405, { error: "許可されていない操作です" });
+  } catch (error) {
+    return json(500, { error: "サーバーでエラーが発生しました。時間をおいて再度お試しください。" });
+  }
+};

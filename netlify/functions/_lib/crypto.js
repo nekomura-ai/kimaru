@@ -102,4 +102,18 @@ function verifyPassword(password, stored) {
   return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
 }
 
-module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword };
+// 予約の管理（キャンセル/日程変更）リンク用の署名トークン。
+// booking id から HMAC で導出するため DB 列は不要。期限は設けない（面談日まで有効）。
+function bookingToken(bookingId) {
+  return sign(`booking:${bookingId}`);
+}
+
+function verifyBookingToken(bookingId, token) {
+  if (!bookingId || !token) return false;
+  const expected = sign(`booking:${bookingId}`);
+  const a = Buffer.from(String(token));
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+module.exports = { sessionCookie, clearSessionCookie, verifySession, adminSessionCookie, clearAdminSessionCookie, verifyAdminSession, encrypt, decrypt, hashPassword, verifyPassword, bookingToken, verifyBookingToken };
