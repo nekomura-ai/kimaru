@@ -229,6 +229,33 @@ textarea{resize:vertical}
 .editor-section>.eyebrow{margin:0}
 .field-warning{margin:0;padding:11px 13px;font-size:13px;line-height:1.65;color:#8a5300;background:#fff7e6;border:1px solid #f0cf7a;border-radius:0}
 .field-warning a{color:inherit;font-weight:700;text-decoration:underline}
+
+/* ===== 設定画面 ===== */
+.settings-page{display:grid;gap:22px}
+.settings-page .settings-section{animation:settleIn .45s cubic-bezier(.22,1,.36,1) both}
+.settings-page .settings-section:nth-of-type(3){animation-delay:.06s}
+.settings-page .settings-section:nth-of-type(4){animation-delay:.12s}
+@keyframes settleIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.settings-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.settings-head .eyebrow{margin-bottom:8px}
+.settings-head h2{margin:0}
+.settings-rows{display:grid;gap:0;margin:14px 0 16px;border:1.5px solid var(--ink);background:var(--surface)}
+.settings-rows>div{display:grid;grid-template-columns:148px 1fr;gap:16px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.settings-rows>div:last-child{border-bottom:0}
+.settings-rows dt{margin:0;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);align-self:center}
+.settings-rows dd{margin:0;color:var(--ink);font-size:16px;font-weight:700;align-self:center;word-break:break-all}
+.form-actions-row{display:flex;gap:12px;flex-wrap:wrap}
+.form-actions-row .button,.form-actions-row .primary{flex:1;min-width:150px}
+.conn-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--muted);background:var(--surface-subtle);border:1px solid var(--line-strong);white-space:nowrap}
+.conn-badge::before{content:"";width:8px;height:8px;background:var(--muted-2)}
+.conn-badge.is-on{color:#0a7a3d;background:#eafaf0;border-color:#9ad9b4}
+.conn-badge.is-on::before{background:#16a34a}
+.plan-badge{display:inline-flex;align-items:center;padding:8px 15px;font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--ink);background:var(--surface);border:1.5px solid var(--ink);white-space:nowrap}
+.plan-badge.is-pro{color:#fff;background:var(--blue);border-color:var(--blue)}
+.plan-perks{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.plan-perks span{padding:6px 11px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink-soft);background:var(--surface-subtle);border:1px solid var(--line)}
+@media(max-width:560px){.settings-rows>div{grid-template-columns:108px 1fr;gap:12px}}
+@media(prefers-reduced-motion:reduce){.settings-page .settings-section{animation:none}}
 @media(max-width:760px){.step-grid,.dashboard .feature-grid{grid-template-columns:1fr}.dash-hero{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.step-card,.feature-card{opacity:1;transform:none;animation:none}}
 .plan-lead{max-width:760px}
