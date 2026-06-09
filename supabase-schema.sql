@@ -139,6 +139,17 @@ create table if not exists reminder_deliveries (
   created_at timestamptz not null default now()
 );
 
+-- サンキュー＋登録案内メールの重複送信防止（#181）。booking 単位で1回だけ送る。
+create table if not exists thankyou_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid references bookings(id) on delete cascade unique,
+  recipient_email text not null default '',
+  provider_message_id text not null default '',
+  status text not null default 'sent' check (status in ('sent', 'failed', 'skipped')),
+  error_message text not null default '',
+  created_at timestamptz not null default now()
+);
+
 create table if not exists questionnaire_questions (
   id uuid primary key default gen_random_uuid(),
   booking_page_id uuid not null references booking_pages(id) on delete cascade,
