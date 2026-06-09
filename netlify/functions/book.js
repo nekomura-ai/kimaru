@@ -42,6 +42,7 @@ async function sendHostNotification({ booking, owner, meetingUrl, locationValue,
   if (meetingUrl) lines.push(`ミーティング: ${meetingUrl}`);
   if (locationValue) lines.push(`場所/案内: ${locationValue}`);
   if (qa) lines.push("", "― 事前アンケート ―", qa);
+  if (booking.guest_message) lines.push("", `― ${booking.visitor_name || "相手"}さんからの質問・メッセージ ―`, booking.guest_message);
   lines.push("", "▼ この予約の変更・キャンセル", manageUrl(booking.id));
   return sendMail({ to: owner.email, subject: `新しい予約: ${when} / ${booking.visitor_name || ""}さん`, text: lines.join("\n") });
 }
@@ -76,9 +77,9 @@ async function createBooking(payload) {
     return await sb("bookings", { method: "POST", body: JSON.stringify(payload) });
   } catch (error) {
     const message = String(error.message || "");
-    const isMissingNewColumn = ["visitor_birth_date", "visitor_birth_date_private", "birthday_message_opt_in", "relationship_profile"].some((column) => message.includes(column));
+    const isMissingNewColumn = ["visitor_birth_date", "visitor_birth_date_private", "birthday_message_opt_in", "relationship_profile", "guest_message"].some((column) => message.includes(column));
     if (!isMissingNewColumn) throw error;
-    const { visitor_birth_date, visitor_birth_date_private, birthday_message_opt_in, relationship_profile, ...fallbackPayload } = payload;
+    const { visitor_birth_date, visitor_birth_date_private, birthday_message_opt_in, relationship_profile, guest_message, ...fallbackPayload } = payload;
     return sb("bookings", { method: "POST", body: JSON.stringify(fallbackPayload) });
   }
 }
@@ -122,6 +123,7 @@ exports.handler = async (event) => {
       guest_name: visitorName,
       guest_email: visitorEmail,
       topic: clean(body.topic, 2000),
+      guest_message: clean(body.guest_message, 2000),
       filter_request: storedRelationshipContext ? JSON.stringify(storedRelationshipContext) : clean(body.filter_request || "none", 12000),
       start_at: start.toISOString(),
       end_at: end.toISOString(),
