@@ -693,7 +693,7 @@ async function refreshAdmin() {
     const ownerStatus = $("#owner-status");
     if (ownerStatus) ownerStatus.textContent = me.owner ? t("admin.loggedIn") : t("admin.notLoggedIn");
     const ownerCard = $("#owner-card");
-    if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>プラン: ${escapeHtml(me.owner.plan === "premium" ? "プレミアム" : me.owner.plan === "pro" ? "Pro" : "無料")}</p>` : "";
+    if (ownerCard) ownerCard.innerHTML = me.owner ? `<strong>${escapeHtml(me.owner.name || me.owner.email)}</strong><p>${escapeHtml(t("admin.planLabel"))}: ${escapeHtml(me.owner.plan === "premium" ? t("plan.premium") : me.owner.plan === "pro" ? t("plan.pro") : t("plan.free"))}</p>` : "";
     updateBookingPageControls();
     if (me.owner) {
       // 予約履歴（相手レコード）の閲覧は無料にも開放（決定19）。失敗しても致命にしない。
