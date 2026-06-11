@@ -18,10 +18,12 @@
       <p class="eyebrow">マイページ</p>
       <h1>おかえりなさい<span id="welcome-name"></span></h1>
       <p class="lead">キマルの設定・相手管理はホームから。よく使う機能へすぐ移動できます。</p>
+      <p id="home-plan-line" class="muted" hidden></p>
       <div class="actions">
         <a class="button primary" href="/dashboard.html">ホームへ</a>
         <a class="button secondary" href="/booking-settings.html">予約設定</a>
       </div>
+      <p id="home-upsell" class="form-note muted" hidden></p>
     </div>
     <div class="panel">
       <p class="eyebrow">クイックアクセス</p>
@@ -38,11 +40,11 @@
 
   <section class="section hero guest-only">
     <div>
-      <p class="eyebrow" data-i18n="home.hero.eyebrow">Scheduling + prep + CRM</p>
-      <h1 data-i18n="home.hero.heading">日程がキマル。Pro版では契約がキマりやすく。</h1>
+      <p class="eyebrow" data-i18n="home.hero.eyebrow">Scheduling · Prep · CRM · AI</p>
+      <h1 data-i18n="home.hero.heading">日程がキマル。会う前の準備と、次の一手まで。</h1>
       <p class="lead" data-i18n="home.lead1">キマルは、日程調整と事前アンケートと面談後の管理をひとつにした予約システムです。</p>
       <p class="lead" data-i18n="home.lead2">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
-      <p class="lead" data-i18n="home.lead3">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
+      <p class="lead" data-i18n="home.lead3">Pro版では、事前アンケートの拡張・面談前の占いベース相手分析・面談後の相手管理・高度プロフィールで関係構築を強化。さらにプレミアムでは、相手データから AI が次回アポの戦略まで提案します（近日公開）。</p>
       <div class="actions">
         <a class="button primary guest-only" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
         <a class="button primary app-only" href="/contacts.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
@@ -50,7 +52,7 @@
       </div>
     </div>
     <div class="panel">
-      <span class="badge" data-i18n="home.panel.badge">Free: 2ヶ月先まで / Pro: 6ヶ月先まで</span>
+      <span class="badge" data-i18n="home.panel.badge">無料は2ヶ月・Proは6ヶ月先まで予約／プレミアムでAI</span>
       <h2 data-i18n="home.panel.heading">会う前の準備まで、ひとつに。</h2>
       <p data-i18n="home.panel.desc">事前アンケート、プロフィール付きリマインド、面談メモ、印象スコアを組み合わせて、日程調整を「会う前の関係づくり」まで広げます。</p>
       <div class="actions">
@@ -94,13 +96,30 @@
   <!-- site-footer -->
 
 <script>
-  // ログイン中なら「おかえりなさい、〇〇さん」と名前を表示（未ログインは app-only で非表示）
+  // ログイン中：名前＋現在のプランを表示し、プラン別にアップグレード/AIナッジを出し分ける。
+  // （未ログインは app-only で非表示。要素は既定 hidden→判定後に表示でチラ見え防止）
   fetch('/api/me', { credentials: 'include' })
     .then((r) => r.json())
     .then((d) => {
       const owner = d && d.owner;
-      const el = document.getElementById('welcome-name');
-      if (owner && el) el.textContent = `、${owner.name || owner.email} さん`;
+      if (!owner) return;
+      const nameEl = document.getElementById('welcome-name');
+      if (nameEl) nameEl.textContent = `、${owner.name || owner.email} さん`;
+      const plan = owner.plan;
+      const label = plan === 'premium' ? 'プレミアム' : plan === 'pro' ? 'Pro' : '無料';
+      const planLine = document.getElementById('home-plan-line');
+      if (planLine) { planLine.innerHTML = `現在のプラン：<strong>${label}</strong>`; planLine.hidden = false; }
+      const upsell = document.getElementById('home-upsell');
+      if (upsell) {
+        if (plan === 'free') {
+          upsell.innerHTML = 'Proで相手管理・高度プロフィール、プレミアムでAIアシスト（近日）。<a href="/pro.html">プランを見る</a>';
+          upsell.hidden = false;
+        } else if (plan === 'pro') {
+          upsell.innerHTML = 'プレミアムでは、相手データからAIが次回アポの戦略を提案します（近日公開）。<a href="/pro.html#premium">詳しく見る</a>';
+          upsell.hidden = false;
+        }
+        // premium：ナッジなし
+      }
     })
     .catch(() => {});
 </script>
