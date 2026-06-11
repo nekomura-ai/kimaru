@@ -31,7 +31,7 @@ const OPERATOR_PATHS = [
 const SITE_HEADER = `<header class="site-header">
     <a class="brand" href="/" data-i18n="common.brand">キマル</a>
     <nav>
-      <a class="guest-only" href="/pro.html" data-i18n="nav.pro">Pro版</a>
+      <a class="guest-only" href="/pro.html" data-i18n="nav.pricing">料金</a>
       <a class="guest-only" href="/signup.html" data-i18n="nav.signup">無料登録</a>
       <a class="guest-only" href="/login.html" data-i18n="nav.signin">ログイン</a>
       <a class="app-only" href="/dashboard.html" data-i18n="nav.dashboard">ホーム</a>
