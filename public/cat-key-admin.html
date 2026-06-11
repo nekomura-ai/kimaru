@@ -89,8 +89,8 @@
     const ownerSearch = document.querySelector('#owner-search');
 
     function ownerCard(owner) {
-      const plan = owner.plan === 'pro' ? 'Pro' : 'Free';
-      const pendingBadge = owner.cat_key_pending ? ' / <strong style="color:#1f3cff;">承認待ち</strong>' : '';
+      const plan = owner.plan === 'premium' ? 'プレミアム' : owner.plan === 'pro' ? 'Pro' : 'Free';
+      const pendingBadge = owner.cat_key_pending ? ' / <strong style="color:var(--op-amber,#e0a83d);">承認待ち</strong>' : '';
       const approveButtons = owner.cat_key_pending ? `
             <button class="button primary" type="button" data-action="approve" data-owner-id="${escapeHtml(owner.id)}">承認してProにする</button>
             <button class="button secondary" type="button" data-action="reject" data-owner-id="${escapeHtml(owner.id)}">却下する</button>` : '';

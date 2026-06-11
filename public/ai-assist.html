@@ -96,6 +96,8 @@
     let aiAssistRecords = [];
     let currentOwner = null;
     let isPremium = false;
+    // プレミアムのAI（GPT）はフェーズ2で開放（決定20）。それまでは全員ルールベース＋「近日公開」表示。
+    const PREMIUM_AI_LIVE = false;
     const $ = (selector) => document.querySelector(selector);
 
     function escapeHtml(value) {
@@ -336,7 +338,7 @@
         return false;
       }
       const profile = saveProfile(form);
-      if (isPremium && await runServerAssist(record, profile)) return true;
+      if (isPremium && PREMIUM_AI_LIVE && await runServerAssist(record, profile)) return true;
       renderResult(record, profile);
       return true;
     }
@@ -380,7 +382,7 @@
           return;
         }
         isPremium = currentOwner.plan === 'premium';
-        document.body.classList.add('plan-pro');
+        document.body.classList.add(isPremium ? 'plan-premium' : 'plan-pro');
         const [bookingData, logData] = await Promise.allSettled([
           api('owner-bookings'),
           api('appointment-log')

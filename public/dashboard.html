@@ -83,15 +83,15 @@
 
   <!-- site-footer -->
 
+  <!-- プラン判定（body に plan-* 付与＋プレミアム帯の出し分け） -->
+  <script src="/plan.js" defer></script>
   <script>
-    // Pro なら「アップグレード」導線は不要なので隠す（Cat Key 入力は /square に集約）
-    fetch('/api/me', { credentials: 'include' })
-      .then((r) => r.json())
-      .then((d) => {
-        const owner = d && d.owner;
-        if (owner && owner.plan === 'pro') document.getElementById('upgrade-panel')?.remove();
-      })
-      .catch(() => {});
+    // Pro / プレミアムなら「Proにアップグレード」導線は不要（Cat Key 入力は /square に集約）。
+    document.addEventListener('kimaru:plan', (e) => {
+      if (window.KimaruPlan && window.KimaruPlan.isPro(e.detail.plan)) {
+        document.getElementById('upgrade-panel')?.remove();
+      }
+    });
   </script>
   <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>

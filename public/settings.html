@@ -116,9 +116,11 @@
         const connected = Boolean(data.calendar_connected);
         if (!owner) { setMsg($('#settings-status'), 'ログインが必要です。', 'error'); return; }
 
-        const isPro = owner.plan === 'pro';
+        const isPro = ['pro', 'premium'].includes(owner.plan); // premium は Pro 全機能を含む
+        const isPremium = owner.plan === 'premium';
+        const planLabel = isPremium ? 'プレミアム' : isPro ? 'Pro' : '無料';
         $('#settings-status').textContent = `${owner.name || owner.email} のアカウント設定`;
-        $('#plan-chip').innerHTML = `プラン: <strong>${isPro ? 'Pro' : '無料'}</strong>`;
+        $('#plan-chip').innerHTML = `プラン: <strong>${planLabel}</strong>`;
 
         // アカウント（メール）
         $('#current-email').textContent = owner.email || '—';
@@ -131,12 +133,17 @@
         }
 
         // プラン
-        $('#current-plan').textContent = isPro ? 'Pro（有料）' : '無料';
+        $('#current-plan').textContent = isPremium ? 'プレミアム（有料）' : isPro ? 'Pro（有料）' : '無料';
         const planBadge = $('#plan-badge');
-        planBadge.textContent = isPro ? 'Pro' : '無料プラン';
-        planBadge.classList.toggle('is-pro', isPro);
+        planBadge.textContent = isPremium ? 'プレミアム' : isPro ? 'Pro' : '無料プラン';
+        planBadge.classList.toggle('is-pro', owner.plan === 'pro');     // teal バッジ
+        planBadge.classList.toggle('is-premium', isPremium);           // オーロラ バッジ
         $('#plan-free-box').style.display = isPro ? 'none' : '';
         $('#plan-pro-box').style.display = isPro ? '' : 'none';
+        if (isPremium) {
+          const intro = $('#plan-pro-box').querySelector('p.muted');
+          if (intro) intro.textContent = 'プレミアムプランをご利用中です。Proの全機能＋AIアシストが使えます。いつもありがとうございます。';
+        }
 
         // 外部連携
         applyCalendar(connected);

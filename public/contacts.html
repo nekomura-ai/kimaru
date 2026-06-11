@@ -124,17 +124,8 @@
       setupConversationRatings();
     });
   </script>
-  <script>
-    // Pro専用ゲート（plan-comparison: 相手管理は有料のみ）。
-    // チラ見え防止のため Pro機能は CSS で既定非表示。判定後に body クラスで出し分ける。
-    fetch('/api/me', { credentials: 'include' })
-      .then((r) => r.json())
-      .then((d) => {
-        const owner = d && d.owner;
-        document.body.classList.add(owner && ['pro', 'premium'].includes(owner.plan) ? 'plan-pro' : 'plan-free');
-      })
-      .catch(() => { document.body.classList.add('plan-free'); });
-  </script>
+  <!-- プラン判定（body に plan-free/plan-pro/plan-premium を付与）。CSS で .pro-feature 等を出し分け。 -->
+  <script src="/plan.js" defer></script>
   <script src="/i18n.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
