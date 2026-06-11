@@ -14,9 +14,9 @@
 
   <main class="shell narrow">
     <section class="panel">
-      <p class="eyebrow">Login / Register</p>
+      <p class="eyebrow" data-i18n="auth.eyebrow">Login / Register</p>
       <h1 id="auth-heading">ログイン</h1>
-      <p class="lead">メールアドレスとパスワード、または Google アカウントでログインできます。</p>
+      <p class="lead" data-i18n="auth.lead">メールアドレスとパスワード、または Google アカウントでログインできます。</p>
 
       <a class="google-btn" href="/api/google-auth-start">
         <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
@@ -30,9 +30,9 @@
       <div class="auth-divider"><span data-i18n="auth.or">または</span></div>
 
       <form id="auth-form" class="form-grid">
-        <label id="name-label" class="hidden">名前<input name="name" autocomplete="name" /></label>
-        <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
-        <label>パスワード<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
+        <label id="name-label" class="hidden"><span data-i18n="signup.name">名前</span><input name="name" autocomplete="name" /></label>
+        <label><span data-i18n="signup.email">メールアドレス</span><input name="email" type="email" autocomplete="email" required /></label>
+        <label><span data-i18n="signup.password">パスワード</span><input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
         <button class="primary" type="submit" id="auth-submit">ログイン</button>
       </form>
       <p id="auth-message" class="message" role="status"></p>
@@ -40,7 +40,7 @@
         <span id="auth-toggle-text">アカウントをお持ちでないですか？</span>
         <a href="#" id="auth-toggle">新規登録する</a>
       </p>
-      <p class="form-note muted" id="forgot-note"><a href="/reset-password.html">パスワードをお忘れですか？</a></p>
+      <p class="form-note muted" id="forgot-note"><a href="/reset-password.html" data-i18n="auth.forgot">パスワードをお忘れですか？</a></p>
     </section>
   </main>
 
@@ -50,16 +50,18 @@
   <script src="/i18n.js" defer></script>
   <script>
     const $ = (s) => document.querySelector(s);
+    // i18n 読込前は日本語フォールバック。読込後/言語切替で applyMode を再適用する。
+    const T = (key, fallback) => (window.KimaruI18n ? window.KimaruI18n.t(key) : fallback);
     let mode = "login"; // login | register
 
     function applyMode() {
       const register = mode === "register";
-      $("#auth-heading").textContent = register ? "新規登録" : "ログイン";
-      $("#auth-submit").textContent = register ? "アカウントを作成" : "ログイン";
+      $("#auth-heading").textContent = register ? T("auth.register.heading", "新規登録") : T("auth.login.heading", "ログイン");
+      $("#auth-submit").textContent = register ? T("auth.register.submit", "アカウントを作成") : T("auth.login.submit", "ログイン");
       $("#name-label").classList.toggle("hidden", !register);
       $("#auth-form").elements.password.autocomplete = register ? "new-password" : "current-password";
-      $("#auth-toggle-text").textContent = register ? "すでにアカウントをお持ちですか？" : "アカウントをお持ちでないですか？";
-      $("#auth-toggle").textContent = register ? "ログインする" : "新規登録する";
+      $("#auth-toggle-text").textContent = register ? T("auth.toggle.toLoginText", "すでにアカウントをお持ちですか？") : T("auth.toggle.toRegisterText", "アカウントをお持ちでないですか？");
+      $("#auth-toggle").textContent = register ? T("auth.toggle.toLogin", "ログインする") : T("auth.toggle.toRegister", "新規登録する");
       $("#forgot-note").classList.toggle("hidden", register);
       $("#auth-message").textContent = "";
     }
@@ -73,7 +75,7 @@
     $("#auth-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(event.currentTarget).entries());
-      $("#auth-message").textContent = "処理しています...";
+      $("#auth-message").textContent = T("auth.processing", "処理しています...");
       $("#auth-message").className = "message";
       try {
         const path = mode === "register" ? "/api/auth-register" : "/api/auth-login";
@@ -84,8 +86,8 @@
           body: JSON.stringify(data),
         });
         const result = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(result.error || "失敗しました");
-        $("#auth-message").textContent = "完了しました。相手管理へ移動します...";
+        if (!res.ok) throw new Error(result.error || T("auth.fail", "失敗しました"));
+        $("#auth-message").textContent = T("auth.done", "完了しました。ホームへ移動します...");
         $("#auth-message").className = "message success";
         location.href = "/dashboard.html";
       } catch (error) {
@@ -95,6 +97,9 @@
     });
 
     applyMode();
+    // i18n.js(defer)の初期適用後・言語切替後に、JS駆動の文言を訳し直す
+    document.addEventListener("DOMContentLoaded", applyMode);
+    document.addEventListener("kimaru:languagechange", applyMode);
   </script>
 </body>
 </html>
