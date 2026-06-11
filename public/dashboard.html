@@ -3,69 +3,69 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - ホーム</title>
+  <title data-i18n="dash.pageTitle">キマル - ホーム</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body data-page="dashboard">
+<body data-page="dashboard" data-i18n-title="dash.pageTitle">
   <!-- site-header -->
 
   <main class="shell dashboard">
     <!-- 上部: 挨拶・プラン状態・ログアウト -->
     <section class="dash-hero">
       <div class="dash-hero-text">
-        <p class="eyebrow">マイページ</p>
-        <h1>ホーム</h1>
-        <p id="owner-status" class="muted">ログイン状態を確認しています...</p>
+        <p class="eyebrow" data-i18n="dash.eyebrow">マイページ</p>
+        <h1 data-i18n="dash.heading">ホーム</h1>
+        <p id="owner-status" class="muted" data-i18n="dash.checking">ログイン状態を確認しています...</p>
       </div>
       <div class="dash-account">
         <div id="owner-card" class="plan-chip"></div>
-        <button id="logout-button" class="button secondary" type="button">ログアウト</button>
+        <button id="logout-button" class="button secondary" type="button" data-i18n="dash.logout">ログアウト</button>
       </div>
     </section>
 
     <!-- STEP 1-3: 予約を受け付けるまで（無料でできる核） -->
     <section class="dash-section">
-      <p class="eyebrow">無料で完結</p>
-      <h2>3ステップで予約を受け付ける</h2>
+      <p class="eyebrow" data-i18n="dash.free.eyebrow">無料で完結</p>
+      <h2 data-i18n="dash.free.heading">3ステップで予約を受け付ける</h2>
       <div class="step-grid">
         <a class="step-card" href="/booking-settings.html" style="--i:0">
           <span class="step-num">1</span>
-          <h3>予約ページを設定</h3>
-          <p class="muted">時間・開催方法・受付時間・事前アンケートを設定します。</p>
-          <span class="step-go">設定する</span>
+          <h3 data-i18n="dash.step1.title">予約ページを設定</h3>
+          <p class="muted" data-i18n="dash.step1.desc">時間・開催方法・受付時間・事前アンケートを設定します。</p>
+          <span class="step-go" data-i18n="dash.step1.go">設定する</span>
         </a>
         <a class="step-card" href="/profile.html" style="--i:1">
           <span class="step-num">2</span>
-          <h3>プロフィールを整える</h3>
-          <p class="muted">リマインドやAIアシストに渡す自己紹介を用意します。</p>
-          <span class="step-go">編集する</span>
+          <h3 data-i18n="dash.step2.title">プロフィールを整える</h3>
+          <p class="muted" data-i18n="dash.step2.desc">リマインドやAIアシストに渡す自己紹介を用意します。</p>
+          <span class="step-go" data-i18n="dash.step2.go">編集する</span>
         </a>
         <a class="step-card" href="/booking-settings.html" style="--i:2">
           <span class="step-num">3</span>
-          <h3>URLを共有して予約を受ける</h3>
-          <p class="muted">予約設定で各ページの「開く / URLをコピー」から共有します。</p>
-          <span class="step-go">予約ページへ</span>
+          <h3 data-i18n="dash.step3.title">URLを共有して予約を受ける</h3>
+          <p class="muted" data-i18n="dash.step3.desc">予約設定で各ページの「開く / URLをコピー」から共有します。</p>
+          <span class="step-go" data-i18n="dash.step3.go">予約ページへ</span>
         </a>
       </div>
     </section>
 
     <!-- Proで関係構築 -->
     <section class="dash-section">
-      <p class="eyebrow">Proで関係構築 <span class="pro-badge">Pro</span></p>
-      <h2>会ったあとに、関係を続ける</h2>
+      <p class="eyebrow"><span data-i18n="dash.pro.eyebrow">Proで関係構築</span> <span class="pro-badge">Pro</span></p>
+      <h2 data-i18n="dash.pro.heading">会ったあとに、関係を続ける</h2>
       <div class="feature-grid">
         <a class="feature-card" href="/contacts.html" style="--i:0">
-          <h3>相手管理 <span class="pro-badge">Pro</span></h3>
-          <p class="muted">予約履歴の閲覧は無料。面談メモ・印象スコア（5段階）・検索は Pro。</p>
-          <span class="step-go">ひらく</span>
+          <h3><span data-i18n="dash.contacts.title">相手管理</span> <span class="pro-badge">Pro</span></h3>
+          <p class="muted" data-i18n="dash.contacts.desc">予約履歴の閲覧は無料。面談メモ・印象スコア（5段階）・検索は Pro。</p>
+          <span class="step-go" data-i18n="dash.open">ひらく</span>
         </a>
         <a class="feature-card" href="/profile.html" style="--i:1">
-          <h3>高度プロフィール <span class="pro-badge">Pro</span></h3>
-          <p class="muted">色・見出しで魅せるプロフィールと公開ページ。占いベース相手分析も。</p>
-          <span class="step-go">ひらく</span>
+          <h3><span data-i18n="dash.profile.title">高度プロフィール</span> <span class="pro-badge">Pro</span></h3>
+          <p class="muted" data-i18n="dash.profile.desc">色・見出しで魅せるプロフィールと公開ページ。占いベース相手分析も。</p>
+          <span class="step-go" data-i18n="dash.open">ひらく</span>
         </a>
       </div>
     </section>
@@ -73,24 +73,24 @@
     <!-- アップグレード（無料ユーザーのみ。Pro/プレミアムなら下のスクリプトで削除） -->
     <section id="upgrade-panel" class="upgrade-banner">
       <div class="upgrade-banner-text">
-        <p class="eyebrow">Pro版</p>
-        <h2>「会う前後」まで強くする</h2>
-        <p class="muted">1ヶ月無料お試し（カード登録・後に月額¥980、期間中の解約で課金なし）。猫の鍵 / Cat Key もこちらから入力できます。</p>
+        <p class="eyebrow" data-i18n="dash.upgrade.eyebrow">Pro版</p>
+        <h2 data-i18n="dash.upgrade.heading">「会う前後」まで強くする</h2>
+        <p class="muted" data-i18n="dash.upgrade.desc">1ヶ月無料お試し（カード登録・後に月額¥980、期間中の解約で課金なし）。猫の鍵 / Cat Key もこちらから入力できます。</p>
       </div>
-      <a class="button primary" href="/square.html">1ヶ月無料で始める / Cat Key</a>
+      <a class="button primary" href="/square.html" data-i18n="dash.upgrade.cta">1ヶ月無料で始める / Cat Key</a>
     </section>
 
     <!-- プレミアムでAI（フェーズ2で開放・近日公開） -->
     <section class="dash-section">
-      <p class="eyebrow">プレミアムでAI <span class="premium-badge">プレミアム</span></p>
-      <h2>AIが次の一手まで提案する</h2>
+      <p class="eyebrow"><span data-i18n="dash.premium.eyebrow">プレミアムでAI</span> <span class="premium-badge" data-i18n="plan.premium">プレミアム</span></p>
+      <h2 data-i18n="dash.premium.heading">AIが次の一手まで提案する</h2>
       <section class="upgrade-banner is-premium aurora">
         <div class="upgrade-banner-text">
-          <p class="eyebrow"><span class="coming-soon-tag">近日公開（フェーズ2）</span></p>
-          <h2>AIアシスト</h2>
-          <p class="muted">相手データから、最初の入り方・刺さる話題・次の一手を提案。プレミアム（¥2,200/月・GPT-5.4 Mini・月300回）。今もルールベースの提案を試せます。</p>
+          <p class="eyebrow"><span class="coming-soon-tag" data-i18n="pricing.premium.comingSoon">近日公開（フェーズ2）</span></p>
+          <h2 data-i18n="dash.premium.cardHeading">AIアシスト</h2>
+          <p class="muted" data-i18n="dash.premium.desc">相手データから、最初の入り方・刺さる話題・次の一手を提案。プレミアム（¥2,200/月・GPT-5.4 Mini・月300回）。今もルールベースの提案を試せます。</p>
         </div>
-        <a class="button primary" href="/ai-assist.html">AIアシストを見る</a>
+        <a class="button primary" href="/ai-assist.html" data-i18n="pricing.premium.ctaApp">AIアシストを見る</a>
       </section>
     </section>
   </main>
