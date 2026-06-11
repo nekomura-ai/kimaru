@@ -96,6 +96,11 @@ a{color:inherit;text-decoration:none}
 /* プレミアム「近日公開」枠。free/pro に表示し、premium で消える（フェーズ2自動切替） */
 .premium-lock{display:none}
 .plan-free .premium-lock,.plan-pro .premium-lock{display:block}
+/* ログイン中のプラン別CTA出し分け（.app-only 内で使用。guestは app-only 側で非表示）。
+   既定は無料想定（free-only表示／paid-only非表示）。判定後に pro/premium で入替。 */
+.plan-paid-only{display:none}
+.plan-pro .plan-free-only,.plan-premium .plan-free-only{display:none}
+.plan-pro .plan-paid-only,.plan-premium .plan-paid-only{display:inline-flex}
 .lang-select{width:auto;min-height:36px;padding:6px 10px;font-size:13px;font-weight:700}
 .shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:48px 0}
 .shell.narrow{width:min(680px,calc(100% - 32px))}
