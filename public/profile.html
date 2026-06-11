@@ -3,103 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - プロフィール設定</title>
+  <title>キマル | プロフィール設定</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-i18n-title="pf.pageTitle">
   <!-- site-header -->
 
   <main class="shell">
     <section class="dash-hero">
       <div class="dash-hero-text">
-        <p class="eyebrow">プロフィール設定</p>
-        <h1>あなたのプロフィール</h1>
-        <p class="muted">ここで整えた自己紹介は、相手に合わせた提案を作る「AIアシスト」に渡されます。右のプレビューが、AIアシストが見るあなたの姿です。</p>
-        <p id="profile-status" class="message">ログイン中のプロフィールを確認しています...</p>
+        <p class="eyebrow" data-i18n="pf.hero.eyebrow">プロフィール設定</p>
+        <h1 data-i18n="pf.hero.heading">あなたのプロフィール</h1>
+        <p class="muted" data-i18n="pf.hero.lead">ここで整えた自己紹介は、相手に合わせた提案を作る「AIアシスト」に渡されます。右のプレビューが、AIアシストが見るあなたの姿です。</p>
+        <p id="profile-status" class="message" data-i18n="pf.status.checking">ログイン中のプロフィールを確認しています...</p>
       </div>
     </section>
 
     <div class="profile-grid">
       <section class="panel settings-section">
-        <p class="eyebrow">あなたの情報</p>
-        <h2>プロフィールを整える</h2>
+        <p class="eyebrow" data-i18n="pf.form.eyebrow">あなたの情報</p>
+        <h2 data-i18n="pf.form.heading">プロフィールを整える</h2>
         <form id="profile-form" class="form-grid profile-form">
-          <p class="form-group">基本</p>
-          <label>表示名
-            <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
+          <p class="form-group" data-i18n="pf.group.basic">基本</p>
+          <label><span data-i18n="pf.label.name">表示名</span>
+            <input name="profile_name" placeholder="あなたの名前・屋号・会社名" data-i18n-placeholder="pf.ph.name" />
           </label>
-          <label>連絡先メール
-            <input name="profile_email" type="email" placeholder="you@example.com" />
+          <label><span data-i18n="pf.label.email">連絡先メール</span>
+            <input name="profile_email" type="email" placeholder="you@example.com" data-i18n-placeholder="pf.ph.email" />
           </label>
-          <label>肩書き・活動内容
-            <input name="profile_title" placeholder="例：事業プロデューサー / 営業支援 / コミュニティ運営" />
+          <label><span data-i18n="pf.label.title">肩書き・活動内容</span>
+            <input name="profile_title" placeholder="例：事業プロデューサー / 営業支援 / コミュニティ運営" data-i18n-placeholder="pf.ph.title" />
           </label>
 
-          <p class="form-group">伝え方</p>
-          <label>自分の強み・得意なこと
-            <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
+          <p class="form-group" data-i18n="pf.group.delivery">伝え方</p>
+          <label><span data-i18n="pf.label.strengths">自分の強み・得意なこと</span>
+            <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり" data-i18n-placeholder="pf.ph.strengths"></textarea>
           </label>
-          <label>話し方・提案スタイル
+          <label><span data-i18n="pf.label.style">話し方・提案スタイル</span>
             <select name="profile_style">
-              <option value="logical">論理型</option>
-              <option value="empathy">共感型</option>
-              <option value="energy">熱量型</option>
-              <option value="listener">聞き役型</option>
-              <option value="partner">伴走型</option>
+              <option value="logical" data-i18n="pf.style.logical">論理型</option>
+              <option value="empathy" data-i18n="pf.style.empathy">共感型</option>
+              <option value="energy" data-i18n="pf.style.energy">熱量型</option>
+              <option value="listener" data-i18n="pf.style.listener">聞き役型</option>
+              <option value="partner" data-i18n="pf.style.partner">伴走型</option>
             </select>
           </label>
 
-          <p class="form-group">相手に届けるもの</p>
-          <label>相手に提供できる価値
-            <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理"></textarea>
+          <p class="form-group" data-i18n="pf.group.deliver">相手に届けるもの</p>
+          <label><span data-i18n="pf.label.offer">相手に提供できる価値</span>
+            <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理" data-i18n-placeholder="pf.ph.offer"></textarea>
           </label>
-          <label>話すときに大切にしていること
-            <textarea name="profile_values" rows="3" placeholder="例：相手の可能性を広げる、押し売りしない、次の一歩を明確にする"></textarea>
+          <label><span data-i18n="pf.label.values">話すときに大切にしていること</span>
+            <textarea name="profile_values" rows="3" placeholder="例：相手の可能性を広げる、押し売りしない、次の一歩を明確にする" data-i18n-placeholder="pf.ph.values"></textarea>
           </label>
-          <label>今回キメたいこと・次につなげたいこと
-            <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
+          <label><span data-i18n="pf.label.goal">今回キメたいこと・次につなげたいこと</span>
+            <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加" data-i18n-placeholder="pf.ph.goal"></textarea>
           </label>
 
           <div id="advanced-profile" class="hidden">
-            <p class="form-group">高度プロフィール（Pro）— 公開ページに反映</p>
-            <label>キャッチコピー（1行）
-              <input name="profile_headline" placeholder="例：はじめての人にも伝わる一言" />
+            <p class="form-group" data-i18n="pf.group.advanced">高度プロフィール（Pro）— 公開ページに反映</p>
+            <label><span data-i18n="pf.label.headline">キャッチコピー（1行）</span>
+              <input name="profile_headline" placeholder="例：はじめての人にも伝わる一言" data-i18n-placeholder="pf.ph.headline" />
             </label>
-            <label>自己紹介（公開・装飾可：見出しは行頭「# 」、太字は **文字**）
-              <textarea name="profile_bio_rich" rows="6" placeholder="# 見出し&#10;**太字**で強調できます。&#10;改行はそのまま反映されます。"></textarea>
+            <label><span data-i18n="pf.label.bio">自己紹介（公開・装飾可：見出しは行頭「# 」、太字は **文字**）</span>
+              <textarea name="profile_bio_rich" rows="6" placeholder="# 見出し&#10;**太字**で強調できます。&#10;改行はそのまま反映されます。" data-i18n-placeholder="pf.bioPlaceholder"></textarea>
             </label>
-            <label>見出しのアクセント色
+            <label><span data-i18n="pf.label.accent">見出しのアクセント色</span>
               <input name="profile_accent_color" type="color" value="#2563eb" />
             </label>
-            <label>リンク（1行に1つ・http(s) から始まるURL）
-              <textarea name="profile_links" rows="2" placeholder="https://example.com"></textarea>
+            <label><span data-i18n="pf.label.links">リンク（1行に1つ・http(s) から始まるURL）</span>
+              <textarea name="profile_links" rows="2" placeholder="https://example.com" data-i18n-placeholder="pf.ph.links"></textarea>
             </label>
-            <label>公開設定
+            <label><span data-i18n="pf.label.public">公開設定</span>
               <select name="profile_public">
-                <option value="on">公開する（URLを知っている人は誰でも閲覧可）</option>
-                <option value="off">非公開</option>
+                <option value="on" data-i18n="pf.public.on">公開する（URLを知っている人は誰でも閲覧可）</option>
+                <option value="off" data-i18n="pf.public.off">非公開</option>
               </select>
             </label>
             <p class="muted" id="public-url-note"></p>
           </div>
 
-          <button class="primary" type="submit">プロフィールを保存</button>
+          <button class="primary" type="submit" data-i18n="pf.submit">プロフィールを保存</button>
         </form>
         <p id="profile-message" class="message"></p>
       </section>
 
       <div class="profile-preview-col">
         <section class="panel settings-section">
-          <p class="eyebrow">プレビュー</p>
-          <h2>AIアシストに渡すプロフィール</h2>
-          <p class="muted" style="margin-bottom:14px;">入力するとリアルタイムで反映されます。</p>
+          <p class="eyebrow" data-i18n="pf.preview.eyebrow">プレビュー</p>
+          <h2 data-i18n="pf.preview.heading">AIアシストに渡すプロフィール</h2>
+          <p class="muted" style="margin-bottom:14px;" data-i18n="pf.preview.lead">入力するとリアルタイムで反映されます。</p>
           <div id="profile-preview" class="soft-box profile-card">
-            <p class="muted">プロフィールを入力するとプレビューが表示されます。</p>
+            <p class="muted" data-i18n="pf.preview.empty">プロフィールを入力するとプレビューが表示されます。</p>
           </div>
-          <p style="margin-top:14px;"><a class="button secondary" href="/ai-assist.html">AIアシストで使う</a></p>
+          <p style="margin-top:14px;"><a class="button secondary" href="/ai-assist.html" data-i18n="pf.preview.useInAi">AIアシストで使う</a></p>
         </section>
       </div>
     </div>
@@ -108,7 +108,9 @@
 
   <!-- site-footer -->
 
+  <script src="/i18n.js" defer></script>
   <script>
+    const T = (k, fb) => (window.KimaruI18n ? window.KimaruI18n.t(k) : fb);
     const profileKey = 'kimaru_ai_assist_profile';
     const $ = (selector) => document.querySelector(selector);
 
@@ -168,24 +170,25 @@
     }
 
     function renderPreview(profile) {
+      const unset = T("pf.unset", '未設定');
       const styleLabel = {
-        logical: '論理型',
-        empathy: '共感型',
-        energy: '熱量型',
-        listener: '聞き役型',
-        partner: '伴走型'
-      }[profile.profile_style] || '未設定';
+        logical: T("pf.style.logical", '論理型'),
+        empathy: T("pf.style.empathy", '共感型'),
+        energy: T("pf.style.energy", '熱量型'),
+        listener: T("pf.style.listener", '聞き役型'),
+        partner: T("pf.style.partner", '伴走型')
+      }[profile.profile_style] || unset;
       $('#profile-preview').innerHTML = `
         <div class="assist-summary">
           <p class="eyebrow">${escapeHtml(styleLabel)}</p>
-          <h3>${escapeHtml(profile.profile_name || '未設定')}</h3>
+          <h3>${escapeHtml(profile.profile_name || unset)}</h3>
           <p class="muted">${escapeHtml(profile.profile_email || '')}</p>
         </div>
-        <section class="assist-block"><h3>肩書き・活動内容</h3><p>${escapeHtml(profile.profile_title || '未設定')}</p></section>
-        <section class="assist-block"><h3>強み</h3><p>${escapeHtml(profile.profile_strengths || '未設定')}</p></section>
-        <section class="assist-block"><h3>提供できる価値</h3><p>${escapeHtml(profile.profile_offer || '未設定')}</p></section>
-        <section class="assist-block"><h3>大切にしていること</h3><p>${escapeHtml(profile.profile_values || '未設定')}</p></section>
-        <section class="assist-block"><h3>次につなげたいこと</h3><p>${escapeHtml(profile.profile_goal || '未設定')}</p></section>`;
+        <section class="assist-block"><h3>${escapeHtml(T("pf.preview.title", '肩書き・活動内容'))}</h3><p>${escapeHtml(profile.profile_title || unset)}</p></section>
+        <section class="assist-block"><h3>${escapeHtml(T("pf.preview.strengths", '強み'))}</h3><p>${escapeHtml(profile.profile_strengths || unset)}</p></section>
+        <section class="assist-block"><h3>${escapeHtml(T("pf.preview.offer", '提供できる価値'))}</h3><p>${escapeHtml(profile.profile_offer || unset)}</p></section>
+        <section class="assist-block"><h3>${escapeHtml(T("pf.preview.values", '大切にしていること'))}</h3><p>${escapeHtml(profile.profile_values || unset)}</p></section>
+        <section class="assist-block"><h3>${escapeHtml(T("pf.preview.goal", '次につなげたいこと'))}</h3><p>${escapeHtml(profile.profile_goal || unset)}</p></section>`;
     }
 
     async function initProfile() {
@@ -199,7 +202,7 @@
         if (data.owner) {
           applyProfile(form, profileFromOwner(data.owner), false);
           applyProfile(form, stored, true);
-          $('#profile-status').textContent = `${data.owner.name || data.owner.email} のプロフィールを反映しています。`;
+          $('#profile-status').textContent = `${data.owner.name || data.owner.email}${T("pf.status.applied", ' のプロフィールを反映しています。')}`;
           // 高度プロフィール（色・太字・見出し・公開ページ）は Pro/Premium のみ表示（#176）。
           if (['pro', 'premium'].includes(data.owner.plan)) {
             const adv = document.getElementById('advanced-profile');
@@ -207,30 +210,31 @@
             if (data.owner.slug) {
               const url = `${location.origin}/u/${data.owner.slug}`;
               const note = $('#public-url-note');
-              if (note) note.innerHTML = `公開URL: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+              if (note) note.innerHTML = `${escapeHtml(T("pf.publicUrl", '公開URL'))}: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
             }
           }
         } else {
-          $('#profile-status').textContent = 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。';
+          $('#profile-status').textContent = T("pf.status.guest", 'ログインすると、名前・メールなどのプロフィール情報を自動反映できます。');
         }
         const serverProfile = await api('profile').then((result) => result.profile).catch(() => ({}));
         if (serverProfile && Object.keys(serverProfile).length) applyProfile(form, serverProfile, true);
         renderPreview(readProfile(form));
       } catch (error) {
-        $('#profile-status').textContent = 'プロフィール情報を読み込めませんでした。手入力で保存できます。';
+        $('#profile-status').textContent = T("pf.status.loadError", 'プロフィール情報を読み込めませんでした。手入力で保存できます。');
       }
 
       form.addEventListener('input', () => renderPreview(readProfile(form)));
+      document.addEventListener('kimaru:languagechange', () => renderPreview(readProfile($('#profile-form'))));
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const profile = saveProfile(form);
         renderPreview(profile);
-        $('#profile-message').textContent = '保存しています...';
+        $('#profile-message').textContent = T("pf.save.saving", '保存しています...');
         try {
           await api('profile', { method: 'POST', body: JSON.stringify(profile) });
-          $('#profile-message').textContent = 'プロフィールシートを保存しました（サーバ保存）。AIアシストにも反映されます。';
+          $('#profile-message').textContent = T("pf.save.server", 'プロフィールシートを保存しました（サーバ保存）。AIアシストにも反映されます。');
         } catch (error) {
-          $('#profile-message').textContent = 'ローカルに保存しました。サーバ保存はログイン後に有効になります。';
+          $('#profile-message').textContent = T("pf.save.local", 'ローカルに保存しました。サーバ保存はログイン後に有効になります。');
         }
       });
     }
