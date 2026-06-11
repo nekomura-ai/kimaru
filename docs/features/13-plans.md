@@ -36,13 +36,14 @@
 
 ## 現状の実装
 
-- `owners.plan`（`free` / `pro`）が存在。昇格経路は2つ:
-  - 招待コード（Cat Key）適用（[12](./12-invite-code.md)）
-  - Square 決済 Webhook（`square-webhook` が payment/subscription イベント＋email でオーナーを `pro` 更新）
+- `owners.plan`（`free` / `pro` / `premium`）が存在。昇格経路は2つ:
+  - 招待コード（Cat Key）適用（[12](./12-invite-code.md)）＝ Pro 付与
+  - Square 決済 Webhook（`square-webhook` が payment/subscription イベント＋email でオーナーを `pro`、`SQUARE_PREMIUM_PLAN_ID` 一致時は `premium` に更新）
 - プラン別制限が `booking-page-save` で実効:
   - 受付期間: 無料は最大3ヶ月（6要求は 403、`updateBookingPageControls` で UI も無効化）※打ち合わせ決定の「無料2ヶ月」は未反映（[05](./05-booking-range.md)）
   - 事前アンケート設定数: 無料2問 / 有料5問（超過は 403）
-- 判定は各関数で `owner.plan === "pro"` を参照。
+- サーバ判定は `isProPlan`（pro/premium）・`requireProOwner`（pro/premium）・`requirePremiumOwner`（premium のみ）。
+- **フロント（2026-06 改修）**: 全画面を「知/AIオーロラ」配色へリスキン。`public/plan.js` が `/api/me` から `body` に `plan-free`/`plan-pro`/`plan-premium` を付与し、`window.KimaruPlan`（`isPro`/`isPremium`/`planLabel`）＋ `kimaru:plan` を提供。料金ページ `pro.html`・ダッシュボード（3価値帯）・比較表（index）は3段（無料/Pro/プレミアム）で、プレミアム面のみオーロラ表現。**プレミアムは UI 上「近日公開（フェーズ2）」**＝ Square 即購入は Pro のみ・AIアシストのサーバ経路は `ai-assist.html` の `PREMIUM_AI_LIVE=false` でガード（決定20）。ヘッダーナビは「Pro版」→「料金」（`nav.pricing`）。
 
 ## 関連ファイル
 
