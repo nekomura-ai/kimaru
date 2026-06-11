@@ -1,29 +1,37 @@
 /* キマル デザイン: landing3（Swiss / minimal・単一アクセント青）を全ページ共通化 */
 :root{
-  --bg:#fafafa;
+  --bg:#F7F8FA;
   --surface:#ffffff;
-  --surface-subtle:#f4f4f4;
-  --surface-muted:#ededed;
-  --ink:#0a0a0a;
-  --ink-soft:#2a2a2a;
-  --muted:#6b6b6b;
-  --muted-2:#8a8a8a;
-  --line:#e2e2e2;
-  --line-strong:#bdbdbd;
-  --blue:#1f3cff;
-  --primary:#1f3cff;
-  --primary-hover:#0a0a0a;
-  --primary-soft:#eef0ff;
-  --accent:#1f3cff;
-  --accent-soft:#eef0ff;
+  --surface-subtle:#EEF1F5;
+  --surface-muted:#E4E8EE;
+  --ink:#1A1D24;
+  --ink-soft:#39414E;
+  --muted:#69727F;
+  --muted-2:#9099A6;
+  --line:#E2E6EC;
+  --line-strong:#C2C9D3;
+  --blue:#1F6F73;
+  --primary:#1F6F73;
+  --primary-hover:#175457;
+  --primary-soft:#E2F0F0;
+  --accent:#1F6F73;
+  --accent-soft:#E2F0F0;
   --success:#0a7d3b;
   --danger:#c0392b;
-  --schedule:#1f3cff;
-  --schedule-dark:#0a0a0a;
+  --schedule:#1F6F73;
+  --schedule-dark:#175457;
   --shadow:none;
   --shadow-soft:none;
   --sans:"Archivo","Zen Kaku Gothic New",sans-serif;
   --jp:"Zen Kaku Gothic New",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* プレミアム（AIオーロラ）専用トークン。無料/Proでは未使用＝静的を維持 */
+  --premium-1:#5B4BD6;
+  --premium-2:#2E8BD6;
+  --premium-3:#19B8A6;
+  --premium-grad:linear-gradient(110deg,var(--premium-1),var(--premium-2),var(--premium-3));
+  --premium-ink:#3A2EA6;
+  --premium-soft:#EEF0FB;
 }
 *{box-sizing:border-box}
 body{
@@ -72,14 +80,22 @@ a{color:inherit;text-decoration:none}
 .quick-links a{display:block;padding:13px 14px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:0;font-family:var(--sans);font-weight:700;font-size:14px;transition:background .15s ease,color .15s ease,transform .15s ease}
 .quick-links a:hover{background:var(--blue);border-color:var(--blue);color:#fff;transform:translateY(-2px)}
 @media(max-width:520px){.quick-links{grid-template-columns:1fr}}
-/* プラン確定までチラ見え防止：Pro専用セクションとロックは既定で非表示。判定後に body.plan-pro / .plan-free で出し分け */
+/* プラン確定までチラ見え防止：判定後に body.plan-free / .plan-pro / .plan-premium で出し分け。
+   premium は pro の全機能を含むため .pro-feature は pro+premium で表示。 */
 .pro-feature{display:none}
-.plan-pro .pro-feature{display:block}
+.plan-pro .pro-feature,.plan-premium .pro-feature{display:block}
 /* 予約履歴など無料でも閲覧できるセクション（決定19）。チラ見え防止のため判定後に表示。 */
 .free-feature{display:none}
-.plan-free .free-feature,.plan-pro .free-feature{display:block}
+.plan-free .free-feature,.plan-pro .free-feature,.plan-premium .free-feature{display:block}
+/* premium 専用サーフェス（AIアシスト等）。premium のみ表示。 */
+.premium-feature{display:none}
+.plan-premium .premium-feature{display:block}
+/* Pro ロック（無料に表示）。pro/premium では非表示。 */
 #contacts-pro-lock,#ai-pro-lock{display:none}
 .plan-free #contacts-pro-lock,.plan-free #ai-pro-lock{display:block}
+/* プレミアム「近日公開」枠。free/pro に表示し、premium で消える（フェーズ2自動切替） */
+.premium-lock{display:none}
+.plan-free .premium-lock,.plan-pro .premium-lock{display:block}
 .lang-select{width:auto;min-height:36px;padding:6px 10px;font-size:13px;font-weight:700}
 .shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:48px 0}
 .shell.narrow{width:min(680px,calc(100% - 32px))}
@@ -117,7 +133,7 @@ label{display:grid;gap:7px;color:var(--ink-soft);font-size:13px;font-weight:700}
 .form-note{margin:-6px 0 0;font-size:13px;line-height:1.65;color:var(--muted)}
 .question-row{margin:0;color:var(--ink)}
 input,textarea,select{width:100%;min-height:50px;padding:12px 14px;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:0;font:inherit;outline:none}
-input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,60,255,.16)}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,111,115,.18)}
 textarea{resize:vertical}
 .primary,.button.primary{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;color:#fff;background:var(--ink);border:1.5px solid var(--ink);border-radius:0;box-shadow:none;cursor:pointer;font-family:var(--sans);font-weight:700}
 .primary:hover,.button.primary:hover{background:var(--blue);border-color:var(--blue)}
@@ -156,7 +172,7 @@ textarea{resize:vertical}
 .calendar-columns>div:last-of-type{border-right:0}
 .calendar-slot{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:2px;padding:10px 9px;color:#fff;background:var(--blue);border:1px solid #fff;border-radius:0;box-shadow:none;cursor:pointer;font:inherit;font-family:var(--sans);font-size:15px;font-weight:700;line-height:1.35;text-align:left}
 .calendar-slot:hover,.calendar-slot.selected{background:var(--ink)}
-.calendar-slot.selected{box-shadow:0 0 0 3px rgba(31,60,255,.25)}
+.calendar-slot.selected{box-shadow:0 0 0 3px rgba(31,111,115,.28)}
 .calendar-slot span{display:block}
 .slot-button{min-height:64px;padding:10px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:0;cursor:pointer;text-align:left;font-family:var(--sans);font-weight:700}
 .slot-button:hover{background:var(--primary-soft);border-color:var(--blue)}
@@ -296,3 +312,53 @@ textarea{resize:vertical}
 @media(max-width:620px){.legal-dl{grid-template-columns:1fr;gap:2px 0}.legal-dl dd{margin-bottom:10px}}
 @media(max-width:900px){.two-column,.admin-grid,.hero{grid-template-columns:1fr}.feature-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.site-header{align-items:flex-start;flex-direction:column}.feature-grid,.inline-form,.form-grid{grid-template-columns:1fr}.availability-row{grid-template-columns:24px 1fr;gap:8px}.availability-row input[type=time],.availability-row span{grid-column:2}h1{font-size:40px}.schedule-card{margin-inline:-8px;padding:14px;overflow-x:auto}.schedule-steps span{font-size:12px}.schedule-toolbar{align-items:flex-start;flex-direction:column}.calendar-slot{font-size:13px;padding:8px 7px}.calendar-board{min-width:620px}}
+
+/* ===== プレミアム（AIオーロラ）— premium面限定。無料/Proは静的のまま ===== */
+/* オーロラ：AIの知性を表す“生きた”グラデ。premiumサーフェスのみに使用し、reduced-motionで停止。 */
+.aurora,.premium-surface{position:relative;color:#fff;border:0;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
+@keyframes auroraShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.premium-badge{display:inline-block;margin-left:6px;padding:1px 8px;font-family:var(--sans);font-size:10px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite;vertical-align:middle;border-radius:0}
+.coming-soon-tag{display:inline-block;padding:2px 8px;font-family:var(--sans);font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--premium-ink);background:#fff;border:1px solid currentColor;border-radius:0}
+.aurora .coming-soon-tag,.premium-surface .coming-soon-tag,.plan-card.is-premium .coming-soon-tag{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.6)}
+@media(prefers-reduced-motion:reduce){.aurora,.premium-surface,.premium-badge{animation:none;background-position:0% 50%}}
+
+/* 価格表記（等幅・タブ揃え） */
+.price{font-family:var(--mono);font-weight:700;font-feature-settings:"tnum" 1;letter-spacing:-.01em}
+.price .unit{font-family:var(--sans);font-size:.5em;font-weight:800;color:var(--muted);margin-left:4px}
+.aurora .price .unit,.premium-surface .price .unit,.plan-card.is-premium .price .unit{color:rgba(255,255,255,.82)}
+
+/* プランカード（3-up）。premiumのみ aurora 背景（.plan-card より高特異度で上書き） */
+.plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 28px;align-items:stretch}
+.plan-card{display:flex;flex-direction:column;gap:10px;padding:24px;background:var(--surface);border:1px solid var(--line-strong);border-radius:0}
+.plan-card.is-pro{border-color:var(--blue);border-width:1.5px}
+.plan-card.is-premium{color:#fff;border:0;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
+.plan-card .plan-tag{align-self:flex-start;padding:3px 9px;font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:0;color:var(--ink-soft);background:var(--surface-subtle)}
+.plan-card.is-pro .plan-tag{color:#fff;background:var(--blue)}
+.plan-card.is-premium .plan-tag{color:var(--premium-ink);background:#fff}
+.plan-card .plan-name{font-family:var(--sans);font-weight:900;font-size:20px;letter-spacing:-.01em}
+.plan-card .plan-price{margin:2px 0 6px;font-size:26px}
+.plan-card .plan-desc{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+.plan-card.is-premium .plan-desc{color:rgba(255,255,255,.85)}
+.plan-card ul{margin:0;padding-left:18px;display:grid;gap:7px;color:var(--ink-soft);font-size:14px;line-height:1.55}
+.plan-card.is-premium ul{color:rgba(255,255,255,.92)}
+.plan-card .button,.plan-card .primary{margin-top:auto}
+.plan-card.is-premium .button.secondary{color:#fff;background:transparent;border-color:rgba(255,255,255,.7)}
+.plan-card.is-premium .button.secondary:hover{color:var(--premium-ink);background:#fff;border-color:#fff}
+.plan-card.is-premium .button.primary,.plan-card.is-premium .primary{color:var(--premium-ink);background:#fff;border-color:#fff}
+@media(max-width:760px){.plan-cards{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.plan-card.is-premium{animation:none}}
+
+/* 比較表のプレミアム列：ヘッダーのみ aurora、本文セルは premium-ink */
+.comparison-table th.is-premium-col{color:#fff;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
+.comparison-table td.is-premium-col{color:var(--premium-ink);font-weight:600}
+@media(prefers-reduced-motion:reduce){.comparison-table th.is-premium-col{animation:none}}
+
+/* settings プランバッジ：premiumは aurora（.is-proは teal のまま） */
+.plan-badge.is-premium{color:#fff;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite;border:0}
+@media(prefers-reduced-motion:reduce){.plan-badge.is-premium{animation:none}}
+
+/* dashboard プレミアム帯（.upgrade-banner より高特異度で aurora 上書き） */
+.upgrade-banner.is-premium{color:#fff;border:0;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
+.upgrade-banner.is-premium .eyebrow,.upgrade-banner.is-premium .muted,.upgrade-banner.is-premium h2{color:#fff}
+.upgrade-banner.is-premium .button.primary{color:var(--premium-ink);background:#fff;border-color:#fff}
+@media(prefers-reduced-motion:reduce){.upgrade-banner.is-premium{animation:none}}
