@@ -483,7 +483,7 @@ function updateBookingPageControls() {
   }
   const questionLimit = isPro ? 5 : 2;
   if (questionLimitMessage) {
-    questionLimitMessage.textContent = isPro ? "最大5問まで設定できます。" : "無料版は最大2問まで。有料版または猫の鍵で最大5問に拡張できます。";
+    questionLimitMessage.textContent = isPro ? t("bs.questionnaire.limitPro") : t("bs.questionnaire.limitFree");
   }
   const addQuestionBtn = $("#add-question");
   if (addQuestionBtn) {
@@ -495,7 +495,7 @@ function updateBookingPageControls() {
     locationField.classList.toggle("hidden", !needsDetail);
     const input = locationField.querySelector("input");
     if (input) {
-      input.placeholder = { in_person: "例：東京都渋谷区...", phone: "例：当日こちらからお電話します / 090-...", custom_url: "例：https://..." }[locationType.value] || "";
+      input.placeholder = { in_person: t("bs.locPh.inPerson"), phone: t("bs.locPh.phone"), custom_url: t("bs.locPh.customUrl") }[locationType.value] || "";
     }
   }
   // Google Meet自動発行を選んでいるのにカレンダー未連携だと、Meet URLは発行されない旨を警告。
@@ -511,7 +511,7 @@ function updateBookingPageControls() {
 const DEFAULT_QUESTIONS = [];
 
 function questionRowHtml(value) {
-  return `<div class="q-row"><input class="question-input" placeholder="質問を入力（例：今回お話したい内容）" value="${escapeHtml(value || "")}" /><button type="button" class="button secondary question-remove">削除</button></div>`;
+  return `<div class="q-row"><input class="question-input" placeholder="${escapeHtml(t("bs.questionnaire.placeholder"))}" value="${escapeHtml(value || "")}" /><button type="button" class="button secondary question-remove">${escapeHtml(t("bs.delete"))}</button></div>`;
 }
 
 function renderQuestionRows(questions) {
@@ -575,32 +575,32 @@ function renderBookingPages(pages) {
   if (!el) return;
   el._pages = pages;
   if (!pages.length) {
-    el.innerHTML = '<p class="muted">まだ予約ページがありません。下のフォームから作成してください。</p>';
+    el.innerHTML = `<p class="muted">${escapeHtml(t("bs.list.empty"))}</p>`;
     return;
   }
   el.innerHTML = pages.map((p) => `
     <article class="list-item${p.is_active === false ? " is-paused" : ""}">
-      <strong>${escapeHtml(p.title || "(無題)")}${p.is_active === false ? '<span class="pause-badge">受付停止中</span>' : ""}</strong>
+      <strong>${escapeHtml(p.title || t("bs.list.untitled"))}${p.is_active === false ? `<span class="pause-badge">${escapeHtml(t("bs.list.paused"))}</span>` : ""}</strong>
       <span>${escapeHtml(bookingPageUrl(p.slug))}</span>
-      <small>${p.duration_minutes}分 / ${escapeHtml(p.location_type)} / ${p.candidate_days > 0 ? `${p.candidate_days}日先まで` : `${p.booking_range_months}ヶ月先まで`}</small>
+      <small>${p.duration_minutes}${escapeHtml(t("bs.unit.min"))} / ${escapeHtml(p.location_type)} / ${p.candidate_days > 0 ? `${p.candidate_days}${escapeHtml(t("bs.unit.daysAhead"))}` : `${p.booking_range_months}${escapeHtml(t("bs.unit.monthsAhead"))}`}</small>
       <div class="actions">
-        <a class="button secondary" href="${escapeHtml(bookingPageUrl(p.slug))}" target="_blank" rel="noopener">開く</a>
-        <button class="button secondary" type="button" data-page-action="copy" data-slug="${escapeHtml(p.slug)}">URLをコピー</button>
-        <button class="button secondary" type="button" data-page-action="edit" data-id="${escapeHtml(p.id)}">編集</button>
-        <button class="button secondary" type="button" data-page-action="delete" data-id="${escapeHtml(p.id)}">削除</button>
+        <a class="button secondary" href="${escapeHtml(bookingPageUrl(p.slug))}" target="_blank" rel="noopener">${escapeHtml(t("bs.list.open"))}</a>
+        <button class="button secondary" type="button" data-page-action="copy" data-slug="${escapeHtml(p.slug)}">${escapeHtml(t("bs.list.copyUrl"))}</button>
+        <button class="button secondary" type="button" data-page-action="edit" data-id="${escapeHtml(p.id)}">${escapeHtml(t("bs.list.edit"))}</button>
+        <button class="button secondary" type="button" data-page-action="delete" data-id="${escapeHtml(p.id)}">${escapeHtml(t("bs.delete"))}</button>
       </div>
     </article>`).join("");
 }
 
 async function loadBookingPages() {
   const el = $("#booking-pages-list");
-  if (el) el.innerHTML = '<p class="muted">予約ページを読み込み中...</p>';
+  if (el) el.innerHTML = `<p class="muted">${escapeHtml(t("bs.list.loading"))}</p>`;
   try {
     const data = await api("booking-pages");
     ownerAvailability = data.availability || [];
     renderBookingPages(data.pages || []);
   } catch (_) {
-    if (el) el.innerHTML = '<p class="muted">予約ページを読み込めませんでした。ページを再読み込みしてください。</p>';
+    if (el) el.innerHTML = `<p class="muted">${escapeHtml(t("bs.list.loadError"))}</p>`;
   }
 }
 
@@ -665,9 +665,9 @@ function fillBookingPageForm(page) {
   applyAvailability(form, ownerAvailability);
   updateBookingPageControls();
   const editing = $("#booking-page-editing");
-  if (editing) editing.textContent = `編集中: ${page.title || page.slug}`;
+  if (editing) editing.textContent = `${t("bs.editor.editingPrefix")}${page.title || page.slug}`;
   const title = $("#page-editor-title");
-  if (title) title.textContent = "アポイント設定を編集";
+  if (title) title.textContent = t("bs.editor.editTitle");
   openPageEditor();
 }
 
@@ -678,9 +678,9 @@ function clearBookingPageForm() {
   if (form.elements.page_id) form.elements.page_id.value = "";
   renderQuestionRows([...DEFAULT_QUESTIONS]);
   const editing = $("#booking-page-editing");
-  if (editing) editing.textContent = "新しいアポイント設定";
+  if (editing) editing.textContent = t("bs.editor.editingNew");
   const title = $("#page-editor-title");
-  if (title) title.textContent = "アポイント設定を作成";
+  if (title) title.textContent = t("bs.editor.title");
   updateBookingPageControls();
   openPageEditor();
 }
