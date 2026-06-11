@@ -6,7 +6,7 @@
   <title>キマル - Pro版決済</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -44,6 +44,16 @@
       </form>
       <p id="invite-message" class="message"></p>
     </section>
+
+    <!-- プレミアム（¥2,200）はフェーズ2で開放。今は案内のみ・購入導線なし。 -->
+    <section class="panel premium-surface">
+      <span class="coming-soon-tag">近日公開（フェーズ2）</span>
+      <h2>プレミアムプラン <span class="price">2,200<span class="unit">円/月</span></span></h2>
+      <p>Proの全機能に <strong>AIアシスト</strong>（相手データから次回アポの戦略提案・GPT-5.4 Mini・月300回）を加えた上位プラン。<strong>無料お試しはなし</strong>（登録＝即時課金）です。¥980会員が増えたフェーズ2で開放します。</p>
+      <div class="actions">
+        <a class="button secondary" href="/pro.html#premium">プレミアムの詳細を見る</a>
+      </div>
+    </section>
   </main>
 
 
@@ -61,10 +71,15 @@
         if (owner) {
           const emailEl = document.getElementById('pay-email');
           if (emailEl) emailEl.textContent = owner.email || '登録メール';
-          status.textContent = owner.plan === 'pro' ? 'すでにPro版をご利用中です。' : 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。';
-          status.className = 'message ' + (owner.plan === 'pro' ? 'success' : '');
-          // すでにPro（またはCat Key承認済み）なら Cat Key 入力欄は不要
-          if (owner.plan === 'pro') document.getElementById('catkey-box')?.remove();
+          const isPaid = ['pro', 'premium'].includes(owner.plan); // premium も Pro 全機能を含む
+          status.textContent = owner.plan === 'premium'
+            ? 'すでにプレミアムプランをご利用中です。'
+            : owner.plan === 'pro'
+              ? 'すでにPro版をご利用中です。'
+              : 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。';
+          status.className = 'message ' + (isPaid ? 'success' : '');
+          // すでに有料（またはCat Key承認済み）なら Cat Key 入力欄は不要
+          if (isPaid) document.getElementById('catkey-box')?.remove();
         } else {
           status.textContent = '';
         }

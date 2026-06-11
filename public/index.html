@@ -6,7 +6,7 @@
   <title>キマル | 日程調整と面談前準備</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body data-i18n-title="home.pageTitle">
@@ -68,14 +68,15 @@
     <div class="panel plan-table-card">
       <div class="comparison-table-wrap">
         <table class="comparison-table">
-          <thead><tr><th data-i18n="home.plan.th.feature">機能</th><th data-i18n="home.plan.th.free">無料版</th><th data-i18n="home.plan.th.pro">Pro版</th></tr></thead>
+          <thead><tr><th data-i18n="home.plan.th.feature">機能</th><th data-i18n="home.plan.th.free">無料版</th><th data-i18n="home.plan.th.pro">Pro版</th><th class="is-premium-col" data-i18n="home.plan.th.premium">プレミアム</th></tr></thead>
           <tbody>
-            <tr><td data-i18n="home.plan.range.label">予約枠の公開範囲</td><td data-i18n="home.plan.range.free">今日から2ヶ月先まで</td><td data-i18n="home.plan.range.pro">今日から6ヶ月先まで</td></tr>
-            <tr><td data-i18n="home.plan.survey.label">事前アンケート</td><td data-i18n="home.plan.survey.free">最大2問</td><td data-i18n="home.plan.survey.pro">最大5問</td></tr>
-            <tr><td data-i18n="home.plan.hours.label">曜日ごとの受付時間</td><td data-i18n="home.plan.hours.free">利用可能</td><td data-i18n="home.plan.hours.pro">利用可能</td></tr>
-            <tr><td data-i18n="home.plan.contacts.label">相手管理</td><td data-i18n="home.plan.contacts.free">基本メモ</td><td data-i18n="home.plan.contacts.pro">印象スコア・フォロー管理を強化</td></tr>
-            <tr><td data-i18n="home.plan.aiBirthday.label">AI誕生日分析</td><td data-i18n="home.plan.aiBirthday.free">-</td><td data-i18n="home.plan.aiBirthday.pro">面談前のAI誕生日分析で関係構築ヒントを提案</td></tr>
-            <tr><td data-i18n="home.plan.aiAssist.label">AIアシスト</td><td data-i18n="home.plan.aiAssist.free">-</td><td data-i18n="home.plan.aiAssist.pro">プロフィールシートと相手データを照合し、関係構築の最適解を提案</td></tr>
+            <tr><td data-i18n="home.plan.price.label">料金</td><td><span class="price">0<span class="unit" data-i18n="home.plan.price.unit">円/月</span></span></td><td><span class="price">980<span class="unit" data-i18n="home.plan.price.unit">円/月</span></span></td><td class="is-premium-col"><span class="price">2,200<span class="unit" data-i18n="home.plan.price.unit">円/月</span></span></td></tr>
+            <tr><td data-i18n="home.plan.range.label">予約枠の公開範囲</td><td data-i18n="home.plan.range.free">今日から2ヶ月先まで</td><td data-i18n="home.plan.range.pro">今日から6ヶ月先まで</td><td class="is-premium-col" data-i18n="home.plan.range.premium">今日から6ヶ月先まで</td></tr>
+            <tr><td data-i18n="home.plan.survey.label">事前アンケート</td><td data-i18n="home.plan.survey.free">最大2問</td><td data-i18n="home.plan.survey.pro">最大5問</td><td class="is-premium-col" data-i18n="home.plan.survey.premium">最大5問</td></tr>
+            <tr><td data-i18n="home.plan.hours.label">曜日ごとの受付時間</td><td data-i18n="home.plan.hours.free">利用可能</td><td data-i18n="home.plan.hours.pro">利用可能</td><td class="is-premium-col" data-i18n="home.plan.hours.premium">利用可能</td></tr>
+            <tr><td data-i18n="home.plan.contacts.label">相手管理</td><td data-i18n="home.plan.contacts.free">基本メモ</td><td data-i18n="home.plan.contacts.pro">印象スコア・フォロー管理を強化</td><td class="is-premium-col" data-i18n="home.plan.contacts.premium">印象スコア・フォロー管理を強化</td></tr>
+            <tr><td data-i18n="home.plan.aiBirthday.label">AI誕生日分析</td><td data-i18n="home.plan.aiBirthday.free">-</td><td data-i18n="home.plan.aiBirthday.pro">面談前のAI誕生日分析で関係構築ヒントを提案</td><td class="is-premium-col" data-i18n="home.plan.aiBirthday.premium">面談前のAI誕生日分析で関係構築ヒントを提案</td></tr>
+            <tr><td data-i18n="home.plan.aiAssist.label">AIアシスト</td><td data-i18n="home.plan.aiAssist.free">-</td><td data-i18n="home.plan.aiAssist.pro">−</td><td class="is-premium-col" data-i18n="home.plan.aiAssist.premium">相手データからAIが次回アポの戦略を提案（近日公開）</td></tr>
           </tbody>
         </table>
       </div>

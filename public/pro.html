@@ -3,55 +3,107 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - Pro版</title>
+  <title>キマル - 料金・プラン</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
-
-  <!-- site-footer -->
-
-  <script src="/i18n.js" defer></script>
 </head>
 <body>
   <!-- site-header -->
 
   <main class="shell">
     <section class="panel profile-card">
-      <p class="eyebrow">Pro Plan</p>
-      <h1>日程がキマル。Pro版では契約がキマりやすく。</h1>
-      <p class="lead">キマルは、日程調整と事前アンケートと面談後の管理をひとつにした予約システムです。</p>
-      <p class="lead">15分前に届くプロフィール付きリマインドメールでこちらへの興味を持ってもらい、会う前に相手の状況や関心を確認することで、打ち合わせをスムーズに進められます。</p>
-      <p class="lead">Pro版では、質問項目の拡張、面談前のAI誕生日分析、面談後の相手管理、プロフィールシートと相手データを照合するAIアシストなど、次につながる関係構築や成約につながる機能が強化されます。</p>
+      <p class="eyebrow">料金・プラン</p>
+      <h1>日程がキマル。<br>関係づくりとAIで、その先までキマる。</h1>
+      <p class="lead">無料版で「予約が決まる」まで。Proで予約の前後（事前理解・フォロー・相手管理）まで。プレミアムでAIが次の一手まで提案します。</p>
       <div class="actions">
         <a class="button primary guest-only" href="/signup.html">無料で始める</a>
-        <a class="button primary app-only" href="/square.html">1ヶ月無料でPro版を始める</a>
-        <a class="button secondary app-only" href="#cat-key">Cat Keyを入力する</a>
+        <a class="button primary app-only" href="/square.html">1ヶ月無料でProを始める</a>
+        <a class="button secondary" href="#compare">プランを比較する</a>
       </div>
     </section>
 
     <section class="section">
+      <p class="eyebrow">3つのプラン</p>
+      <h2>使い方に合わせて選ぶ</h2>
+      <div class="plan-cards">
+        <article class="plan-card">
+          <span class="plan-tag">無料</span>
+          <p class="plan-name">無料版</p>
+          <p class="plan-price"><span class="price">0<span class="unit">円/月</span></span></p>
+          <p class="plan-desc">まず日程調整を無料で。「予約が決まる」まではこれで完結します。</p>
+          <ul>
+            <li>予約ページ 2つ・受付2ヶ月先まで</li>
+            <li>事前アンケート 最大2問</li>
+            <li>Google Meet 自動発行・22分前リマインド</li>
+            <li>予約のキャンセル / 日程変更</li>
+            <li>予約履歴の閲覧</li>
+          </ul>
+          <a class="button secondary guest-only" href="/signup.html">無料で始める</a>
+          <a class="button secondary app-only" href="/dashboard.html">ホームへ</a>
+        </article>
+
+        <article class="plan-card is-pro">
+          <span class="plan-tag">人気</span>
+          <p class="plan-name">Pro</p>
+          <p class="plan-price"><span class="price">980<span class="unit">円/月</span></span></p>
+          <p class="plan-desc">予約の前後（事前理解・フォロー・相手管理）まで強くする。1ヶ月無料お試しから。</p>
+          <ul>
+            <li>予約ページ 5つ・受付6ヶ月先まで</li>
+            <li>事前アンケート 最大5問・自由編集</li>
+            <li>相手管理（面談メモ・印象スコア）</li>
+            <li>高度プロフィール＋公開ページ</li>
+            <li>占いベース相手分析（算命学＋数秘術）</li>
+          </ul>
+          <a class="button primary guest-only" href="/signup.html">無料で始める</a>
+          <a class="button primary app-only" href="/square.html">1ヶ月無料でProを始める</a>
+        </article>
+
+        <article class="plan-card is-premium" id="premium">
+          <span class="coming-soon-tag">近日公開（フェーズ2）</span>
+          <p class="plan-name">プレミアム</p>
+          <p class="plan-price"><span class="price">2,200<span class="unit">円/月</span></span></p>
+          <p class="plan-desc">Proの全機能＋AIアシスト。相手データから次回アポの戦略まで提案します。無料お試しなし（登録＝即時課金）。</p>
+          <ul>
+            <li>Pro の全機能</li>
+            <li>AIアシスト（GPT-5.4 Mini・月300回）</li>
+            <li>相手データから次回アポの戦略提案</li>
+            <li>AI要約 / AI検索（将来）</li>
+          </ul>
+          <a class="button secondary guest-only" href="/signup.html">まず無料登録</a>
+          <a class="button secondary app-only" href="/ai-assist.html">AIアシストを見る</a>
+        </article>
+      </div>
+      <p class="muted">プレミアムは ¥980 会員が増えたフェーズ2で開放予定です。AIアシスト画面では、今もルールベースの提案をお試しいただけます。</p>
+    </section>
+
+    <section id="compare" class="section">
       <p class="eyebrow">Compare</p>
-      <h2>無料版とPro版</h2>
+      <h2>機能をくわしく比較</h2>
       <div class="panel plan-table-card">
         <div class="comparison-table-wrap">
           <table class="comparison-table">
-            <thead><tr><th>機能</th><th>無料版</th><th>Pro版</th></tr></thead>
+            <thead><tr><th>機能</th><th>無料版</th><th>Pro</th><th class="is-premium-col">プレミアム</th></tr></thead>
             <tbody>
-              <tr><td>予約枠の公開範囲</td><td>今日から3ヶ月先まで</td><td>今日から6ヶ月先まで</td></tr>
-              <tr><td>事前アンケート</td><td>最大2問</td><td>最大5問</td></tr>
-              <tr><td>プロフィール付きリマインド</td><td>基本対応</td><td>営業・面談向けに強化予定</td></tr>
-              <tr><td>AI誕生日分析</td><td>-</td><td>面談前のAI誕生日分析で関係構築ヒントを提案</td></tr>
-              <tr><td>相手管理</td><td>基本メモ</td><td>印象スコア・フォロー管理を強化</td></tr>
-              <tr><td>AIアシスト</td><td>-</td><td>プロフィールシートと相手管理データを照合し、関係構築の最適解を提案</td></tr>
+              <tr><td>料金</td><td><span class="price">0<span class="unit">円/月</span></span></td><td><span class="price">980<span class="unit">円/月</span></span></td><td class="is-premium-col"><span class="price">2,200<span class="unit">円/月</span></span></td></tr>
+              <tr><td>無料お試し</td><td>—</td><td>1ヶ月無料</td><td class="is-premium-col">なし（登録＝即時課金）</td></tr>
+              <tr><td>予約ページ（保存数）</td><td>2つまで</td><td>5つまで</td><td class="is-premium-col">5つまで</td></tr>
+              <tr><td>予約受付期間</td><td>2ヶ月先まで</td><td>6ヶ月先まで</td><td class="is-premium-col">6ヶ月先まで</td></tr>
+              <tr><td>事前アンケート</td><td>最大2問</td><td>最大5問・自由編集</td><td class="is-premium-col">最大5問・自由編集</td></tr>
+              <tr><td>Google Meet・リマインダー</td><td>✓</td><td>✓（プロフィール付き）</td><td class="is-premium-col">✓（プロフィール付き）</td></tr>
+              <tr><td>相手管理（面談メモ・印象スコア）</td><td>閲覧のみ</td><td>✓</td><td class="is-premium-col">✓</td></tr>
+              <tr><td>高度プロフィール＋公開ページ</td><td>—</td><td>✓</td><td class="is-premium-col">✓</td></tr>
+              <tr><td>占いベース相手分析（算命学＋数秘術）</td><td>—</td><td>✓</td><td class="is-premium-col">✓</td></tr>
+              <tr><td>AIアシスト（次回アポの戦略提案）</td><td>—</td><td>—</td><td class="is-premium-col">GPT-5.4 Mini・月300回（近日公開）</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="plan-note">Square決済ページで支払い後、確認でき次第Pro機能を有効化します。Cat Keyを持っている方は、このページで入力すると無料でPro機能を利用できます。</p>
+        <p class="plan-note">Cat Keyをお持ちの方は、下の欄で入力するとProを無料で利用できます（運営の承認制）。通常のPro利用はSquare決済から進められます。プレミアムはフェーズ2で開放予定です。</p>
       </div>
       <div class="actions">
         <a class="button primary guest-only" href="/signup.html">無料で始める</a>
-        <a class="button primary app-only" href="/square.html">1ヶ月無料でPro版を始める</a>
+        <a class="button primary app-only" href="/square.html">1ヶ月無料でProを始める</a>
         <a class="button secondary app-only" href="#cat-key">Cat Keyを入力する</a>
       </div>
     </section>
@@ -59,8 +111,8 @@
     <section id="cat-key" class="section">
       <div class="panel">
         <p class="eyebrow">猫の鍵 / Cat Key</p>
-        <h2>Cat KeyでPro版を解放する</h2>
-        <p class="muted">猫の集会メンバーさんは、Cat Keyを入力するとPro版を無料で利用できます。入力内容は公開ページには表示されません。</p>
+        <h2>Cat KeyでProを解放する</h2>
+        <p class="muted">猫の集会メンバーさんは、Cat Keyを入力するとProを無料で利用できます。入力内容は公開ページには表示されません。</p>
         <p class="message guest-only">Cat Keyの入力には<strong>ログインが必要</strong>です。<a href="/signup.html">無料登録</a>または<a href="/login.html">ログイン</a>後に、こちらで入力してください。</p>
         <form id="pro-cat-key-form" class="inline-form app-only">
           <input name="code" placeholder="Neko20240222" autocomplete="off" />
@@ -70,6 +122,8 @@
       </div>
     </section>
   </main>
+
+  <!-- site-footer -->
 
   <script>
     const catKeyForm = document.getElementById('pro-cat-key-form');
@@ -103,5 +157,6 @@
       }
     });
   </script>
+  <script src="/i18n.js" defer></script>
 </body>
 </html>
