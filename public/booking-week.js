@@ -1,5 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 
+const t = (key, fallback) => (window.KimaruI18n ? window.KimaruI18n.t(key) : fallback);
+
 async function api(path, options = {}) {
   const response = await fetch(`/api/${path}`, {
     credentials: "include",
@@ -35,14 +37,17 @@ function escapeHtml(value) {
 let bookingQuestions = [];
 let currentHost = null;
 
-const LOCATION_LABELS = {
-  google_meet: "Google Meet（自動発行）",
-  zoom: "Zoom",
-  in_person: "対面",
-  phone: "電話",
-  custom_url: "オンライン",
-  later: "後日連絡",
-};
+function locationLabel(type) {
+  const labels = {
+    google_meet: t("booking.loc.googleMeet", "Google Meet（自動発行）"),
+    zoom: "Zoom",
+    in_person: t("booking.loc.inPerson", "対面"),
+    phone: t("booking.loc.phone", "電話"),
+    custom_url: t("booking.loc.online", "オンライン"),
+    later: t("booking.loc.later", "後日連絡"),
+  };
+  return labels[type] || "";
+}
 
 function renderHost(host) {
   if (!host) return;
@@ -51,12 +56,14 @@ function renderHost(host) {
   const nameEl = document.getElementById("host-name");
   const descEl = document.getElementById("host-desc");
   const metaEl = document.getElementById("meeting-meta");
-  if (titleEl) titleEl.textContent = host.title || "日程を選んで予約";
-  if (nameEl) nameEl.textContent = host.name ? `${host.name} さんとの面談` : "";
+  if (titleEl) titleEl.textContent = host.title || t("booking.hostTitleFallback", "日程を選んで予約");
+  if (nameEl) nameEl.textContent = host.name ? t("booking.host.meetingWith", "{name} さんとの面談").replace("{name}", host.name) : "";
   if (descEl) descEl.textContent = host.description || "";
   if (metaEl) {
-    const loc = LOCATION_LABELS[host.location_type] || "";
-    metaEl.innerHTML = `<li>所要時間：${Number(host.duration_minutes) || 30}分</li>${loc ? `<li>開催方法：${escapeHtml(loc)}</li>` : ""}`;
+    const loc = locationLabel(host.location_type);
+    const duration = t("booking.meta.duration", "所要時間：{min}分").replace("{min}", Number(host.duration_minutes) || 30);
+    const locLine = loc ? `<li>${escapeHtml(t("booking.meta.location", "開催方法：{loc}").replace("{loc}", loc))}</li>` : "";
+    metaEl.innerHTML = `<li>${escapeHtml(duration)}</li>${locLine}`;
   }
 }
 
@@ -66,13 +73,13 @@ function renderQuestions(questions) {
   bookingQuestions = Array.isArray(questions) ? questions : [];
   const list = bookingQuestions.length
     ? bookingQuestions
-    : [{ id: null, question_text: "今回お話したい内容", is_required: true }];
+    : [{ id: null, question_text: t("booking.form.topic", "今回お話したい内容"), is_required: true }];
   container.innerHTML = list
     .map((question, index) => {
       const required = question.is_required ? " required" : "";
-      const mark = question.is_required ? " *" : "（任意）";
+      const mark = question.is_required ? " *" : t("booking.form.optionalMark", "（任意）");
       const rows = index === 0 ? 4 : 3;
-      return `<label><span>${escapeHtml(question.question_text)}${mark}</span><textarea data-question-id="${escapeHtml(question.id || "")}" rows="${rows}"${required}></textarea></label>`;
+      return `<label><span>${escapeHtml(question.question_text)}${escapeHtml(mark)}</span><textarea data-question-id="${escapeHtml(question.id || "")}" data-question-text="${escapeHtml(question.question_text)}" rows="${rows}"${required}></textarea></label>`;
     })
     .join("");
 }
@@ -93,8 +100,15 @@ function minutesOfDay(date) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
+function currentLocale() {
+  const lang = window.KimaruI18n ? window.KimaruI18n.getLanguage() : "ja";
+  if (lang === "en") return "en-US";
+  if (lang === "zh-TW") return "zh-TW";
+  return "ja-JP";
+}
+
 function dayHeading(date) {
-  return new Intl.DateTimeFormat("ja-JP", { month: "numeric", day: "numeric", weekday: "short" })
+  return new Intl.DateTimeFormat(currentLocale(), { month: "numeric", day: "numeric", weekday: "short" })
     .format(date)
     .replace("曜日", "");
 }
@@ -102,7 +116,9 @@ function dayHeading(date) {
 function weekTitle(days) {
   const first = days[0];
   const last = days[days.length - 1];
-  return `${first.getFullYear()}年${first.getMonth() + 1}月${first.getDate()}日 - ${last.getMonth() + 1}月${last.getDate()}日`;
+  const locale = currentLocale();
+  const fmt = (d, withYear) => new Intl.DateTimeFormat(locale, withYear ? { year: "numeric", month: "long", day: "numeric" } : { month: "long", day: "numeric" }).format(d);
+  return `${fmt(first, true)} - ${fmt(last, false)}`;
 }
 
 function startOfDay(date) {
@@ -143,7 +159,7 @@ function renderWeeklyAvailability(container, rawSlots, form) {
     .sort((a, b) => a.startDate - b.startDate);
 
   if (!slots.length) {
-    container.innerHTML = '<p class="muted">この週は空き枠がありません。「次の週 →」もご確認ください。</p>';
+    container.innerHTML = `<p class="muted">${escapeHtml(t("booking.week.empty", "この週は空き枠がありません。「次の週 →」もご確認ください。"))}</p>`;
     return;
   }
 
@@ -156,20 +172,20 @@ function renderWeeklyAvailability(container, rawSlots, form) {
     <div class="week-schedule-card">
       <div class="week-schedule-head">
         <div>
-          <p class="eyebrow">1週間の空き枠</p>
-          <h3>${weekTitle(days)}</h3>
+          <p class="eyebrow">${escapeHtml(t("booking.week.cardEyebrow", "1週間の空き枠"))}</p>
+          <h3>${escapeHtml(weekTitle(days))}</h3>
         </div>
         <div class="week-schedule-meta">
-          <span>空いている時間</span>
-          <strong>所要時間 ${duration}分</strong>
+          <span>${escapeHtml(t("booking.week.openTime", "空いている時間"))}</span>
+          <strong>${escapeHtml(t("booking.week.durationMeta", "所要時間 {min}分").replace("{min}", duration))}</strong>
         </div>
       </div>
-      <p class="muted">Googleカレンダーの予定と重なる時間は表示されません。空いている枠だけを選択できます。</p>
+      <p class="muted">${escapeHtml(t("booking.week.note", "Googleカレンダーの予定と重なる時間は表示されません。空いている枠だけを選択できます。"))}</p>
       <div class="week-table-wrap">
         <table class="week-table">
           <thead>
             <tr>
-              <th>時間</th>
+              <th>${escapeHtml(t("booking.week.timeHeader", "時間"))}</th>
               ${days.map((day) => `<th>${dayHeading(day)}</th>`).join("")}
             </tr>
           </thead>
@@ -195,7 +211,7 @@ function renderWeeklyAvailability(container, rawSlots, form) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "week-slot";
-    button.innerHTML = `<span>${timeText(slot.startDate)}</span><small>予約する</small>`;
+    button.innerHTML = `<span>${timeText(slot.startDate)}</span><small>${escapeHtml(t("booking.week.book", "予約する"))}</small>`;
     button.addEventListener("click", () => selectSlot(slot, button, form));
     cell.replaceChildren(button);
   });
@@ -285,8 +301,7 @@ function buildBookingPayload(form) {
   }) : "none";
   const answers = [...document.querySelectorAll("#questionnaire-fields textarea")]
     .map((el) => {
-      const label = el.closest("label")?.querySelector("span")?.textContent || "";
-      const questionText = label.replace(/\s*\*$/, "").replace(/（任意）$/, "").trim();
+      const questionText = el.dataset.questionText || "";
       return { question_id: el.dataset.questionId || null, question_text: questionText, answer_text: el.value.trim() };
     })
     .filter((answer) => answer.answer_text);
@@ -330,7 +345,7 @@ async function loadWeek(week, full) {
   const grid = $("#slot-grid");
   const form = $("#booking-form");
   if (!grid || !form) return;
-  grid.innerHTML = '<p class="muted">空き枠を読み込み中...</p>';
+  grid.innerHTML = `<p class="muted">${escapeHtml(t("booking.week.loading", "空き枠を読み込み中..."))}</p>`;
   try {
     const data = await api(`availability?slug=${encodeURIComponent(bookingSlug)}&week=${week}`);
     currentWeek = typeof data.week === "number" ? data.week : week;
@@ -339,7 +354,7 @@ async function loadWeek(week, full) {
       renderQuestions(data.questions || []);
     }
     if (data.paused) {
-      grid.innerHTML = '<p class="muted">現在、この予約ページは受付を停止しています。しばらくしてから再度お試しください。</p>';
+      grid.innerHTML = `<p class="muted">${escapeHtml(t("booking.week.paused", "現在、この予約ページは受付を停止しています。しばらくしてから再度お試しください。"))}</p>`;
       form.classList.add("hidden");
       const nav = $("#week-nav");
       if (nav) nav.style.display = "none";
@@ -354,13 +369,13 @@ async function loadWeek(week, full) {
 
 // --- 3ステップ（日程調整 → 確認 → 完了）---
 function jpDate(date) {
-  return new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" }).format(date);
+  return new Intl.DateTimeFormat(currentLocale(), { year: "numeric", month: "long", day: "numeric", weekday: "short" }).format(date);
 }
 
 function fmtSlotRange(startISO, endISO) {
   const start = new Date(startISO);
   const end = new Date(endISO);
-  if (Number.isNaN(start.getTime())) return "日程を選んでください";
+  if (Number.isNaN(start.getTime())) return t("booking.form.selectedEmpty", "日程を選んでください");
   return `${jpDate(start)} ${timeText(start)}〜${timeText(end)}`;
 }
 
@@ -379,8 +394,7 @@ function goToStep(step) {
 function collectAnswers() {
   return [...document.querySelectorAll("#questionnaire-fields textarea")]
     .map((el) => {
-      const label = el.closest("label")?.querySelector("span")?.textContent || "";
-      const question = label.replace(/\s*\*$/, "").replace(/（任意）$/, "").trim();
+      const question = el.dataset.questionText || "";
       return { question, answer: el.value.trim() };
     })
     .filter((item) => item.answer);
@@ -389,20 +403,21 @@ function collectAnswers() {
 function buildSummaryRows(form) {
   const data = formData(form);
   const rows = [];
-  rows.push({ label: "日程", value: fmtSlotRange(form.elements.start.value, form.elements.end.value), primary: true });
+  rows.push({ label: t("booking.summary.schedule", "日程"), value: fmtSlotRange(form.elements.start.value, form.elements.end.value), primary: true });
   if (currentHost) {
-    const loc = LOCATION_LABELS[currentHost.location_type] || "";
+    const loc = locationLabel(currentHost.location_type);
+    const durationSub = t("booking.summary.durationShort", "所要 {min}分").replace("{min}", Number(currentHost.duration_minutes) || 30);
     rows.push({
-      label: "内容",
-      value: currentHost.title || "面談",
-      sub: `所要 ${Number(currentHost.duration_minutes) || 30}分${loc ? ` / ${loc}` : ""}`,
+      label: t("booking.summary.content", "内容"),
+      value: currentHost.title || t("booking.summary.meeting", "面談"),
+      sub: `${durationSub}${loc ? ` / ${loc}` : ""}`,
     });
   }
-  rows.push({ label: "お名前", value: data.visitor_name || "" });
-  rows.push({ label: "メール", value: data.visitor_email || "" });
-  collectAnswers().forEach((item) => rows.push({ label: item.question || "回答", value: item.answer }));
+  rows.push({ label: t("booking.form.name", "お名前"), value: data.visitor_name || "" });
+  rows.push({ label: t("booking.summary.email", "メール"), value: data.visitor_email || "" });
+  collectAnswers().forEach((item) => rows.push({ label: item.question || t("booking.summary.answer", "回答"), value: item.answer }));
   if (data.birth_date) {
-    rows.push({ label: "生年月日", value: data.birth_date_private === "yes" ? "非公開" : data.birth_date });
+    rows.push({ label: t("booking.summary.birth", "生年月日"), value: data.birth_date_private === "yes" ? t("booking.summary.private", "非公開") : data.birth_date });
   }
   return rows;
 }
@@ -421,12 +436,12 @@ function renderSummary(targetId, rows) {
 
 function proceedToConfirm(form) {
   if (!form.elements.start.value) {
-    setMessage("#booking-message", "日程を選択してください。", "error");
+    setMessage("#booking-message", t("booking.err.selectSlot", "日程を選択してください。"), "error");
     return;
   }
   const missingRequired = [...document.querySelectorAll("#questionnaire-fields textarea[required]")].some((el) => !el.value.trim());
   if (missingRequired) {
-    setMessage("#booking-message", "必須の質問にご回答ください。", "error");
+    setMessage("#booking-message", t("booking.err.requiredQuestions", "必須の質問にご回答ください。"), "error");
     return;
   }
   setMessage("#booking-message", "");
@@ -457,14 +472,15 @@ async function initBooking() {
   });
   $("#confirm-book")?.addEventListener("click", async () => {
     const button = $("#confirm-book");
-    setMessage("#confirm-message", "予約を保存しています...");
+    setMessage("#confirm-message", t("booking.saving", "予約を保存しています..."));
     button.disabled = true;
     try {
       const result = await api("book", { method: "POST", body: JSON.stringify(buildBookingPayload(form)) });
       renderSummary("done-list", buildSummaryRows(form));
       const manage = document.getElementById("done-manage");
       if (manage && result?.manage_url) {
-        manage.innerHTML = `予約の確認・日程変更・キャンセルは <a href="${escapeHtml(result.manage_url)}">こちらのページ</a> から行えます（確認メールにも同じリンクを記載します）。`;
+        const link = `<a href="${escapeHtml(result.manage_url)}">${escapeHtml(t("booking.manage.linkText", "こちらのページ"))}</a>`;
+        manage.innerHTML = t("booking.manage.note", "予約の確認・日程変更・キャンセルは {link} から行えます（確認メールにも同じリンクを記載します）。").replace("{link}", link);
         manage.hidden = false;
       }
       goToStep(3);
@@ -472,6 +488,21 @@ async function initBooking() {
       setMessage("#confirm-message", error.message, "error");
       button.disabled = false;
     }
+  });
+
+  // 言語切替時にJSで描画したUIクロームを再描画する（入力済みの回答textareaは触らない）。
+  document.addEventListener("kimaru:languagechange", () => {
+    if (currentHost) renderHost(currentHost);
+    // 週グリッドを再取得して再描画（曜日見出し・ボタン文言などを反映）。
+    loadWeek(currentWeek, false);
+    // 選択中の日程ラベルを更新。
+    const selectedLabel = document.getElementById("selected-slot");
+    if (selectedLabel && form.elements.start.value) {
+      selectedLabel.textContent = fmtSlotRange(form.elements.start.value, form.elements.end.value);
+    }
+    // 確認・完了の内容リストが描画済みなら更新（dt/dd のラベルを再翻訳）。
+    if (document.getElementById("confirm-list")?.children.length) renderSummary("confirm-list", buildSummaryRows(form));
+    if (document.getElementById("done-list")?.children.length) renderSummary("done-list", buildSummaryRows(form));
   });
 }
 

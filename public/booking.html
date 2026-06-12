@@ -19,9 +19,9 @@
   <main class="shell booking-flow">
     <!-- 進行ステップ -->
     <ol class="stepper" id="stepper" aria-label="予約の進行状況">
-      <li class="step is-active" data-step="1"><span class="step-num">1</span><span class="step-label">日程調整</span></li>
-      <li class="step" data-step="2"><span class="step-num">2</span><span class="step-label">確認</span></li>
-      <li class="step" data-step="3"><span class="step-num">3</span><span class="step-label">完了</span></li>
+      <li class="step is-active" data-step="1"><span class="step-num">1</span><span class="step-label" data-i18n="booking.step.schedule">日程調整</span></li>
+      <li class="step" data-step="2"><span class="step-num">2</span><span class="step-label" data-i18n="booking.step.confirm">確認</span></li>
+      <li class="step" data-step="3"><span class="step-num">3</span><span class="step-label" data-i18n="booking.step.done">完了</span></li>
     </ol>
 
     <!-- STEP 1: 日程調整 -->
@@ -29,7 +29,7 @@
       <div class="two-column">
         <section class="panel profile-card" id="host-card">
           <p class="eyebrow" data-i18n="booking.intro.eyebrow">予約内容</p>
-          <h1 id="host-title">日程を選んで予約</h1>
+          <h1 id="host-title" data-i18n="booking.hostTitleFallback">日程を選んで予約</h1>
           <p class="lead" id="host-name"></p>
           <p class="muted" id="host-desc"></p>
           <ul class="feature-list" id="meeting-meta"></ul>
@@ -44,9 +44,9 @@
           <p class="eyebrow" data-i18n="booking.slots.eyebrow">予約できる時間</p>
           <h2 data-i18n="booking.slots.heading">1週間の空き枠から選ぶ</h2>
           <div id="week-nav" class="week-nav" style="display:none">
-            <button type="button" id="prev-week" class="button secondary">← 前の週</button>
+            <button type="button" id="prev-week" class="button secondary" data-i18n="booking.week.prev">← 前の週</button>
             <span id="week-label" class="muted"></span>
-            <button type="button" id="next-week" class="button secondary">次の週 →</button>
+            <button type="button" id="next-week" class="button secondary" data-i18n="booking.week.next">次の週 →</button>
           </div>
           <div id="slot-grid" class="slot-grid"></div>
 
@@ -55,15 +55,15 @@
             <input type="hidden" name="start" />
             <input type="hidden" name="end" />
             <input type="hidden" name="filter_request" />
-            <p class="form-section-label">選択中の日程</p>
-            <p class="selected-slot" id="selected-slot">日程を選んでください</p>
+            <p class="form-section-label" data-i18n="booking.form.selectedLabel">選択中の日程</p>
+            <p class="selected-slot" id="selected-slot" data-i18n="booking.form.selectedEmpty">日程を選んでください</p>
             <label><span data-i18n="booking.form.name">お名前</span><input name="visitor_name" autocomplete="name" required /></label>
             <label><span data-i18n="booking.form.email">メールアドレス</span><input name="visitor_email" type="email" autocomplete="email" required /></label>
             <div id="questionnaire-fields" class="wide" style="display:grid;gap:14px;"></div>
             <label><span data-i18n="booking.form.birth">生年月日（任意）</span><input name="birth_date" type="date" /></label>
             <label class="checkbox-label"><input name="birth_date_private" type="checkbox" value="yes" /><span data-i18n="booking.form.birthPrivate">生年月日を非公開にする</span></label>
             <label><span data-i18n="booking.form.guestMessage">ホストへの質問・メッセージ（任意）</span><textarea name="guest_message" rows="2" data-i18n-placeholder="booking.form.guestMessagePlaceholder" placeholder="聞いてみたいこと・伝えたいことがあれば記入してください"></textarea></label>
-            <button class="primary" type="submit">確認へ進む →</button>
+            <button class="primary" type="submit" data-i18n="booking.form.proceed">確認へ進む →</button>
           </form>
           <p id="booking-message" class="message" role="status"></p>
         </section>
@@ -73,13 +73,13 @@
     <!-- STEP 2: 確認 -->
     <section class="flow-step" id="step-confirm" data-step="2" hidden>
       <div class="panel confirm-card">
-        <p class="eyebrow">最終確認</p>
-        <h2>この内容で予約します</h2>
-        <p class="muted">内容をご確認のうえ「この内容で予約する」を押してください。</p>
+        <p class="eyebrow" data-i18n="booking.confirm.eyebrow">最終確認</p>
+        <h2 data-i18n="booking.confirm.heading">この内容で予約します</h2>
+        <p class="muted" data-i18n="booking.confirm.intro">内容をご確認のうえ「この内容で予約する」を押してください。</p>
         <dl class="confirm-list" id="confirm-list"></dl>
         <div class="flow-actions">
-          <button type="button" class="button secondary" id="back-to-schedule">← 内容を修正</button>
-          <button type="button" class="primary" id="confirm-book">この内容で予約する</button>
+          <button type="button" class="button secondary" id="back-to-schedule" data-i18n="booking.confirm.back">← 内容を修正</button>
+          <button type="button" class="primary" id="confirm-book" data-i18n="booking.confirm.submit">この内容で予約する</button>
         </div>
         <p id="confirm-message" class="message" role="status"></p>
       </div>
@@ -89,12 +89,12 @@
     <section class="flow-step" id="step-done" data-step="3" hidden>
       <div class="panel done-card">
         <div class="done-stamp" aria-hidden="true">✓</div>
-        <p class="eyebrow">予約完了</p>
-        <h2>予約が完了しました</h2>
-        <p class="muted">確認メールとカレンダー予定を準備しています。当日までお待ちください。</p>
+        <p class="eyebrow" data-i18n="booking.complete.eyebrow">予約完了</p>
+        <h2 data-i18n="booking.complete.heading">予約が完了しました</h2>
+        <p class="muted" data-i18n="booking.complete.intro">確認メールとカレンダー予定を準備しています。当日までお待ちください。</p>
         <dl class="confirm-list" id="done-list"></dl>
         <p class="done-note" id="done-manage" hidden></p>
-        <p class="done-note">開催方法や参加用URLは、確認メールおよびカレンダーの予定に記載されます。</p>
+        <p class="done-note" data-i18n="booking.complete.note">開催方法や参加用URLは、確認メールおよびカレンダーの予定に記載されます。</p>
       </div>
     </section>
   </main>
