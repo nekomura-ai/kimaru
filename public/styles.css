@@ -392,3 +392,10 @@ textarea{resize:vertical}
 @media(max-width:820px){.home-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.home-grid{grid-template-columns:1fr}.home-welcome-head{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.home-tile{opacity:1;transform:none;animation:none}.home-tile-go{opacity:1;transform:none}}
+
+/* ===== 相手管理：印象スコアの“スコアカード”（ドロップダウンの壁を多列のコンパクト表に） ===== */
+.conversation-rating-box{background:var(--primary-soft);border-color:var(--blue)}
+.trait-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(208px,1fr));gap:2px 20px;margin-top:2px}
+.trait-grid label{grid-template-columns:1fr 56px;align-items:center;gap:10px;margin:0;padding:9px 0;border-bottom:1px solid rgba(31,111,115,.22)}
+.trait-grid label span{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.trait-grid select{min-height:40px;padding:6px 8px}
