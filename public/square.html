@@ -3,64 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - Pro版決済</title>
+  <title data-i18n="sq.pageTitle">キマル - Pro版決済</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-i18n-title="sq.pageTitle">
   <!-- site-header -->
 
   <main class="shell narrow">
     <section class="panel profile-card">
-      <p class="eyebrow">Square Checkout</p>
-      <h1>Pro版（1ヶ月無料お試し）を始める</h1>
-      <p class="lead">登録時にカード登録のうえ <strong>1ヶ月無料</strong> でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。猫の鍵 / Cat Keyをお持ちの方は、決済せず下の Cat Key 欄から入力してください。</p>
+      <p class="eyebrow" data-i18n="sq.eyebrow">Square Checkout</p>
+      <h1 data-i18n="sq.heading">Pro版（1ヶ月無料お試し）を始める</h1>
+      <p class="lead" data-i18n="sq.lead">登録時にカード登録のうえ 1ヶ月無料 でお試しいただけます。期間終了後は自動で月額 ¥980 に移行します（期間中の解約で課金はありません）。猫の鍵 / Cat Keyをお持ちの方は、決済せず下の Cat Key 欄から入力してください。</p>
 
-      <p id="square-status" class="message">ログイン状態を確認しています...</p>
+      <p id="square-status" class="message" data-i18n="sq.js.checking">ログイン状態を確認しています...</p>
 
       <!-- 未ログイン：まず登録/ログイン -->
       <div class="actions guest-only">
-        <a class="button primary" href="/signup.html">まず無料登録する</a>
+        <a class="button primary" href="/signup.html" data-i18n="sq.signupFirst">まず無料登録する</a>
         <a class="button secondary" href="/login.html" data-i18n="nav.signin">ログイン</a>
       </div>
-      <p class="message guest-only">Pro版のお申し込みには<strong>ログインが必要</strong>です。先に無料登録（またはログイン）してから、同じメールアドレスでお支払いください。</p>
+      <p class="message guest-only" data-i18n="sq.guestMsg">Pro版のお申し込みにはログインが必要です。先に無料登録（またはログイン）してから、同じメールアドレスでお支払いください。</p>
 
       <!-- ログイン後：決済へ -->
       <div class="actions app-only">
-        <a id="square-payment-link" class="button primary" href="https://square.link/u/sKdZIsyS?src=embed" target="_blank" rel="noopener noreferrer">1ヶ月無料で始める（Square）</a>
+        <a id="square-payment-link" class="button primary" href="https://square.link/u/sKdZIsyS?src=embed" target="_blank" rel="noopener noreferrer" data-i18n="sq.payCta">1ヶ月無料で始める（Square）</a>
       </div>
-      <p class="message app-only">お支払いは登録メール <strong id="pay-email">（確認中）</strong> で行ってください。このメールとSquareの支払者メールが一致すると、Pro版が自動で有効化されます。決済は新しいタブで開きます。</p>
+      <p class="message app-only"><span data-i18n="sq.payMsgPre">お支払いは登録メール </span><strong id="pay-email">（確認中）</strong><span data-i18n="sq.payMsgPost"> で行ってください。このメールとSquareの支払者メールが一致すると、Pro版が自動で有効化されます。決済は新しいタブで開きます。</span></p>
     </section>
 
     <section class="panel app-only" id="catkey-box">
-      <p class="eyebrow">猫の鍵 / Cat Key</p>
-      <h2>Cat Key で無料で解放する</h2>
-      <p class="muted">猫の集会メンバーさんは、決済せずに Cat Key を入力すると Pro版を無料で利用できます（運営の承認後に有効化）。入力内容は公開ページには表示されません。</p>
+      <p class="eyebrow" data-i18n="sq.catkey.eyebrow">猫の鍵 / Cat Key</p>
+      <h2 data-i18n="sq.catkey.heading">Cat Key で無料で解放する</h2>
+      <p class="muted" data-i18n="sq.catkey.desc">猫の集会メンバーさんは、決済せずに Cat Key を入力すると Pro版を無料で利用できます（運営の承認後に有効化）。入力内容は公開ページには表示されません。</p>
       <form id="invite-form" class="inline-form">
         <input name="code" placeholder="Neko20240222" />
-        <button class="primary" type="submit">適用</button>
+        <button class="primary" type="submit" data-i18n="sq.catkey.apply">適用</button>
       </form>
       <p id="invite-message" class="message"></p>
     </section>
 
     <!-- プレミアム（¥2,200）はフェーズ2で開放。今は案内のみ・購入導線なし。 -->
     <section class="panel premium-surface">
-      <span class="coming-soon-tag">近日公開（フェーズ2）</span>
-      <h2>プレミアムプラン <span class="price">2,200<span class="unit">円/月</span></span></h2>
-      <p>Proの全機能に <strong>AIアシスト</strong>（相手データから次回アポの戦略提案・GPT-5.4 Mini・月300回）を加えた上位プラン。<strong>無料お試しはなし</strong>（登録＝即時課金）です。¥980会員が増えたフェーズ2で開放します。</p>
+      <span class="coming-soon-tag" data-i18n="pricing.premium.comingSoon">近日公開（フェーズ2）</span>
+      <h2><span data-i18n="sq.premium.name">プレミアムプラン</span> <span class="price">2,200<span class="unit" data-i18n="home.plan.price.unit">円/月</span></span></h2>
+      <p data-i18n="sq.premium.desc">Proの全機能に AIアシスト（相手データから次回アポの戦略提案・GPT-5.4 Mini・月300回）を加えた上位プラン。無料お試しはなし（登録＝即時課金）です。¥980会員が増えたフェーズ2で開放します。</p>
       <div class="actions">
-        <a class="button secondary" href="/pro.html#premium">プレミアムの詳細を見る</a>
+        <a class="button secondary" href="/pro.html#premium" data-i18n="sq.premium.cta">プレミアムの詳細を見る</a>
       </div>
     </section>
   </main>
-
 
   <!-- site-footer -->
 
   <script src="/i18n.js" defer></script>
   <script>
+    const T = (k, fb) => (window.KimaruI18n ? window.KimaruI18n.t(k) : fb);
     (async () => {
       const status = document.getElementById('square-status');
       try {
@@ -70,13 +70,13 @@
         // 表示の出し分けは Edge Function(body[data-auth]) + CSS が担当。ここは登録メール/状態の補足のみ。
         if (owner) {
           const emailEl = document.getElementById('pay-email');
-          if (emailEl) emailEl.textContent = owner.email || '登録メール';
+          if (emailEl) emailEl.textContent = owner.email || T('sq.js.regEmail', '登録メール');
           const isPaid = ['pro', 'premium'].includes(owner.plan); // premium も Pro 全機能を含む
           status.textContent = owner.plan === 'premium'
-            ? 'すでにプレミアムプランをご利用中です。'
+            ? T('sq.js.premiumActive', 'すでにプレミアムプランをご利用中です。')
             : owner.plan === 'pro'
-              ? 'すでにPro版をご利用中です。'
-              : 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。';
+              ? T('sq.js.proActive', 'すでにPro版をご利用中です。')
+              : T('sq.js.loggedIn', 'ログイン中です。下のボタンから1ヶ月無料お試しを開始できます。');
           status.className = 'message ' + (isPaid ? 'success' : '');
           // すでに有料（またはCat Key承認済み）なら Cat Key 入力欄は不要
           if (isPaid) document.getElementById('catkey-box')?.remove();
@@ -94,7 +94,7 @@
       inviteForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const msg = document.getElementById('invite-message');
-        msg.textContent = '適用しています...';
+        msg.textContent = T('sq.js.applying', '適用しています...');
         msg.className = 'message';
         try {
           const res = await fetch('/api/invite-apply', {
@@ -104,10 +104,10 @@
             body: JSON.stringify({ code: inviteForm.elements.code.value }),
           });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.error || '適用に失敗しました。');
+          if (!res.ok) throw new Error(data.error || T('sq.js.applyFail', '適用に失敗しました。'));
           msg.textContent = data.pending
-            ? '申請を受け付けました。運営の承認後に有料版が解放されます。'
-            : '有料版機能が解放されました。';
+            ? T('sq.js.pending', '申請を受け付けました。運営の承認後に有料版が解放されます。')
+            : T('sq.js.applied', '有料版機能が解放されました。');
           msg.className = 'message success';
         } catch (error) {
           msg.textContent = error.message;
