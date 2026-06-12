@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - 設定</title>
+  <title data-i18n="st.pageTitle">キマル - 設定</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body data-page="settings">
+<body data-page="settings" data-i18n-title="st.pageTitle">
   <!-- site-header -->
 
   <main class="shell settings-page">
     <section class="dash-hero">
       <div class="dash-hero-text">
-        <p class="eyebrow">設定</p>
-        <h1>アカウント設定</h1>
+        <p class="eyebrow" data-i18n="st.hero.eyebrow">設定</p>
+        <h1 data-i18n="st.hero.heading">アカウント設定</h1>
         <p id="settings-status" class="muted">読み込んでいます...</p>
       </div>
       <div class="dash-account">
@@ -29,25 +29,25 @@
     <section class="panel settings-section">
       <div class="settings-head">
         <div>
-          <p class="eyebrow">アカウント</p>
-          <h2>ログイン情報</h2>
+          <p class="eyebrow" data-i18n="st.account.eyebrow">アカウント</p>
+          <h2 data-i18n="st.account.heading">ログイン情報</h2>
         </div>
       </div>
-      <p class="muted">キマルへのログインに使う情報です。</p>
+      <p class="muted" data-i18n="st.account.intro">キマルへのログインに使う情報です。</p>
       <dl class="settings-rows">
-        <div><dt>メールアドレス</dt><dd id="current-email">—</dd></div>
+        <div><dt data-i18n="st.account.emailLabel">メールアドレス</dt><dd id="current-email">—</dd></div>
       </dl>
 
-      <button type="button" id="email-edit-toggle" class="button secondary" style="display:none">メールアドレスを変更</button>
+      <button type="button" id="email-edit-toggle" class="button secondary" style="display:none" data-i18n="st.account.editButton">メールアドレスを変更</button>
       <form id="email-form" class="form-grid" hidden>
-        <label>新しいメールアドレス<input name="email" type="email" autocomplete="email" required /></label>
-        <label>現在のパスワード（確認用）<input name="password" type="password" autocomplete="current-password" required /></label>
+        <label><span data-i18n="st.account.newEmailLabel">新しいメールアドレス</span><input name="email" type="email" autocomplete="email" required /></label>
+        <label><span data-i18n="st.account.passwordLabel">現在のパスワード（確認用）</span><input name="password" type="password" autocomplete="current-password" required /></label>
         <div class="form-actions-row">
-          <button type="button" id="email-cancel" class="button secondary">キャンセル</button>
-          <button class="primary" type="submit">変更を保存</button>
+          <button type="button" id="email-cancel" class="button secondary" data-i18n="st.account.cancel">キャンセル</button>
+          <button class="primary" type="submit" data-i18n="st.account.save">変更を保存</button>
         </div>
       </form>
-      <p id="email-google-note" class="form-note muted" style="display:none">Googleログインのアカウントは、メールアドレスをGoogle側で管理しています。このページからは変更できません。</p>
+      <p id="email-google-note" class="form-note muted" style="display:none" data-i18n="st.account.googleNote">Googleログインのアカウントは、メールアドレスをGoogle側で管理しています。このページからは変更できません。</p>
       <p id="email-message" class="message"></p>
     </section>
 
@@ -55,46 +55,46 @@
     <section id="integrations" class="panel settings-section">
       <div class="settings-head">
         <div>
-          <p class="eyebrow">外部連携</p>
-          <h2>カレンダー連携</h2>
+          <p class="eyebrow" data-i18n="st.integrations.eyebrow">外部連携</p>
+          <h2 data-i18n="st.integrations.heading">カレンダー連携</h2>
         </div>
         <span id="calendar-badge" class="conn-badge">確認中…</span>
       </div>
-      <p class="muted">Googleカレンダーと連携すると、予定と重ならない空き枠だけを公開し、予約時に予定＋Google Meet を自動作成します。</p>
+      <p class="muted" data-i18n="st.integrations.intro">Googleカレンダーと連携すると、予定と重ならない空き枠だけを公開し、予約時に予定＋Google Meet を自動作成します。</p>
       <p id="calendar-status" class="message">連携状態を確認しています...</p>
       <div class="actions">
-        <a id="calendar-connect" class="button primary" href="/api/google-auth-start">Googleカレンダーと連携する</a>
-        <a id="calendar-reconnect" class="button secondary" href="/api/google-auth-start">別アカウントで再連携</a>
-        <button id="calendar-disconnect" class="button secondary" type="button">連携を解除する</button>
+        <a id="calendar-connect" class="button primary" href="/api/google-auth-start" data-i18n="st.integrations.connect">Googleカレンダーと連携する</a>
+        <a id="calendar-reconnect" class="button secondary" href="/api/google-auth-start" data-i18n="st.integrations.reconnect">別アカウントで再連携</a>
+        <button id="calendar-disconnect" class="button secondary" type="button" data-i18n="st.integrations.disconnect">連携を解除する</button>
       </div>
-      <p class="form-note muted">Zoom連携・議事録アプリ連携は今後対応予定です。</p>
+      <p class="form-note muted" data-i18n="st.integrations.zoomNote">Zoom連携・議事録アプリ連携は今後対応予定です。</p>
     </section>
 
     <!-- プラン -->
     <section class="panel settings-section">
       <div class="settings-head">
         <div>
-          <p class="eyebrow">プラン</p>
-          <h2>ご利用プラン</h2>
+          <p class="eyebrow" data-i18n="st.plan.eyebrow">プラン</p>
+          <h2 data-i18n="st.plan.heading">ご利用プラン</h2>
         </div>
         <span id="plan-badge" class="plan-badge">—</span>
       </div>
       <p class="settings-hidden-anchor" hidden>現在のプラン： <strong id="current-plan">—</strong></p>
 
       <div id="plan-free-box" style="display:none">
-        <p class="muted">Proにアップグレードすると、相手管理（面談メモ・印象スコア）・受付6ヶ月先まで・予約ページ5つ・高度プロフィールなどが使えます。AIアシストはプレミアムプラン。猫の鍵 / Cat Key もこちらから。</p>
+        <p class="muted" data-i18n="st.plan.freeIntro">Proにアップグレードすると、相手管理（面談メモ・印象スコア）・受付6ヶ月先まで・予約ページ5つ・高度プロフィールなどが使えます。AIアシストはプレミアムプラン。猫の鍵 / Cat Key もこちらから。</p>
         <div class="plan-perks">
-          <span>相手管理</span><span>高度プロフィール</span><span>受付6ヶ月</span><span>予約ページ5つ</span><span>事前アンケート5問</span>
+          <span data-i18n="st.plan.perk1">相手管理</span><span data-i18n="st.plan.perk2">高度プロフィール</span><span data-i18n="st.plan.perk3">受付6ヶ月</span><span data-i18n="st.plan.perk4">予約ページ5つ</span><span data-i18n="st.plan.perk5">事前アンケート5問</span>
         </div>
-        <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
+        <p><a class="button primary" href="/square.html" data-i18n="st.plan.freeCta">1ヶ月無料でProを始める / Cat Key</a></p>
       </div>
 
       <div id="plan-pro-box" style="display:none">
-        <p class="muted">Pro版をご利用中です。いつもありがとうございます。</p>
+        <p class="muted" data-i18n="st.plan.proIntro">Pro版をご利用中です。いつもありがとうございます。</p>
         <div class="soft-box">
-          <p class="eyebrow">解約について</p>
-          <p class="muted">課金はSquareで管理されています。解約は、Squareから届いた決済確認メールの「サブスクリプションの管理」、またはSquareの請求管理画面から行えます。手続き後、次回更新日以降は課金されません。ご不明な場合は運営までご連絡ください。</p>
-          <p><a class="button secondary" href="https://squareup.com/" target="_blank" rel="noopener noreferrer">Squareを開く</a></p>
+          <p class="eyebrow" data-i18n="st.plan.cancelEyebrow">解約について</p>
+          <p class="muted" data-i18n="st.plan.cancelDesc">課金はSquareで管理されています。解約は、Squareから届いた決済確認メールの「サブスクリプションの管理」、またはSquareの請求管理画面から行えます。手続き後、次回更新日以降は課金されません。ご不明な場合は運営までご連絡ください。</p>
+          <p><a class="button secondary" href="https://squareup.com/" target="_blank" rel="noopener noreferrer" data-i18n="st.plan.squareButton">Squareを開く</a></p>
         </div>
       </div>
     </section>
@@ -104,6 +104,7 @@
 
   <script>
     const $ = (s) => document.querySelector(s);
+    const T = (k, fb) => (window.KimaruI18n ? window.KimaruI18n.t(k) : fb);
     const setMsg = (el, text, kind = '') => { if (el) { el.textContent = text; el.className = 'message ' + kind; } };
 
     let owner = null;
@@ -114,13 +115,13 @@
         const data = await res.json().catch(() => ({}));
         owner = data.owner || null;
         const connected = Boolean(data.calendar_connected);
-        if (!owner) { setMsg($('#settings-status'), 'ログインが必要です。', 'error'); return; }
+        if (!owner) { setMsg($('#settings-status'), T("st.js.loginRequired", "ログインが必要です。"), 'error'); return; }
 
         const isPro = ['pro', 'premium'].includes(owner.plan); // premium は Pro 全機能を含む
         const isPremium = owner.plan === 'premium';
-        const planLabel = isPremium ? 'プレミアム' : isPro ? 'Pro' : '無料';
-        $('#settings-status').textContent = `${owner.name || owner.email} のアカウント設定`;
-        $('#plan-chip').innerHTML = `プラン: <strong>${planLabel}</strong>`;
+        const planLabel = isPremium ? T("plan.premium", "プレミアム") : isPro ? T("plan.pro", "Pro") : T("plan.free", "無料");
+        $('#settings-status').textContent = `${owner.name || owner.email}${T("st.js.statusSuffix", " のアカウント設定")}`;
+        $('#plan-chip').innerHTML = `${T("admin.planLabel", "プラン")}: <strong>${planLabel}</strong>`;
 
         // アカウント（メール）
         $('#current-email').textContent = owner.email || '—';
@@ -133,22 +134,23 @@
         }
 
         // プラン
-        $('#current-plan').textContent = isPremium ? 'プレミアム（有料）' : isPro ? 'Pro（有料）' : '無料';
+        const paidSuffix = T("st.paidSuffix", "（有料）");
+        $('#current-plan').textContent = isPremium ? T("plan.premium", "プレミアム") + paidSuffix : isPro ? T("plan.pro", "Pro") + paidSuffix : T("plan.free", "無料");
         const planBadge = $('#plan-badge');
-        planBadge.textContent = isPremium ? 'プレミアム' : isPro ? 'Pro' : '無料プラン';
+        planBadge.textContent = isPremium ? T("plan.premium", "プレミアム") : isPro ? T("plan.pro", "Pro") : T("st.freePlanBadge", "無料プラン");
         planBadge.classList.toggle('is-pro', owner.plan === 'pro');     // teal バッジ
         planBadge.classList.toggle('is-premium', isPremium);           // オーロラ バッジ
         $('#plan-free-box').style.display = isPro ? 'none' : '';
         $('#plan-pro-box').style.display = isPro ? '' : 'none';
         if (isPremium) {
           const intro = $('#plan-pro-box').querySelector('p.muted');
-          if (intro) intro.textContent = 'プレミアムプランをご利用中です。Proの全機能＋AIアシストが使えます。いつもありがとうございます。';
+          if (intro) intro.textContent = T("st.js.premiumIntro", "プレミアムプランをご利用中です。Proの全機能＋AIアシストが使えます。いつもありがとうございます。");
         }
 
         // 外部連携
         applyCalendar(connected);
       } catch (_) {
-        setMsg($('#settings-status'), '読み込みに失敗しました。', 'error');
+        setMsg($('#settings-status'), T("st.js.loadFailed", "読み込みに失敗しました。"), 'error');
       }
     }
 
@@ -156,11 +158,11 @@
     function applyCalendar(connected) {
       const statusEl = $('#calendar-status');
       statusEl.textContent = connected
-        ? '✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。'
-        : '未連携です。連携すると空き枠判定・予定作成が有効になります。';
+        ? T("st.js.calendarConnected", "✓ Googleカレンダー連携済みです。空き枠判定・予定作成・Meet発行が有効です。")
+        : T("st.js.calendarDisconnected", "未連携です。連携すると空き枠判定・予定作成が有効になります。");
       statusEl.className = 'message ' + (connected ? 'success' : '');
       const badge = $('#calendar-badge');
-      badge.textContent = connected ? '連携済み' : '未連携';
+      badge.textContent = connected ? T("st.js.badgeConnected", "連携済み") : T("st.js.badgeDisconnected", "未連携");
       badge.classList.toggle('is-on', connected);
       show($('#calendar-connect'), !connected);
       show($('#calendar-reconnect'), connected);
@@ -185,7 +187,7 @@
     $('#email-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      setMsg($('#email-message'), '変更しています...');
+      setMsg($('#email-message'), T("st.js.emailSaving", "変更しています..."));
       try {
         const res = await fetch('/api/account-email', {
           method: 'POST',
@@ -194,19 +196,19 @@
           body: JSON.stringify({ email: form.elements.email.value, password: form.elements.password.value }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || '変更に失敗しました');
+        if (!res.ok) throw new Error(data.error || T("st.js.emailFailed", "変更に失敗しました"));
         $('#current-email').textContent = data.email;
         form.reset();
         form.hidden = true;
         $('#email-edit-toggle').style.display = '';
-        setMsg($('#email-message'), 'メールアドレスを変更しました。', 'success');
+        setMsg($('#email-message'), T("st.js.emailChanged", "メールアドレスを変更しました。"), 'success');
       } catch (error) {
         setMsg($('#email-message'), error.message, 'error');
       }
     });
 
     $('#calendar-disconnect').addEventListener('click', async () => {
-      if (!confirm('Googleカレンダー連携を解除します。よろしいですか？')) return;
+      if (!confirm(T("st.js.disconnectConfirm", "Googleカレンダー連携を解除します。よろしいですか？"))) return;
       try {
         await fetch('/api/google-disconnect', { method: 'POST', credentials: 'include' });
         applyCalendar(false);
@@ -221,6 +223,7 @@
     // 連携判定が出るまでボタンは隠す
     show($('#calendar-connect'), false); show($('#calendar-reconnect'), false); show($('#calendar-disconnect'), false);
     loadMe();
+    document.addEventListener('kimaru:languagechange', loadMe);
   </script>
   <script src="/i18n.js" defer></script>
 </body>
