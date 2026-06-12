@@ -12,30 +12,49 @@
 <body data-i18n-title="home.pageTitle">
 <!-- site-header -->
 <main>
-  <!-- ログイン中：おかえりなさい＋クイックアクセス -->
-  <section class="section hero app-only" id="authed-hero">
-    <div>
-      <p class="eyebrow">マイページ</p>
-      <h1>おかえりなさい<span id="welcome-name"></span></h1>
-      <p class="lead">キマルの設定・相手管理はホームから。よく使う機能へすぐ移動できます。</p>
-      <p id="home-plan-line" class="muted" hidden></p>
-      <div class="actions">
-        <a class="button primary" href="/dashboard.html">ホームへ</a>
-        <a class="button secondary" href="/booking-settings.html">予約設定</a>
+  <!-- ログイン中：コンパクトな挨拶＋目的地タイル -->
+  <section class="section app-only home-welcome" id="authed-hero">
+    <header class="home-welcome-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.authed.eyebrow">マイページ</p>
+        <h1><span data-i18n="home.authed.welcome">おかえりなさい</span><span id="welcome-name"></span></h1>
       </div>
-      <p id="home-upsell" class="form-note muted" hidden></p>
-    </div>
-    <div class="panel">
-      <p class="eyebrow">クイックアクセス</p>
-      <div class="quick-links">
-        <a href="/dashboard.html">ホーム</a>
-        <a href="/booking-settings.html">予約設定</a>
-        <a href="/profile.html">プロフィール設定</a>
-        <a href="/contacts.html">相手管理</a>
-        <a href="/ai-assist.html">AIアシスト</a>
-        <a href="/settings.html">設定</a>
-      </div>
-    </div>
+      <p id="home-plan-line" class="home-plan-chip" hidden></p>
+    </header>
+    <p class="home-welcome-lead" data-i18n="home.authed.lead">今日はどこから始めますか。よく使う機能へすぐ移動できます。</p>
+    <nav class="home-grid" aria-label="クイックアクセス">
+      <a class="home-tile" href="/dashboard.html" style="--i:0">
+        <span class="home-tile-name" data-i18n="home.tile.dashboard">ホーム</span>
+        <span class="home-tile-desc" data-i18n="home.tile.dashboardDesc">3ステップと予約の入口</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+      <a class="home-tile" href="/booking-settings.html" style="--i:1">
+        <span class="home-tile-name" data-i18n="home.tile.booking">予約設定</span>
+        <span class="home-tile-desc" data-i18n="home.tile.bookingDesc">予約ページの作成・編集</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+      <a class="home-tile" href="/profile.html" style="--i:2">
+        <span class="home-tile-name" data-i18n="home.tile.profile">プロフィール設定</span>
+        <span class="home-tile-desc" data-i18n="home.tile.profileDesc">公開プロフィールを整える</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+      <a class="home-tile" href="/contacts.html" style="--i:3">
+        <span class="home-tile-name" data-i18n="home.tile.contacts">相手管理</span>
+        <span class="home-tile-desc" data-i18n="home.tile.contactsDesc">予約履歴・面談メモ</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+      <a class="home-tile" href="/ai-assist.html" style="--i:4">
+        <span class="home-tile-name" data-i18n="home.tile.ai">AIアシスト</span>
+        <span class="home-tile-desc" data-i18n="home.tile.aiDesc">次の一手のヒント</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+      <a class="home-tile" href="/settings.html" style="--i:5">
+        <span class="home-tile-name" data-i18n="home.tile.settings">設定</span>
+        <span class="home-tile-desc" data-i18n="home.tile.settingsDesc">アカウント・カレンダー連携</span>
+        <span class="home-tile-go" aria-hidden="true">→</span>
+      </a>
+    </nav>
+    <p id="home-upsell" class="home-welcome-upsell" hidden></p>
   </section>
 
   <section class="section hero guest-only">
