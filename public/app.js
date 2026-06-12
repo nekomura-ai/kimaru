@@ -418,7 +418,7 @@ function renderLogAggregate(logs) {
   });
   const rows = [...byEmail.values()].sort((a, b) => b.count - a.count);
   if (!rows.length) {
-    el.innerHTML = '<p class="muted">まだ集計できる相手がいません。面談メモを保存すると、相手ごとに面談回数と印象スコアの平均が集計されます。</p>';
+    el.innerHTML = `<p class="muted">${escapeHtml(t("admin.agg.empty"))}</p>`;
     return;
   }
   el.innerHTML = rows.map((r) => {
@@ -426,8 +426,8 @@ function renderLogAggregate(logs) {
     return `
     <article class="list-item">
       <strong>${escapeHtml(r.email)}</strong>
-      <span>面談メモ ${r.count}件</span>
-      <p>${avgs || "印象スコア未入力"}</p>
+      <span>${escapeHtml(t("admin.agg.memoCount"))} ${r.count}${escapeHtml(t("admin.search.suffix"))}</span>
+      <p>${avgs || escapeHtml(t("admin.agg.noScore"))}</p>
     </article>`;
   }).join("");
 }
