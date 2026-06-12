@@ -355,6 +355,7 @@ textarea{resize:vertical}
 @media(prefers-reduced-motion:reduce){.plan-card.is-premium{animation:none}}
 
 /* 比較表のプレミアム列：ヘッダーのみ aurora、本文セルは premium-ink */
+.comparison-table th.is-pro-col{color:#fff;background:var(--blue)}
 .comparison-table th.is-premium-col{color:#fff;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
 .comparison-table td.is-premium-col{color:var(--premium-ink);font-weight:600}
 @media(prefers-reduced-motion:reduce){.comparison-table th.is-premium-col{animation:none}}
