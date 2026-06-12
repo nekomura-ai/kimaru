@@ -146,6 +146,9 @@ textarea{resize:vertical}
 .primary:hover,.button.primary:hover{background:var(--blue);border-color:var(--blue)}
 .button{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:0;cursor:pointer;font-family:var(--sans);font-weight:700}
 .button.secondary{color:var(--ink);background:var(--surface);border:1.5px solid var(--ink)}
+/* プレミアム導線ボタン（AI=プレミアム=オーロラ。premium面限定の原則どおり）。reduced-motionで停止。 */
+.button.premium{color:#fff;background:var(--premium-grad);background-size:200% 200%;border:0;animation:auroraShift 14s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.button.premium{animation:none;background-position:0% 50%}}
 .button.secondary:hover{background:var(--ink);color:#fff}
 .message{min-height:22px;margin:12px 0 0;color:var(--muted);font-size:14px;font-weight:700}
 .message.success{color:var(--success)}
