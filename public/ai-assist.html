@@ -3,91 +3,91 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - AIアシスト</title>
+  <title data-i18n="aa.pageTitle">キマル - AIアシスト</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-i18n-title="aa.pageTitle">
   <!-- site-header -->
 
   <main class="shell admin-grid">
     <section class="panel wide premium-surface">
-      <span class="coming-soon-tag">近日公開（フェーズ2）</span>
-      <h1>AIアシスト</h1>
-      <p>相手データから、最初の入り方・刺さる話題・次の一手まで。<strong>本物のAI提案（GPT-5.4 Mini）はプレミアム（¥2,200/月）で近日公開</strong>します。今は Pro 以上でルールベースの提案を今すぐお試しいただけます。</p>
+      <span class="coming-soon-tag" data-i18n="pricing.premium.comingSoon">近日公開（フェーズ2）</span>
+      <h1 data-i18n="aa.hero.title">AIアシスト</h1>
+      <p><span data-i18n="aa.hero.descLead">相手データから、最初の入り方・刺さる話題・次の一手まで。</span><strong data-i18n="aa.hero.descStrong">本物のAI提案（GPT-5.4 Mini）はプレミアム（¥2,200/月）で近日公開</strong><span data-i18n="aa.hero.descTail">します。今は Pro 以上でルールベースの提案を今すぐお試しいただけます。</span></p>
     </section>
     <section class="panel wide pro-feature">
-      <p class="eyebrow">AIアシスト（ルールベース）</p>
-      <h2>プロフィールと相手データから、関係構築の最適解</h2>
-      <p class="muted">相手管理に保存した予約内容、面談メモ、印象スコアを使って、最初の入り方・刺さりやすい話題・次の一手を整理します。プレミアム公開後は、同じ入力で本物のAIが提案を生成します。</p>
-      <p id="ai-assist-status" class="message">データを読み込んでいます...</p>
+      <p class="eyebrow" data-i18n="aa.intro.eyebrow">AIアシスト（ルールベース）</p>
+      <h2 data-i18n="aa.intro.title">プロフィールと相手データから、関係構築の最適解</h2>
+      <p class="muted" data-i18n="aa.intro.desc">相手管理に保存した予約内容、面談メモ、印象スコアを使って、最初の入り方・刺さりやすい話題・次の一手を整理します。プレミアム公開後は、同じ入力で本物のAIが提案を生成します。</p>
+      <p id="ai-assist-status" class="message" data-i18n="aa.status.loading">データを読み込んでいます...</p>
     </section>
 
     <section id="ai-pro-lock" class="panel wide">
-      <p class="eyebrow">Pro限定</p>
-      <h1>AIアシストはPro版の機能です</h1>
-      <p class="muted">あなたのプロフィールと、相手管理に貯めたデータ（予約・面談メモ・印象スコア）を照合し、会う前後の打ち手を提案します。Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
+      <p class="eyebrow" data-i18n="aa.lock.eyebrow">Pro限定</p>
+      <h1 data-i18n="aa.lock.title">AIアシストはPro版の機能です</h1>
+      <p class="muted" data-i18n="aa.lock.desc">あなたのプロフィールと、相手管理に貯めたデータ（予約・面談メモ・印象スコア）を照合し、会う前後の打ち手を提案します。Pro版（または猫の鍵で承認されたアカウント）でご利用いただけます。</p>
       <ul class="feature-list">
-        <li><strong>最初の入り方</strong>：相手のタイプに合わせた会話の始め方を提案。</li>
-        <li><strong>刺さりやすい話題</strong>：目標・関心・印象スコアから話題を抽出。</li>
-        <li><strong>避けた方がいい入り方</strong>：相手に合わない進め方を回避。</li>
-        <li><strong>次の一手</strong>：次回日程・提案・紹介など、関係を進める行動を提示。</li>
+        <li><strong data-i18n="aa.lock.li1Term">最初の入り方</strong><span data-i18n="aa.lock.li1Desc">：相手のタイプに合わせた会話の始め方を提案。</span></li>
+        <li><strong data-i18n="aa.lock.li2Term">刺さりやすい話題</strong><span data-i18n="aa.lock.li2Desc">：目標・関心・印象スコアから話題を抽出。</span></li>
+        <li><strong data-i18n="aa.lock.li3Term">避けた方がいい入り方</strong><span data-i18n="aa.lock.li3Desc">：相手に合わない進め方を回避。</span></li>
+        <li><strong data-i18n="aa.lock.li4Term">次の一手</strong><span data-i18n="aa.lock.li4Desc">：次回日程・提案・紹介など、関係を進める行動を提示。</span></li>
       </ul>
-      <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
+      <p><a class="button primary" href="/square.html" data-i18n="aa.lock.cta">1ヶ月無料でProを始める / Cat Key</a></p>
     </section>
 
     <section class="panel wide pro-feature">
-      <p class="eyebrow">プロフィールシート</p>
-      <h2>こちら側のプロフィールを反映する</h2>
-      <p id="owner-profile-source" class="message">ログイン中のプロフィールを確認しています...</p>
+      <p class="eyebrow" data-i18n="aa.profile.eyebrow">プロフィールシート</p>
+      <h2 data-i18n="aa.profile.title">こちら側のプロフィールを反映する</h2>
+      <p id="owner-profile-source" class="message" data-i18n="aa.profile.sourceChecking">ログイン中のプロフィールを確認しています...</p>
       <form id="profile-sheet-form" class="form-grid">
-        <label>表示名
-          <input name="profile_name" placeholder="あなたの名前・屋号・会社名" />
+        <label><span data-i18n="aa.profile.nameLabel">表示名</span>
+          <input name="profile_name" placeholder="あなたの名前・屋号・会社名" data-i18n-placeholder="aa.profile.namePlaceholder" />
         </label>
-        <label>連絡先メール
-          <input name="profile_email" type="email" placeholder="you@example.com" />
+        <label><span data-i18n="aa.profile.emailLabel">連絡先メール</span>
+          <input name="profile_email" type="email" placeholder="you@example.com" data-i18n-placeholder="aa.profile.emailPlaceholder" />
         </label>
-        <label>自分の強み・得意なこと
-          <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり"></textarea>
+        <label><span data-i18n="aa.profile.strengthsLabel">自分の強み・得意なこと</span>
+          <textarea name="profile_strengths" rows="3" placeholder="例：課題整理、紹介、営業支援、コミュニティづくり" data-i18n-placeholder="aa.profile.strengthsPlaceholder"></textarea>
         </label>
-        <label>話し方・提案スタイル
+        <label><span data-i18n="aa.profile.styleLabel">話し方・提案スタイル</span>
           <select name="profile_style">
-            <option value="logical">論理型</option>
-            <option value="empathy">共感型</option>
-            <option value="energy">熱量型</option>
-            <option value="listener">聞き役型</option>
-            <option value="partner">伴走型</option>
+            <option value="logical" data-i18n="aa.profile.styleLogical">論理型</option>
+            <option value="empathy" data-i18n="aa.profile.styleEmpathy">共感型</option>
+            <option value="energy" data-i18n="aa.profile.styleEnergy">熱量型</option>
+            <option value="listener" data-i18n="aa.profile.styleListener">聞き役型</option>
+            <option value="partner" data-i18n="aa.profile.stylePartner">伴走型</option>
           </select>
         </label>
-        <label>相手に提供できる価値
-          <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理"></textarea>
+        <label><span data-i18n="aa.profile.offerLabel">相手に提供できる価値</span>
+          <textarea name="profile_offer" rows="3" placeholder="例：次に会うべき人の紹介、事業相談、集客導線の整理" data-i18n-placeholder="aa.profile.offerPlaceholder"></textarea>
         </label>
-        <label>今回キメたいこと・次につなげたいこと
-          <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加"></textarea>
+        <label><span data-i18n="aa.profile.goalLabel">今回キメたいこと・次につなげたいこと</span>
+          <textarea name="profile_goal" rows="3" placeholder="例：次回面談、提案書送付、紹介依頼、コミュニティ参加" data-i18n-placeholder="aa.profile.goalPlaceholder"></textarea>
         </label>
-        <button class="primary" type="submit">プロフィールを保存</button>
+        <button class="primary" type="submit" data-i18n="aa.profile.submit">プロフィールを保存</button>
       </form>
       <p id="profile-sheet-message" class="message"></p>
     </section>
 
     <section class="panel wide pro-feature">
-      <p class="eyebrow">相手データ照合</p>
-      <h2>相手を選んで提案を作る</h2>
+      <p class="eyebrow" data-i18n="aa.match.eyebrow">相手データ照合</p>
+      <h2 data-i18n="aa.match.title">相手を選んで提案を作る</h2>
       <form id="ai-assist-form" class="inline-form">
-        <input name="target_keyword" placeholder="相手の名前・メール・キーワード" required />
-        <button class="primary" type="submit">相手データを照合する</button>
+        <input name="target_keyword" placeholder="相手の名前・メール・キーワード" data-i18n-placeholder="aa.match.keywordPlaceholder" required />
+        <button class="primary" type="submit" data-i18n="aa.match.submit">相手データを照合する</button>
       </form>
-      <p class="muted">相手管理の一覧から開いた場合は、対象者が自動で入力されます。下の候補から「この相手で分析」を押しても実行できます。</p>
+      <p class="muted" data-i18n="aa.match.help">相手管理の一覧から開いた場合は、対象者が自動で入力されます。下の候補から「この相手で分析」を押しても実行できます。</p>
       <div id="ai-assist-candidates" class="list"></div>
     </section>
 
     <section class="panel wide pro-feature">
-      <p class="eyebrow">提案結果</p>
-      <h2>関係構築の最適解</h2>
+      <p class="eyebrow" data-i18n="aa.result.eyebrow">提案結果</p>
+      <h2 data-i18n="aa.result.title">関係構築の最適解</h2>
       <div id="ai-assist-result" class="soft-box">
-        <p class="muted">プロフィールシートを入力し、相手を検索すると提案が表示されます。</p>
+        <p class="muted" data-i18n="aa.result.placeholder">プロフィールシートを入力し、相手を検索すると提案が表示されます。</p>
       </div>
     </section>
   </main>
@@ -438,5 +438,6 @@
       loadRecords();
     });
   </script>
+  <script src="/i18n.js" defer></script>
 </body>
 </html>
