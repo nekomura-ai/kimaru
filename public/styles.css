@@ -335,7 +335,8 @@ textarea{resize:vertical}
 /* プランカード（3-up）。premiumのみ aurora 背景（.plan-card より高特異度で上書き） */
 .plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 28px;align-items:stretch}
 .plan-card{display:flex;flex-direction:column;gap:10px;padding:24px;background:var(--surface);border:1px solid var(--line-strong);border-radius:0}
-.plan-card.is-pro{border-color:var(--blue);border-width:1.5px}
+.plan-card.is-pro{background:var(--primary-soft);border-color:var(--blue);border-width:1.5px}
+.plan-card.is-pro .plan-price{color:var(--blue)}
 .plan-card.is-premium{color:#fff;border:0;background:var(--premium-grad);background-size:200% 200%;animation:auroraShift 14s ease-in-out infinite}
 .plan-card .plan-tag{align-self:flex-start;padding:3px 9px;font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:0;color:var(--ink-soft);background:var(--surface-subtle)}
 .plan-card.is-pro .plan-tag{color:#fff;background:var(--blue)}
