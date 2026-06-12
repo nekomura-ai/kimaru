@@ -367,3 +367,24 @@ textarea{resize:vertical}
 .upgrade-banner.is-premium .eyebrow,.upgrade-banner.is-premium .muted,.upgrade-banner.is-premium h2{color:#fff}
 .upgrade-banner.is-premium .button.primary{color:var(--premium-ink);background:#fff;border-color:#fff}
 @media(prefers-reduced-motion:reduce){.upgrade-banner.is-premium{animation:none}}
+
+/* ===== ログイン後トップ：コンパクトな玄関（#authed-hero を .hero から独立させ間延びを解消） ===== */
+.home-welcome{display:block}
+.home-welcome-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px 24px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--ink)}
+.home-welcome-head .eyebrow{margin-bottom:8px}
+.home-welcome-head h1{margin:0;font-size:clamp(30px,4.2vw,50px);line-height:1.14;letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere}
+.home-plan-chip{display:inline-flex;align-items:center;margin:0;padding:8px 14px;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink-soft);background:var(--surface);border:1.5px solid var(--ink);border-radius:0;white-space:nowrap}
+.home-plan-chip strong{margin-left:4px;color:var(--ink)}
+.home-welcome-lead{margin:18px 0 26px;max-width:54ch;color:var(--muted);font-size:16px;line-height:1.75}
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.home-tile{position:relative;display:flex;flex-direction:column;gap:5px;padding:20px 22px;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:0;opacity:0;transform:translateY(12px);animation:dashUp .5s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc(var(--i,0)*.06s + .04s);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.home-tile:hover{transform:translateY(-3px);border-color:var(--blue);box-shadow:0 18px 40px -28px rgba(10,10,10,.55)}
+.home-tile-name{font-family:var(--sans);font-weight:800;font-size:16px;letter-spacing:-.01em}
+.home-tile-desc{color:var(--muted);font-size:13px;line-height:1.5}
+.home-tile-go{position:absolute;top:18px;right:20px;color:var(--blue);font-family:var(--sans);font-weight:800;font-size:16px;opacity:0;transform:translateX(-4px);transition:opacity .18s ease,transform .18s ease}
+.home-tile:hover .home-tile-go{opacity:1;transform:none}
+.home-welcome-upsell{margin:22px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+.home-welcome-upsell a{color:var(--blue);font-weight:700}
+@media(max-width:820px){.home-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.home-grid{grid-template-columns:1fr}.home-welcome-head{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.home-tile{opacity:1;transform:none;animation:none}.home-tile-go{opacity:1;transform:none}}
