@@ -14,16 +14,16 @@
 
   <main class="shell">
     <section id="contacts-pro-lock" class="panel wide">
-      <p class="eyebrow">Pro限定の機能があります</p>
-      <h1>面談メモ・印象スコアはPro版の機能です</h1>
-      <p class="muted">予約履歴（相手レコード）の閲覧は無料でもご利用いただけます（下に表示）。会った後に関係を育てる「面談メモ」「印象スコア」はPro版（または猫の鍵で承認されたアカウント）の機能です。</p>
+      <p class="eyebrow" data-i18n="admin.lock.eyebrow">Pro限定の機能があります</p>
+      <h1 data-i18n="admin.lock.heading">面談メモ・印象スコアはPro版の機能です</h1>
+      <p class="muted" data-i18n="admin.lock.intro">予約履歴（相手レコード）の閲覧は無料でもご利用いただけます（下に表示）。会った後に関係を育てる「面談メモ」「印象スコア」はPro版（または猫の鍵で承認されたアカウント）の機能です。</p>
       <ul class="feature-list">
-        <li><strong>面談メモ</strong>：話した内容・次のアクションを記録し、次の連絡につなげます。</li>
-        <li><strong>印象スコア</strong>：第一印象・話し上手・ギバー度など10項目を5段階で記録。</li>
-        <li><strong>AIアシスト</strong>：相手データから次回アポの戦略を提案（プレミアム）。</li>
+        <li><strong data-i18n="admin.lock.memoTitle">面談メモ</strong><span data-i18n="admin.lock.memoDesc">：話した内容・次のアクションを記録し、次の連絡につなげます。</span></li>
+        <li><strong data-i18n="admin.lock.scoreTitle">印象スコア</strong><span data-i18n="admin.lock.scoreDesc">：第一印象・話し上手・ギバー度など10項目を5段階で記録。</span></li>
+        <li><strong data-i18n="admin.lock.aiTitle">AIアシスト</strong><span data-i18n="admin.lock.aiDesc">：相手データから次回アポの戦略を提案（プレミアム）。</span></li>
       </ul>
-      <p class="muted">無料版は「予約が決まる」までと予約履歴の閲覧まで。メモ・スコアは会った後の関係づくり（Pro）です。</p>
-      <p><a class="button primary" href="/square.html">1ヶ月無料でProを始める / Cat Key</a></p>
+      <p class="muted" data-i18n="admin.lock.note">無料版は「予約が決まる」までと予約履歴の閲覧まで。メモ・スコアは会った後の関係づくり（Pro）です。</p>
+      <p><a class="button primary" href="/square.html" data-i18n="admin.lock.cta">1ヶ月無料でProを始める / Cat Key</a></p>
     </section>
 
     <section class="panel wide free-feature">
@@ -69,10 +69,10 @@
     </section>
 
     <section class="panel wide pro-feature">
-      <p class="eyebrow">顧客集約</p>
-      <h2>相手ごとのまとめ（面談回数・印象スコア平均）</h2>
-      <p class="muted">同じ相手の面談メモを集計し、面談回数と印象スコアの平均を相手ごとに表示します。</p>
-      <label class="search-field"><span>相手検索</span><input id="aggregate-search" type="search" placeholder="メールで検索" /></label>
+      <p class="eyebrow" data-i18n="admin.agg.eyebrow">顧客集約</p>
+      <h2 data-i18n="admin.agg.heading">相手ごとのまとめ（面談回数・印象スコア平均）</h2>
+      <p class="muted" data-i18n="admin.agg.desc">同じ相手の面談メモを集計し、面談回数と印象スコアの平均を相手ごとに表示します。</p>
+      <label class="search-field"><span data-i18n="admin.agg.search">相手検索</span><input id="aggregate-search" type="search" data-i18n-placeholder="admin.agg.searchPh" placeholder="メールで検索" /></label>
       <p id="aggregate-search-count" class="message"></p>
       <div id="log-aggregate" class="list searchable-list"></div>
     </section>
@@ -96,7 +96,9 @@
           item.classList.toggle('hidden', !matched);
           if (matched) visible += 1;
         });
-        count.textContent = items.length ? `${label}: ${visible} / ${items.length}件` : '';
+        const showing = window.KimaruI18n ? window.KimaruI18n.t('admin.search.showing') : (label || '表示中');
+        const suffix = window.KimaruI18n ? window.KimaruI18n.t('admin.search.suffix') : '件';
+        count.textContent = items.length ? `${showing}: ${visible} / ${items.length}${suffix}` : '';
       };
       input.addEventListener('input', apply);
       new MutationObserver(apply).observe(list, { childList: true, subtree: false });
