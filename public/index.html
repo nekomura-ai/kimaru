@@ -67,7 +67,7 @@
       <div class="actions">
         <a class="button primary guest-only" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
         <a class="button primary app-only" href="/contacts.html" data-i18n="home.panel.openAdmin">相手管理を開く</a>
-        <a class="button secondary" href="/pro.html" data-i18n="home.hero.viewPro">Pro版を見る</a>
+        <a class="button secondary" href="/plan.html" data-i18n="home.hero.viewPro">Pro版を見る</a>
       </div>
     </div>
     <div class="panel">
@@ -106,7 +106,7 @@
     <div class="actions">
       <a class="button primary guest-only" href="/signup.html" data-i18n="home.hero.startFree">無料で始める</a>
       <a class="button primary app-only" href="/square.html" data-i18n="home.plan.square">Square決済へ進む</a>
-      <a class="button secondary" href="/pro.html" data-i18n="home.plan.proDetail">Pro版の詳細を見る</a>
+      <a class="button secondary" href="/plan.html" data-i18n="home.plan.proDetail">Pro版の詳細を見る</a>
     </div>
   </section>
 </main>
@@ -131,10 +131,10 @@
       const upsell = document.getElementById('home-upsell');
       if (upsell) {
         if (plan === 'free') {
-          upsell.innerHTML = 'Proで相手管理・高度プロフィール、プレミアムでAIアシスト（近日）。<a href="/pro.html">プランを見る</a>';
+          upsell.innerHTML = 'Proで相手管理・高度プロフィール、プレミアムでAIアシスト（近日）。<a href="/plan.html">プランを見る</a>';
           upsell.hidden = false;
         } else if (plan === 'pro') {
-          upsell.innerHTML = 'プレミアムでは、相手データからAIが次回アポの戦略を提案します（近日公開）。<a href="/pro.html#premium">詳しく見る</a>';
+          upsell.innerHTML = 'プレミアムでは、相手データからAIが次回アポの戦略を提案します（近日公開）。<a href="/plan.html#premium">詳しく見る</a>';
           upsell.hidden = false;
         }
         // premium：ナッジなし

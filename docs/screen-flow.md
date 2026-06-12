@@ -25,7 +25,7 @@
 | # | URL | 画面名 | 認証 | 区分 |
 |---|---|---|---|---|
 | 1 | `/` | トップ / ランディング | 不要 | 公開 |
-| 2 | `/pro.html` | 料金・プラン（旧Pro版紹介） | 不要 | 公開 |
+| 2 | `/plan.html` | 料金・プラン（旧Pro版紹介） | 不要 | 公開 |
 | 3 | `/signup.html` | 無料登録 | 不要 | 公開 |
 | 4 | `/login.html` | ログイン（メール+PW / Google） | 不要 | 公開 |
 | 5 | `/dashboard.html` | ホーム（ログイン後ハブ） | 要ログイン | ユーザー |
@@ -53,7 +53,7 @@
 | 1. トップ `/` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 2. 無料登録 `/signup.html` | ✅ | △ 登録済 | △ 登録済 | △ 登録済 | − |
 | 3. 予約ページ `/booking.html` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 4. Pro紹介 `/pro.html` | ✅ | ✅ | △ 不要 | △ 不要 | ✅ |
+| 4. Pro紹介 `/plan.html` | ✅ | ✅ | △ 不要 | △ 不要 | ✅ |
 | 5. 決済 `/square.html` | − | ✅ | △ 契約済 | △ 不要 | − |
 | 6. ホーム `/dashboard.html` | − | ✅ | ✅ | ✅ | − |
 | 7. 相手管理 `/contacts.html` | − | − Pro専用 | ✅ | ✅ | − |
@@ -104,7 +104,7 @@
   - 運営画面（`/cat-key-admin.html` / `/operators.html`）は **`kimaru_admin_session` で保護**。無ければ `/operator-login.html` へリダイレクト（ユーザーの `/login.html` には送らない）。
   - 各運営APIも運営セッション（または互換のため Bearer 管理キー）で認可。運営者は `owners` ではなく `operators` テーブルで管理（一般ユーザー登録は不要）。
   - 将来: 共有キー → 運営者ごとのメール+パスワード（`operators.password_hash`）ログインへ拡張。
-- **公開ページ**（無登録=✅）：`/` `/signup.html` `/booking.html` `/pro.html` `/login.html` `/reset-password.html` `/u/<slug>`（公開プロフィール）、法務（`/terms.html` `/privacy.html` `/tokushoho.html`）はそのまま表示。
+- **公開ページ**（無登録=✅）：`/` `/signup.html` `/booking.html` `/plan.html` `/login.html` `/reset-password.html` `/u/<slug>`（公開プロフィール）、法務（`/terms.html` `/privacy.html` `/tokushoho.html`）はそのまま表示。
 - **ナビ出し分け**：全HTMLの `<body>` に `data-auth="authed|guest"` を注入し、CSS（`[data-auth] .app-only / .guest-only`）で表示制御（JSトグル廃止・チラつき無し）。
 - 判定はCookie存在ベースの前段ゲート。**厳密な認可は各APIの署名検証**（`_lib/crypto.js` / `requireOwner`）＋運営キー（`CAT_KEY_ADMIN_SECRET`）が担保。
 - プラン差（△の中身：無料2ヶ月/2問・有料の高度機能等）はページ内＋API側で制御。
