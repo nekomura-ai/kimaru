@@ -3,23 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>キマル - プロフィール</title>
+  <title data-i18n="pp.pageTitle">キマル - プロフィール</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-i18n-title="pp.pageTitle">
   <!-- site-header -->
   <main class="shell narrow">
     <section class="panel profile-card" id="public-profile">
-      <p id="pp-status" class="message">プロフィールを読み込んでいます...</p>
+      <p id="pp-status" class="message" data-i18n="pp.loading">プロフィールを読み込んでいます...</p>
     </section>
   </main>
   <!-- site-footer -->
 
+  <script src="/i18n.js" defer></script>
   <script>
     const $ = (s) => document.querySelector(s);
+    const T = (k, fb) => (window.KimaruI18n ? window.KimaruI18n.t(k) : fb);
     function escapeHtml(v) {
       return String(v || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
     }
@@ -47,14 +49,14 @@
 
     async function load() {
       const slug = resolveSlug();
-      if (!slug) { $('#pp-status').textContent = 'プロフィールが指定されていません。'; return; }
+      if (!slug) { $('#pp-status').textContent = T('pp.noSlug', 'プロフィールが指定されていません。'); return; }
       try {
         const res = await fetch(`/api/profile-public?slug=${encodeURIComponent(slug)}`);
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { $('#pp-status').textContent = data.error || 'プロフィールが見つかりません。'; return; }
+        if (!res.ok) { $('#pp-status').textContent = data.error || T('pp.notFound', 'プロフィールが見つかりません。'); return; }
         render(data.profile || {});
       } catch (_) {
-        $('#pp-status').textContent = 'プロフィールを読み込めませんでした。';
+        $('#pp-status').textContent = T('pp.loadError', 'プロフィールを読み込めませんでした。');
       }
     }
 
@@ -62,26 +64,27 @@
       const accent = /^#[0-9a-fA-F]{6}$/.test(p.profile_accent_color || '') ? p.profile_accent_color : '';
       const blocks = [];
       blocks.push(`<div class="assist-summary">
-        <h1${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(p.profile_name || 'プロフィール')}</h1>
+        <h1${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(p.profile_name || T('pp.nameFallback', 'プロフィール'))}</h1>
         ${p.profile_title ? `<p class="muted">${escapeHtml(p.profile_title)}</p>` : ''}
         ${p.profile_headline ? `<p class="lead">${escapeHtml(p.profile_headline)}</p>` : ''}
       </div>`);
       if (p.profile_bio_rich) blocks.push(`<section class="assist-block pp-bio">${formatRich(p.profile_bio_rich)}</section>`);
-      if (p.profile_strengths) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>強み・得意なこと</h3><p>${escapeHtml(p.profile_strengths)}</p></section>`);
-      if (p.profile_offer) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>提供できる価値</h3><p>${escapeHtml(p.profile_offer)}</p></section>`);
-      if (p.profile_values) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>大切にしていること</h3><p>${escapeHtml(p.profile_values)}</p></section>`);
+      if (p.profile_strengths) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(T('pp.strengths', '強み・得意なこと'))}</h3><p>${escapeHtml(p.profile_strengths)}</p></section>`);
+      if (p.profile_offer) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(T('pp.offer', '提供できる価値'))}</h3><p>${escapeHtml(p.profile_offer)}</p></section>`);
+      if (p.profile_values) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(T('pp.values', '大切にしていること'))}</h3><p>${escapeHtml(p.profile_values)}</p></section>`);
       if (p.profile_links) {
         const links = String(p.profile_links).split('\n').map((l) => l.trim()).filter(Boolean);
         const items = links.map((l) => {
           const safe = /^https?:\/\//i.test(l) ? l : '';
           return safe ? `<li><a href="${escapeHtml(safe)}" target="_blank" rel="noopener noreferrer">${escapeHtml(safe)}</a></li>` : `<li>${escapeHtml(l)}</li>`;
         }).join('');
-        if (items) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>リンク</h3><ul>${items}</ul></section>`);
+        if (items) blocks.push(`<section class="assist-block"><h3 class="pp-heading"${accent ? ` style="color:${accent}"` : ''}>${escapeHtml(T('pp.links', 'リンク'))}</h3><ul>${items}</ul></section>`);
       }
       $('#public-profile').innerHTML = blocks.join('');
     }
 
     load();
+    document.addEventListener('kimaru:languagechange', load);
   </script>
 </body>
 </html>

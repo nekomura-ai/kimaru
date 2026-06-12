@@ -1,4 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
+const t = (k, fb) => (window.KimaruI18n ? window.KimaruI18n.t(k) : fb);
 
 async function api(path, options = {}) {
   const response = await fetch(`/api/${path}`, {
@@ -34,16 +35,19 @@ function row(label, value, primary) {
 
 function renderSummary(b) {
   const cancelled = b.status === "cancelled";
-  $("#manage-title").textContent = cancelled ? "この予約はキャンセル済みです" : "予約の確認";
-  $("#manage-sub").textContent = b.host_name ? `${b.host_name} さんとの面談` : "";
+  $("#manage-title").textContent = cancelled
+    ? t("mb.title.cancelled", "この予約はキャンセル済みです")
+    : t("mb.title.confirm", "予約の確認");
+  const meetingWith = t("mb.sub.meetingWith", "{name} さんとの面談");
+  $("#manage-sub").textContent = b.host_name ? meetingWith.replace("{name}", b.host_name) : "";
   const rows = [
-    row("日時", fmtRange(b.start_at, b.end_at), true),
-    row("内容", b.page_title || "面談"),
-    row("お名前", b.visitor_name || ""),
-    row("開催方法", b.location_label || ""),
+    row(t("mb.field.datetime", "日時"), fmtRange(b.start_at, b.end_at), true),
+    row(t("mb.field.content", "内容"), b.page_title || t("mb.value.meetingFallback", "面談")),
+    row(t("mb.field.name", "お名前"), b.visitor_name || ""),
+    row(t("mb.field.location", "開催方法"), b.location_label || ""),
   ];
-  if (b.meeting_url) rows.push(row("ミーティング", b.meeting_url));
-  rows.push(row("状態", cancelled ? "キャンセル済み" : "確定"));
+  if (b.meeting_url) rows.push(row(t("mb.field.meeting", "ミーティング"), b.meeting_url));
+  rows.push(row(t("mb.field.status", "状態"), cancelled ? t("mb.status.cancelled", "キャンセル済み") : t("mb.status.confirmed", "確定")));
   $("#manage-summary").innerHTML = rows.join("");
   $("#manage-actions").hidden = cancelled;
 }
@@ -55,7 +59,7 @@ async function load() {
     state.slug = data.booking.slug || "";
     renderSummary(data.booking);
   } catch (error) {
-    $("#manage-title").textContent = "リンクが無効です";
+    $("#manage-title").textContent = t("mb.title.invalid", "リンクが無効です");
     $("#manage-sub").textContent = "";
     $("#manage-summary").innerHTML = "";
     $("#manage-actions").hidden = true;
@@ -64,14 +68,14 @@ async function load() {
 }
 
 $("#btn-cancel")?.addEventListener("click", async () => {
-  if (!confirm("この予約をキャンセルします。よろしいですか？")) return;
-  setMsg("#manage-message", "キャンセルしています...");
+  if (!confirm(t("mb.cancel.confirm", "この予約をキャンセルします。よろしいですか？"))) return;
+  setMsg("#manage-message", t("mb.cancel.progress", "キャンセルしています..."));
   try {
     await api("booking-manage", { method: "POST", body: JSON.stringify({ id: state.id, t: state.t, action: "cancel" }) });
     state.booking.status = "cancelled";
     renderSummary(state.booking);
     $("#reschedule-card").hidden = true;
-    setMsg("#manage-message", "予約をキャンセルしました。確認メールをお送りします。", "success");
+    setMsg("#manage-message", t("mb.cancel.done", "予約をキャンセルしました。確認メールをお送りします。"), "success");
   } catch (error) {
     setMsg("#manage-message", error.message, "error");
   }
@@ -96,12 +100,12 @@ function weekLabel(week) {
 
 async function loadWeek(week) {
   const grid = $("#rs-slots");
-  grid.innerHTML = '<p class="muted">空き枠を読み込み中...</p>';
+  grid.innerHTML = `<p class="muted">${esc(t("booking.week.loading", "空き枠を読み込み中..."))}</p>`;
   try {
     const data = await api(`availability?slug=${encodeURIComponent(state.slug || "demo")}&week=${week}`);
     state.week = typeof data.week === "number" ? data.week : week;
     if (data.paused) {
-      grid.innerHTML = '<p class="muted">現在、この予約ページは受付を停止しているため、日程変更ができません。主催者にお問い合わせください。</p>';
+      grid.innerHTML = `<p class="muted">${esc(t("mb.rs.paused", "現在、この予約ページは受付を停止しているため、日程変更ができません。主催者にお問い合わせください。"))}</p>`;
       $("#rs-week-nav").style.display = "none";
       return;
     }
@@ -122,7 +126,7 @@ function renderSlots(slots) {
     .filter((s) => !Number.isNaN(s.sd.getTime()))
     .sort((a, b) => a.sd - b.sd);
   if (!list.length) {
-    grid.innerHTML = '<p class="muted">この週は空き枠がありません。「次の週 →」もご確認ください。</p>';
+    grid.innerHTML = `<p class="muted">${esc(t("booking.week.empty", "この週は空き枠がありません。「次の週 →」もご確認ください。"))}</p>`;
     return;
   }
   const byDay = new Map();
@@ -142,8 +146,9 @@ function renderSlots(slots) {
 }
 
 async function chooseSlot(start, end) {
-  if (!confirm(`この日時に変更します。\n${fmtRange(start, end)}\nよろしいですか？`)) return;
-  setMsg("#rs-message", "変更しています...");
+  const confirmMsg = t("mb.rs.chooseConfirm", "この日時に変更します。\n{range}\nよろしいですか？").replace("{range}", fmtRange(start, end));
+  if (!confirm(confirmMsg)) return;
+  setMsg("#rs-message", t("mb.rs.progress", "変更しています..."));
   try {
     const data = await api("booking-manage", { method: "POST", body: JSON.stringify({ id: state.id, t: state.t, action: "reschedule", start, end }) });
     state.booking.start_at = data.start_at;
@@ -151,16 +156,21 @@ async function chooseSlot(start, end) {
     if (data.meeting_url !== undefined) state.booking.meeting_url = data.meeting_url;
     renderSummary(state.booking);
     $("#reschedule-card").hidden = true;
-    setMsg("#manage-message", "日程を変更しました。確認メールをお送りします。", "success");
+    setMsg("#manage-message", t("mb.rs.done", "日程を変更しました。確認メールをお送りします。"), "success");
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error) {
     setMsg("#rs-message", error.message, "error");
   }
 }
 
+window.addEventListener("kimaru:languagechange", () => {
+  if (state.booking) renderSummary(state.booking);
+  if (!$("#reschedule-card").hidden) loadWeek(state.week);
+});
+
 if (!state.id || !state.t) {
-  $("#manage-title").textContent = "リンクが無効です";
-  setMsg("#manage-message", "予約管理リンクが正しくありません。メールのリンクからアクセスしてください。", "error");
+  $("#manage-title").textContent = t("mb.title.invalid", "リンクが無効です");
+  setMsg("#manage-message", t("mb.err.invalidLink", "予約管理リンクが正しくありません。メールのリンクからアクセスしてください。"), "error");
 } else {
   load();
 }
